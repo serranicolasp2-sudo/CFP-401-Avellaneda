@@ -429,3 +429,23 @@ Según las entradas de la bitácora, la integración de los cuatro modelos edito
 ### Alcance de esta revisión
 
 Fue una revisión estructural y documental de solo lectura. No se tocaron los archivos de aplicación, no se accedió al servidor y no se ejecutaron pruebas. El único archivo actualizado en esta intervención es este Reporte Maestro; las propuestas anteriores quedan como trabajo sugerido, no iniciado.
+
+---
+
+## 8. Recomendaciones de Siguientes Pasos (Post-Fase 0)
+
+*Nota: La Fase 0 (Seguridad Nginx, Git, package.json) ya fue completada exitosamente el 27/09 a las 22:40.*
+
+Para continuar estabilizando la arquitectura y mejorando la calidad del código, propongo los siguientes caminos para la **Fase 1**, ordenados por esfuerzo:
+
+### Camino A: Quick Wins (Bajo esfuerzo, ~1 hora)
+*   **Extraer CSS del panel a archivo externo:** Mover las ~947 líneas de CSS inline de dmin.html a dmin.css.
+*   **Vendor local:** Descargar React y Lucide de la CDN al servidor (site/vendor/) para que el panel no dependa de internet (resuelve el pendiente D2).
+
+### Camino B: Refactorización Pesada (Alto esfuerzo, varias horas)
+*   **Descomponer el God Component dmin.jsx:** Refactorizar el componente gigante de 3450 líneas separándolo en subcomponentes modulares más limpios y mantenibles (AdminHeader, PromoStepper, PromoWizard, CourseForm, etc.) e implementando React Context. Es la tarea más pesada pero la que más alivio dará a futuro.
+
+### Camino C: Desacoplamiento (Esfuerzo medio, ~1 hora)
+*   **Separar a Marbot del frontend:** Extraer la lógica del chatbot de pp.jsx a un módulo independiente para tener el código mejor organizado y evitar que ensucie la vista principal.
+
+*Quedan a decisión del responsable para iniciar cuando lo disponga.*
