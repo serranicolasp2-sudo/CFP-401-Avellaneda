@@ -1,0 +1,25 @@
+# Dependencias y datos locales
+node_modules/
+.local/
+.env
+.env.*
+
+# Estado del panel: solo existe en producción y se actualiza desde PHP
+site/data.backup.js
+site/api/.clave*.json
+site/api/.intentos.json
+site/api/sesiones/
+site/api/backups/
+
+# Imágenes creadas desde el panel se guardan en el servidor
+site/assets/promociones/guardadas/*
+!site/assets/promociones/guardadas/.htaccess
+
+# Secretos, sesiones, copias y temporales
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+*.tmp
+*.bak
+*.swp

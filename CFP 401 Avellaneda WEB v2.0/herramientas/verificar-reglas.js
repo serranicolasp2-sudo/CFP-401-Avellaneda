@@ -1,0 +1,20 @@
+const assert = require('assert');
+const reglas = require('../site/cfp-reglas.js');
+
+const curso = { slug: 'soldador-basico', curso: 'Soldador Básico', estadoCupo: 'ultimos-cupos', cupoConfirmadoEn: '2026-09-27' };
+assert.strictEqual(reglas.puedePublicarUltimosCupos(curso, '2026-09-27'), true);
+assert.strictEqual(reglas.puedePublicarUltimosCupos({ ...curso, estadoCupo: 'completo' }, '2026-09-27'), false);
+assert.strictEqual(reglas.puedePublicarUltimosCupos({ ...curso, estadoCupo: 'inventado' }, '2026-09-27'), false);
+assert.strictEqual(reglas.puedePublicarUltimosCupos({ ...curso, cupoConfirmadoEn: '2026-07-01' }, '2026-09-27'), false);
+assert.strictEqual(reglas.puedePublicarUltimosCupos({ ...curso, cupoConfirmadoEn: '' }, '2026-09-27'), false);
+assert.strictEqual(reglas.popupVigente({ popupActivo: true, popupDesde: '2026-09-27', popupHasta: '2026-09-27', popupZonaHoraria: reglas.ZONA_HORARIA }, new Date('2026-09-27T15:00:00Z')), true);
+assert.strictEqual(reglas.popupVigente({ popupActivo: true, popupDesde: '2026-09-28' }, new Date('2026-09-27T15:00:00Z')), false);
+assert.strictEqual(reglas.popupVigente({ popupActivo: true, popupDesde: '2026-09-28', popupHasta: '2026-09-27' }, new Date('2026-09-27T15:00:00Z')), false);
+assert.strictEqual(reglas.popupVigente({ popupActivo: false }, new Date('2026-09-27T15:00:00Z')), false);
+assert.strictEqual(reglas.huellaCurso(curso), reglas.huellaCurso({ ...curso }));
+assert.notStrictEqual(reglas.huellaCurso(curso), reglas.huellaCurso({ ...curso, horarios: 'Lunes 9 a 12' }));
+assert.strictEqual(reglas.promoDesactualizada({ cursoSlug: curso.slug, huellaCurso: reglas.huellaCurso(curso) }, [curso]), false);
+assert.strictEqual(reglas.promoDesactualizada({ cursoSlug: curso.slug, huellaCurso: reglas.huellaCurso(curso) }, [{ ...curso, horarios: 'Lunes 9 a 12' }]), true);
+assert.strictEqual(reglas.promoDesactualizada({ cursoSlug: curso.slug, huellaCurso: reglas.huellaCurso(curso) }, [{ ...curso, estadoCupo: 'abierto', cupoConfirmadoEn: '2026-09-28' }]), false, 'reconfirmar cupos no desactualiza promociones');
+assert.match(reglas.huellaCurso(curso), /^fnv1a-[0-9a-f]{8}$/, 'la huella es la misma en navegador y en Node');
+console.log('Reglas de cupos, vigencia del pop-up y huella de curso: OK');

@@ -91,6 +91,34 @@ const { useState, useEffect, useRef } = React;
       };
     }
 
+    /* Trae a una promoción los datos actuales de su curso sin pisar lo editado a mano: se conservan el id,
+       la foto, el fondo y los textos; días, horario, requisito, sede y titular se renuevan solo si seguían
+       iguales a los que había tomado del curso. Guarda además la huella del curso para detectar cambios. */
+    function refrescarDatosCurso(promo, curso) {
+      if (!promo || !curso) return promo;
+      const nuevo = cursoAPromo(curso, promo.imagen);
+      const antes = promo.datosCurso || {};
+      const renovar = (valor, anterior, actual) => (valor == null || valor === '' || valor === anterior) ? actual : valor;
+      const tituloAnterior = (promo.cursoTitulo || '').toUpperCase();
+      return {
+        ...promo,
+        cursoSlug: nuevo.cursoSlug,
+        cursoNombre: renovar(promo.cursoNombre, tituloAnterior, nuevo.cursoNombre),
+        cursoTitulo: nuevo.cursoTitulo,
+        familiaNombre: nuevo.familiaNombre,
+        bajadaCurso: nuevo.bajadaCurso,
+        duracionCurso: nuevo.duracionCurso,
+        datosCurso: nuevo.datosCurso,
+        diasOverride: renovar(promo.diasOverride, antes.dias, nuevo.datosCurso.dias),
+        horarioOverride: renovar(promo.horarioOverride, antes.horario, nuevo.datosCurso.horario),
+        requisitoOverride: renovar(promo.requisitoOverride, antes.requisito, nuevo.datosCurso.requisito),
+        sedeOverride: renovar(promo.sedeOverride, antes.sede, nuevo.datosCurso.sede),
+        huellaCurso: window.CFPReglas ? window.CFPReglas.huellaCurso(curso) : promo.huellaCurso,
+        estadoCupoUsado: curso.estadoCupo || 'sin-confirmar',
+        cupoConfirmadoEnUsado: curso.cupoConfirmadoEn || ''
+      };
+    }
+
     /* Tipo de pieza según su plantilla: 'curso' o 'inscripciones' */
     function tipoDePromo(promo) {
       return plantillaDePromo(promo).tipo || 'curso';
@@ -373,7 +401,7 @@ const { useState, useEffect, useRef } = React;
     }
 
     /* Exportador a PNG usando html-to-image */
-    async function exportarPromoPNG(promo, formato = 'feed', showToast) {
+    async function exportarPromoPNG(promo, formato = 'feed', showToast, guardarEnServidor = false, onPngGuardado) {
       if (!window.htmlToImage) {
         if (showToast) showToast('La biblioteca html-to-image no se encuentra cargada.', 'error');
         return;
@@ -424,17 +452,33 @@ const { useState, useEffect, useRef } = React;
         });
 
         const slug = promo.cursoSlug || promo.id || 'curso';
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = `promo-${slug}-${formato}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        if (showToast) showToast(`¡Flyer ${formato.toUpperCase()} descargado con éxito!`);
+        if (guardarEnServidor) {
+          const form = new FormData();
+          form.append('png', await (await fetch(dataUrl)).blob(), `promo-${slug}-${formato}.png`);
+          form.append('promoId', promo.id || slug);
+          form.append('formato', formato);
+          const response = await fetch('api/guardar-promo-png.php', { method: 'POST', credentials: 'include', body: form });
+          if (response.status === 401) throw new Error('La sesión venció. Ingresá nuevamente para guardar la pieza.');
+          // Nginx corta con 413 (HTML, no JSON) si la pieza supera client_max_body_size
+          if (response.status === 413) throw new Error('La pieza pesa más de lo que acepta el servidor. Descargala y avisá al responsable del sitio para subir el límite de carga.');
+          let json = null;
+          try { json = await response.json(); } catch (_) {}
+          if (!response.ok || !json || !json.success) throw new Error((json && json.error) || `El servidor respondió ${response.status}: no se pudo guardar el PNG.`);
+          const registro = { formato, archivo: json.url, guardadoEn: new Date().toISOString() };
+          if (typeof onPngGuardado === 'function') onPngGuardado(promo, registro);
+          if (showToast) showToast(`PNG ${formato.toUpperCase()} guardado en el servidor: ${json.url}`);
+        } else {
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = `promo-${slug}-${formato}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          if (showToast) showToast(`¡Flyer ${formato.toUpperCase()} descargado con éxito!`);
+        }
       } catch (err) {
         console.error('Error al exportar flyer PNG:', err);
-        if (showToast) showToast('Error al generar la imagen. Probá nuevamente.', 'error');
+        if (showToast) showToast(guardarEnServidor && err && err.message ? err.message : 'Error al generar la imagen. Probá nuevamente.', 'error');
       } finally {
         if (tempContainer.parentNode) {
           document.body.removeChild(tempContainer);
@@ -1191,6 +1235,8 @@ const { useState, useEffect, useRef } = React;
                         duracion: '1 año',
                         horasTotales: '360 horas reloj',
                         requisitos: 'Estudios primarios o secundarios',
+                        estadoCupo: 'sin-confirmar',
+                        cupoConfirmadoEn: '',
                         sede: data.sedePrincipal || 'Sede Juan Pablo Angulo 1272, Dock Sud',
                         tambien: [],
                         introduccion: '',
@@ -1238,6 +1284,10 @@ const { useState, useEffect, useRef } = React;
                               <div><strong>Horarios:</strong> {c.horarios}</div>
                               <div><strong>Duración:</strong> {c.duracion} • <strong>Horas totales:</strong> {c.horasTotales || '360 horas reloj'} • <strong>Sede:</strong> {c.sede}</div>
                               <div><strong>Requisitos:</strong> {c.requisitos}</div>
+                              <div><strong>Estado de cupos:</strong> {({ 'sin-confirmar': 'Sin confirmar', abierto: 'Abierto', 'ultimos-cupos': 'Últimos cupos', completo: 'Completo' })[c.estadoCupo || 'sin-confirmar']}
+                                {c.cupoConfirmadoEn ? ` · confirmado ${c.cupoConfirmadoEn}` : ' · requiere confirmación'}
+                                {c.estadoCupo === 'ultimos-cupos' && window.CFPReglas?.estadoCupoVencido(c) ? ' · VENCIDO: actualizar en el panel' : ''}
+                              </div>
                             </div>
                           </div>
                           <div className="admin-course-actions">
@@ -1326,7 +1376,7 @@ const { useState, useEffect, useRef } = React;
 
                   {/* Estado del Pop-up y Rotación Aleatoria */}
                   {(() => {
-                    const activas = (data.promociones || []).filter(p => p.popupActivo);
+                    const activas = (data.promociones || []).filter(p => window.CFPReglas?.popupVigente(p));
                     return (
                       <div style={{
                         padding: '14px 18px',
@@ -1388,6 +1438,9 @@ const { useState, useEffect, useRef } = React;
                       .map((p, idx) => {
                         const realIndex = (data.promociones || []).findIndex(item => item === p);
                         const plantilla = CATALOGO_PLANTILLAS[p.modelo || 'flyer-curso-v1'] || CATALOGO_PLANTILLAS['flyer-curso-v1'];
+                        const cursoPromoActual = cursos.find(c => c.slug === p.cursoSlug);
+                        const promoDesactualizada = window.CFPReglas?.promoDesactualizada(p, cursos) || false;
+                        const cuposCupoVigentes = p.modelo !== 'ultimos-cupos-v1' || window.CFPReglas?.puedePublicarUltimosCupos(cursoPromoActual);
                         return (
                           <div key={p.id || idx} className="promo-card">
                             {/* Miniatura visual del flyer */}
@@ -1404,7 +1457,7 @@ const { useState, useEffect, useRef } = React;
                                 <span style={{ fontSize: 11, background: 'var(--surface-brand-soft, #e8eefb)', color: 'var(--blue-900)', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
                                   {plantilla.nombre}
                                 </span>
-                                {p.popupActivo && (
+                                {window.CFPReglas?.popupVigente(p) && (
                                   <span style={{ fontSize: 11, background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: 4, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }}></span>
                                     En Pop-up
@@ -1424,6 +1477,19 @@ const { useState, useEffect, useRef } = React;
                                     <div><strong>Requisitos:</strong> {textosPromo(p).requisito}</div>
                                   </>
                                 )}
+                                {promoDesactualizada && (
+                                  <div role="status" style={{ marginTop: 6, padding: '7px 9px', borderRadius: 7, background: '#fff7ed', color: '#9a3412', fontWeight: 700 }}>
+                                    Datos desactualizados: cambió el curso desde que se guardó esta promoción. Editala y guardala nuevamente antes de publicarla.
+                                  </div>
+                                )}
+                                {!cuposCupoVigentes && (
+                                  <div role="status" style={{ marginTop: 6, padding: '7px 9px', borderRadius: 7, background: '#fef2f2', color: '#991b1b', fontWeight: 700 }}>
+                                    Últimos cupos bloqueado: el estado del curso no está confirmado dentro de los últimos 30 días.
+                                  </div>
+                                )}
+                                {p.popupActivo && !window.CFPReglas?.popupVigente(p) && (
+                                  <div role="status" style={{ marginTop: 6, fontSize: 12, color: '#64748b' }}>Pop-up fuera de su período de vigencia.</div>
+                                )}
                               </div>
                             </div>
 
@@ -1438,6 +1504,14 @@ const { useState, useEffect, useRef } = React;
                                       type="checkbox"
                                       checked={Boolean(p.popupActivo)}
                                       onChange={() => {
+                                        if (!p.popupActivo && promoDesactualizada) {
+                                          showToast('Esta promoción usa datos anteriores del curso. Editala y guardala antes de activar el pop-up.', 'error');
+                                          return;
+                                        }
+                                        if (!p.popupActivo && !cuposCupoVigentes) {
+                                          showToast('No se puede activar “Últimos cupos” sin una confirmación vigente del curso.', 'error');
+                                          return;
+                                        }
                                         updateData(prev => {
                                           const list = [...(prev.promociones || [])];
                                           list[realIndex] = { ...list[realIndex], popupActivo: !list[realIndex].popupActivo };
@@ -1455,7 +1529,8 @@ const { useState, useEffect, useRef } = React;
                                     className="btn btn-secondary btn-sm"
                                     onClick={() => {
                                       setPromoIndex(realIndex);
-                                      setPromoModal({ ...p });
+                                      // Si el curso cambió desde que se guardó, se abre con sus datos nuevos
+                                      setPromoModal(promoDesactualizada && cursoPromoActual ? refrescarDatosCurso(p, cursoPromoActual) : { ...p });
                                       setPromoStep(4);
                                       setPromoPreviewFormat('feed');
                                     }}
@@ -3050,6 +3125,25 @@ const { useState, useEffect, useRef } = React;
                     <div className="form-hint">Aparece en el recuadro "Requisitos" de la página individual.</div>
                   </div>
 
+                  <div className="form-group" style={{ padding: 14, border: '1px solid #cbd5e1', borderRadius: 10, background: '#f8fafc' }}>
+                    <label className="form-label">Estado de cupos (respalda los avisos de “Últimos cupos”)</label>
+                    <select
+                      className="form-select"
+                      value={cursoModal.estadoCupo || 'sin-confirmar'}
+                      onChange={e => setCursoModal({
+                        ...cursoModal,
+                        estadoCupo: e.target.value,
+                        cupoConfirmadoEn: e.target.value === 'sin-confirmar' ? '' : (window.CFPReglas?.fechaLocal(new Date()) || new Date().toISOString().slice(0, 10))
+                      })}
+                    >
+                      <option value="sin-confirmar">Sin confirmar</option>
+                      <option value="abierto">Abierto</option>
+                      <option value="ultimos-cupos">Últimos cupos</option>
+                      <option value="completo">Completo</option>
+                    </select>
+                    <div className="form-hint">Última confirmación: {cursoModal.cupoConfirmadoEn || 'sin fecha'}. Los avisos de últimos cupos vencen a los 30 días y se bloquean si el curso está completo o sin confirmar.</div>
+                  </div>
+
                   <div className="form-group">
                     <label className="form-label">Introducción del Curso (Página Individual)</label>
                     <textarea
@@ -3095,7 +3189,9 @@ const { useState, useEffect, useRef } = React;
                         slug: cleanSlug,
                         horasTotales: (cursoModal.horasTotales && cursoModal.horasTotales.trim()) ? cursoModal.horasTotales.trim() : '360 horas reloj',
                         introduccion: cursoModal.introduccion || '',
-                        detalles: cursoModal.detalles || ''
+                        detalles: cursoModal.detalles || '',
+                        estadoCupo: ['sin-confirmar', 'abierto', 'ultimos-cupos', 'completo'].includes(cursoModal.estadoCupo) ? cursoModal.estadoCupo : 'sin-confirmar',
+                        cupoConfirmadoEn: cursoModal.cupoConfirmadoEn || ''
                       };
 
                       updateData(prev => {
@@ -3266,7 +3362,25 @@ const { useState, useEffect, useRef } = React;
                               key={plt.id}
                               onClick={() => {
                                 if (!plt.disponible) return;
-                                if (plt.tipo === 'curso') {
+                                if (plt.id === 'ultimos-cupos-v1') {
+                                  const elegibles = cursos.filter(c => window.CFPReglas?.puedePublicarUltimosCupos(c));
+                                  if (!elegibles.length) {
+                                    showToast('No hay cursos confirmados como “Últimos cupos” dentro de los últimos 30 días. Actualizá el estado en Gestión de Cursos.', 'error');
+                                    return;
+                                  }
+                                  const cursoCupo = elegibles[0];
+                                  const sugerida = fotoSugeridaPromo(cursoCupo, data.bibliotecaFotosPromo);
+                                  setPromoModal(prev => ({
+                                    ...cursoAPromo(cursoCupo, sugerida ? sugerida.archivo : undefined),
+                                    modelo: plt.id,
+                                    estadoCupoUsado: cursoCupo.estadoCupo,
+                                    cupoConfirmadoEnUsado: cursoCupo.cupoConfirmadoEn,
+                                    huellaCurso: window.CFPReglas.huellaCurso(cursoCupo),
+                                    popupActivo: prev.popupActivo === true,
+                                    popupZonaHoraria: prev.popupZonaHoraria || window.CFPReglas.ZONA_HORARIA
+                                  }));
+                                  setFiltroFotoFamilia(cursoCupo.familia || 'Todas');
+                                } else if (plt.tipo === 'curso') {
                                   const primerCurso = cursos[0] || null;
                                   const sugerida = fotoSugeridaPromo(primerCurso, data.bibliotecaFotosPromo);
                                   setPromoModal(prev => ({
@@ -3447,6 +3561,7 @@ const { useState, useEffect, useRef } = React;
 
                       <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8, background: '#fff' }}>
                         {cursos
+                          .filter(c => promoModal.modelo !== 'ultimos-cupos-v1' || window.CFPReglas?.puedePublicarUltimosCupos(c))
                           .filter(c => (c.curso || '').toLowerCase().includes(filtroPromoCursoSelect.toLowerCase()))
                           .map(c => {
                             const isSelected = promoModal.cursoSlug === c.slug;
@@ -3464,6 +3579,9 @@ const { useState, useEffect, useRef } = React;
                                     imagen: sugerida ? sugerida.archivo : (promoModal.imagen || nuevaData.imagen),
                                     encuadre: sugerida ? (sugerida.encuadre || nuevaData.encuadre) : (promoModal.encuadre || nuevaData.encuadre),
                                     fondo: promoModal.fondo || 'cuadriculado',
+                                    estadoCupoUsado: c.estadoCupo || 'sin-confirmar',
+                                    cupoConfirmadoEnUsado: c.cupoConfirmadoEn || '',
+                                    huellaCurso: window.CFPReglas?.huellaCurso(c) || '',
                                     popupActivo: promoModal.popupActivo === true
                                   });
                                 }}
@@ -3825,6 +3943,17 @@ const { useState, useEffect, useRef } = React;
                                 {promoModal.popupActivo ? 'Activo en portada' : 'Inactivo'}
                               </span>
                             </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
+                              <label style={{ fontSize: 11, color: 'var(--neutral-600)' }}>
+                                Vigente desde
+                                <input type="date" className="form-input" value={promoModal.popupDesde || ''} onChange={e => setPromoModal(prev => ({ ...prev, popupDesde: e.target.value, popupZonaHoraria: prev.popupZonaHoraria || window.CFPReglas?.ZONA_HORARIA }))} />
+                              </label>
+                              <label style={{ fontSize: 11, color: 'var(--neutral-600)' }}>
+                                Vence el (inclusive)
+                                <input type="date" className="form-input" value={promoModal.popupHasta || ''} onChange={e => setPromoModal(prev => ({ ...prev, popupHasta: e.target.value, popupZonaHoraria: prev.popupZonaHoraria || window.CFPReglas?.ZONA_HORARIA }))} />
+                              </label>
+                            </div>
+                            <div className="form-hint">Zona horaria: {promoModal.popupZonaHoraria || window.CFPReglas?.ZONA_HORARIA}. Dejá una fecha vacía si no querés limitar ese extremo.</div>
                           </div>
                         </div>
                       </div>
@@ -3836,6 +3965,24 @@ const { useState, useEffect, useRef } = React;
                 {promoStep === 4 && (
                   <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
                     <div className="promo-footer-descargas" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => exportarPromoPNG(promoModal, promoPreviewFormat, showToast, true, (promo, registro) => {
+                          setPromoModal(prev => ({ ...prev, pngGuardados: [...(prev.pngGuardados || []), registro] }));
+                          if (promoIndex >= 0) {
+                            updateData(prev => {
+                              const items = [...(prev.promociones || [])];
+                              const current = items[promoIndex];
+                              items[promoIndex] = { ...current, pngGuardados: [...(current.pngGuardados || []), registro] };
+                              return { ...prev, promociones: items };
+                            });
+                          }
+                        })}
+                        title={`Guardar la versión ${promoPreviewFormat.toUpperCase()} en el servidor`}
+                      >
+                        <i data-lucide="cloud-upload" style={{ width: 14 }}></i> Guardar PNG en servidor ({promoPreviewFormat.toUpperCase()})
+                      </button>
                       <button
                         type="button"
                         className="btn btn-secondary btn-sm"
@@ -3873,10 +4020,23 @@ const { useState, useEffect, useRef } = React;
                         type="button"
                         className="btn btn-primary"
                         onClick={() => {
+                          const cursoActual = cursos.find(c => c.slug === promoModal.cursoSlug);
+                          if (promoModal.popupDesde && promoModal.popupHasta && promoModal.popupHasta < promoModal.popupDesde) {
+                            showToast('La fecha de vencimiento no puede ser anterior al inicio de vigencia.', 'error');
+                            return;
+                          }
+                          if (promoModal.modelo === 'ultimos-cupos-v1' && !window.CFPReglas?.puedePublicarUltimosCupos(cursoActual)) {
+                            showToast('No se puede guardar un aviso de últimos cupos: confirmá que el curso siga abierto con últimos cupos y actualizá la fecha en Gestión de Cursos.', 'error');
+                            return;
+                          }
+                          // Datos del curso al día (y su huella), sin pisar lo editado a mano
+                          const base = cursoActual ? refrescarDatosCurso(promoModal, cursoActual) : promoModal;
                           const promoFinal = {
-                            ...promoModal,
-                            cursoNombre: (promoModal.tituloOverride || promoModal.cursoNombre || tituloPromo(promoModal)).toUpperCase(),
-                            fechaActualizacion: new Date().toISOString().split('T')[0]
+                            ...base,
+                            popupActivo: promoModal.popupActivo === true,
+                            popupZonaHoraria: promoModal.popupZonaHoraria || window.CFPReglas?.ZONA_HORARIA || 'America/Argentina/Buenos_Aires',
+                            cursoNombre: (base.tituloOverride || base.cursoNombre || tituloPromo(base)).toUpperCase(),
+                            fechaActualizacion: window.CFPReglas?.fechaLocal(new Date(), promoModal.popupZonaHoraria) || new Date().toISOString().split('T')[0]
                           };
 
                           updateData(prev => {

@@ -1,0 +1,31 @@
+{
+  "name": "cfp401-fuente-jsx",
+  "version": "2.2.2",
+  "private": true,
+  "description": "Código fuente JSX del sitio CFP N° 401 Avellaneda",
+  "scripts": {
+    "build:admin": "babel admin.jsx --out-file ../site/admin.js --config-file ./babel.config.json",
+    "build:app": "babel app.jsx --out-file ../site/app.js --config-file ./babel.config.json",
+    "build:promo": "babel plantillas-promo.jsx --out-file ../site/plantillas-promo.js --config-file ./babel.config.json",
+    "build:all": "npm run build:admin && npm run build:app && npm run build:promo",
+    "version:assets": "node ../herramientas/versionar-assets.js",
+    "bitacora:archivar": "node ../herramientas/archivar-bitacora.js",
+    "verify:visual": "node ../herramientas/verificar-visual.js",
+    "verify:e2e": "node ../herramientas/verificar-e2e.js",
+    "verify": "node ../herramientas/verificar-todo.js && node ../herramientas/verificar-visual.js",
+    "build": "npm run build:all && npm run version:assets && npm run bitacora:archivar && npm run verify",
+    "data:pull": "node ../herramientas/operar-servidor.js pull",
+    "deploy:dry-run": "node ../herramientas/operar-servidor.js deploy --dry-run",
+    "publish": "npm run build && node ../herramientas/operar-servidor.js deploy --apply"
+  },
+  "devDependencies": {
+    "@babel/cli": "^8.0.6",
+    "@babel/core": "^8.0.6",
+    "@babel/preset-react": "^8.0.1",
+    "pixelmatch": "^7.2.0",
+    "playwright": "^1.63.0",
+    "pngjs": "^7.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

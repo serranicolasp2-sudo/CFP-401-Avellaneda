@@ -1,6 +1,6 @@
 /* ===========================================================================
    CFP N° 401 AVELLANEDA — CONTENIDOS EDITABLES DEL SITIO (v2.0)
-   Generado desde el Panel de Administración: 2026-09-27 17:31:43
+   Generado desde el Panel de Administración: 2026-09-27 23:48:25
    =========================================================================== */
 
 window.CFP_DATA = {
@@ -808,6 +808,19 @@ window.CFP_DATA = {
             "popupActivo": false,
             "fechaCreacion": "2026-09-27",
             "mostrarSello": true,
+            "fechaActualizacion": "2026-09-27"
+        },
+        {
+            "id": "promo-captacion-mukgw6hu",
+            "modelo": "captacion-oficios-v1",
+            "tipo": "captacion",
+            "cursoSlug": "",
+            "imagen": "assets/promociones/electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables-3.jpg",
+            "encuadre": "20% 50%",
+            "textos": [],
+            "popupActivo": false,
+            "fechaCreacion": "2026-09-27",
+            "cursoNombre": "¿QUERÉS APRENDER UN OFICIO?",
             "fechaActualizacion": "2026-09-27"
         }
     ],

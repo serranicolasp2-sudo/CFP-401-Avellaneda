@@ -3221,8 +3221,18 @@ function findCourseBySlug(slug) {
 function PromoPopUp({
   onNavigate
 }) {
-  const promociones = window.CFP_DATA && window.CFP_DATA.promociones || [];
-  const activePromos = promociones.filter(p => p.popupActivo);
+  const datos = window.CFP_DATA || {};
+  const promociones = datos.promociones || [];
+  const cursos = datos.courses || [];
+  const activePromos = promociones.filter(p => {
+    const reglas = window.CFPReglas;
+    if (reglas && (!reglas.popupVigente(p) || reglas.promoDesactualizada(p, cursos))) return false;
+    if (p.modelo === 'ultimos-cupos-v1') {
+      const curso = cursos.find(c => c.slug === p.cursoSlug);
+      return Boolean(reglas && reglas.puedePublicarUltimosCupos(curso));
+    }
+    return Boolean(p.popupActivo);
+  });
   const [promoActual, setPromoActual] = React.useState(null);
   const [visible, setVisible] = React.useState(false);
   React.useEffect(() => {
@@ -3254,7 +3264,7 @@ function PromoPopUp({
     // Selección de la promoción
     let seleccionada = activePromos[0];
     if (promoSolicitada) {
-      const match = promociones.find(p => p.id === promoSolicitada || p.cursoSlug === promoSolicitada);
+      const match = activePromos.find(p => p.id === promoSolicitada || p.cursoSlug === promoSolicitada);
       if (match) seleccionada = match;
     } else if (activePromos.length > 1) {
       // Rotación aleatoria entre las promociones activas

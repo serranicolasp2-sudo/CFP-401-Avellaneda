@@ -2502,6 +2502,80 @@ function useAjusteDiseno(ajustar, deps) {
     };
   }, deps);
 }
+
+/* Columna de textos con posiciones fijas del diseño (antetítulo, titular, bajada, insignias).
+   Con los textos del diseño no cambia nada. Si un texto editado es más largo: el antetítulo achica la
+   letra para seguir en un renglón sin llegar a la foto, el titular la achica si una palabra no entra de ancho, y los bloques
+   siguientes se corren hacia abajo para no pisarse. Si igual no entran antes del "piso" (la foto o la
+   franja del pie), achica titular y bajada hasta su mínimo. Medidas en px del diseño; se usan offsetTop
+   y offsetHeight para que no las altere la escala de la vista previa. */
+function acomodarColumna(bloques, piso) {
+  const vivos = bloques.filter(b => b.el);
+  if (!vivos.length) return;
+  vivos.forEach(b => {
+    b.el.style.fontSize = '';
+    b.el.style.top = '';
+  });
+  const board = vivos[0].el.closest('.board');
+  if (!board || !board.clientWidth) return;
+  const escala = board.clientWidth / (board.classList.contains('a4') ? 1240 : 1080);
+  const tolerancia = Math.max(1, escala);
+  const items = vivos.map(b => ({
+    ...b,
+    top: b.el.offsetTop,
+    size: parseFloat(getComputedStyle(b.el).fontSize)
+  }));
+  const limite = piso ? piso.offsetTop : board.clientHeight;
+  const achicar = b => {
+    if (b.size <= b.minimo * escala) return false;
+    b.size = Math.max(b.minimo * escala, b.size - (b.paso || 1) * escala);
+    b.el.style.fontSize = b.size + 'px';
+    return true;
+  };
+  for (const b of items) {
+    if (b.unRenglon) {
+      const renglon = () => parseFloat(getComputedStyle(b.el).lineHeight) || b.size * 1.25;
+      while (b.el.offsetHeight > renglon() * 1.5 && achicar(b));
+    }
+    if (b.ajustarAncho) while (b.el.scrollWidth > b.el.clientWidth + tolerancia && achicar(b));
+    // Sin ancho fijo en el diseño: no debe meterse debajo de la foto de al lado
+    if (b.antesDe) while (b.el.offsetLeft + Math.max(b.el.offsetWidth, b.el.scrollWidth) > b.antesDe.offsetLeft && achicar(b));
+  }
+  const ubicar = () => {
+    let fin = -Infinity;
+    items.forEach((b, i) => {
+      const top = i === 0 ? b.top : Math.max(b.top, fin + items[i - 1].separacion * escala);
+      b.el.style.top = i === 0 ? '' : top + 'px';
+      fin = top + b.el.offsetHeight;
+    });
+    return fin + items[items.length - 1].separacion * escala <= limite;
+  };
+  const ordenAchique = items.filter(b => b.achicaSiNoEntra);
+  let vueltas = 0;
+  while (!ubicar() && vueltas++ < 200) {
+    if (!ordenAchique.some(b => achicar(b))) break;
+  }
+  // Si nada hizo falta, se devuelven las posiciones del diseño tal cual
+  items.forEach(b => {
+    if (b.el.style.top && Math.abs(parseFloat(b.el.style.top) - b.top) < 0.5) b.el.style.top = '';
+  });
+}
+
+/* Achica la letra de "el" (de a 1 px del diseño, sin bajar de "minimo") hasta que termine
+   "separacion" px del diseño antes de que empiece "siguiente". */
+function achicarAntesDe(el, siguiente, minimo, separacion) {
+  if (!el || !siguiente) return;
+  el.style.fontSize = '';
+  const board = el.closest('.board');
+  if (!board || !board.clientWidth) return;
+  const escala = board.clientWidth / (board.classList.contains('a4') ? 1240 : 1080);
+  let size = parseFloat(getComputedStyle(el).fontSize);
+  let vueltas = 0;
+  while (size > minimo * escala && vueltas++ < 80 && el.offsetTop + el.offsetHeight > siguiente.offsetTop - separacion * escala) {
+    size = Math.max(minimo * escala, size - escala);
+    el.style.fontSize = size + 'px';
+  }
+}
 function textoEditado(promo, clave) {
   const v = (promo && promo.textos || {})[clave];
   return typeof v === 'string' && v.trim() !== '';
@@ -2511,20 +2585,71 @@ function fotoDePromo(promo, porDefecto) {
 }
 
 /* ---------- Captación de consultas (general, sin curso) ---------- */
+// Mínimos de letra (px del diseño) cuando los textos editados no entran en la columna
+const MINIMOS_CAPTACION = {
+  feed: {
+    titular: 44,
+    bajada: 22
+  },
+  historia: {
+    titular: 48,
+    bajada: 22
+  },
+  a4: {
+    titular: 52,
+    bajada: 24
+  }
+};
 function CaptacionOficiosV1({
   promo,
   formato = 'feed',
   customRef
 }) {
-  if (!promo) return null;
-  const T = textosPromo(promo);
+  const T = promo ? textosPromo(promo) : {};
   const esHistoria = formato === 'historia';
+  const refAnte = React.useRef(null);
+  const refTitular = React.useRef(null);
+  const refBajada = React.useRef(null);
+  const refInsignias = React.useRef(null);
+  const refFoto = React.useRef(null);
+  const refPie = React.useRef(null);
+  useAjusteDiseno(() => {
+    const min = MINIMOS_CAPTACION[formato] || MINIMOS_CAPTACION.feed;
+    const bloques = [{
+      el: refAnte.current,
+      minimo: 14,
+      unRenglon: true,
+      antesDe: esHistoria ? null : refFoto.current,
+      separacion: 12
+    }, {
+      el: refTitular.current,
+      minimo: min.titular,
+      paso: 2,
+      ajustarAncho: true,
+      achicaSiNoEntra: true,
+      separacion: 30
+    }, {
+      el: refBajada.current,
+      minimo: min.bajada,
+      achicaSiNoEntra: true,
+      separacion: 24
+    }];
+    // En Stories las insignias van debajo de la foto; en Feed y A4 cierran la columna antes del pie
+    if (!esHistoria) bloques.push({
+      el: refInsignias.current,
+      minimo: 19,
+      separacion: 24
+    });
+    acomodarColumna(bloques, esHistoria ? refFoto.current : refPie.current);
+  }, [T.antetitulo, T.titulo1, T.titulo2, T.bajada, T.badge1, T.badge2, formato]);
+  if (!promo) return null;
   // En Stories el diseño lleva el gancho en un renglón y "Certificación oficial" como segunda insignia
   const titulo1 = esHistoria && !textoEditado(promo, 'titulo1') ? T.titulo1.replace(/\s*\n\s*/g, ' ') : T.titulo1;
   const insignia2 = esHistoria && !textoEditado(promo, 'badge2') ? 'CERTIFICACIÓN OFICIAL' : T.badge2;
   const insignias = /*#__PURE__*/React.createElement("div", {
     className: "proof",
-    "aria-label": "Datos institucionales"
+    "aria-label": "Datos institucionales",
+    ref: refInsignias
   }, /*#__PURE__*/React.createElement("span", null, T.badge1), /*#__PURE__*/React.createElement("span", null, insignia2));
   return /*#__PURE__*/React.createElement(LienzoDiseno, {
     plantilla: "captacion",
@@ -2539,16 +2664,20 @@ function CaptacionOficiosV1({
     src: "assets/logo-cfp401-horizontal.png",
     alt: "Centro de Formación Profesional N° 401 Avellaneda"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "eyebrow"
+    className: "eyebrow",
+    ref: refAnte
   }, T.antetitulo), /*#__PURE__*/React.createElement("h1", {
-    className: "headline"
+    className: "headline",
+    ref: refTitular
   }, conSaltos(titulo1), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
     className: "accent"
   }, T.titulo2)), /*#__PURE__*/React.createElement("p", {
-    className: "deck"
+    className: "deck",
+    ref: refBajada
   }, T.bajada), !esHistoria && insignias, /*#__PURE__*/React.createElement("figure", {
     className: "photo-frame",
-    "aria-label": "Foto de un taller"
+    "aria-label": "Foto de un taller",
+    ref: refFoto
   }, /*#__PURE__*/React.createElement("img", {
     src: fotoDePromo(promo, 'assets/promociones/tematicas/captacion/captacion-1.jpg'),
     alt: "Estudiantes aprendiendo en un taller de formación profesional",
@@ -2558,7 +2687,8 @@ function CaptacionOficiosV1({
   }), /*#__PURE__*/React.createElement("figcaption", {
     className: "photo-tag"
   }, T.tagFoto)), esHistoria && insignias, /*#__PURE__*/React.createElement("footer", {
-    className: "cta-band"
+    className: "cta-band",
+    ref: refPie
   }, /*#__PURE__*/React.createElement("div", {
     className: "cta-copy"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2587,23 +2717,15 @@ function UltimosCuposV1({
   const refTitular = React.useRef(null);
   const refCurso = React.useRef(null);
   const refBajada = React.useRef(null);
+  const refDetalles = React.useRef(null);
+  const refPie = React.useRef(null);
   useAjusteDiseno(() => {
     ajustarLetraACaja(refTitular.current, MINIMO_TITULAR_CUPOS[formato] || 56, 2);
     // Nombres de curso muy largos: la etiqueta achica la letra (hasta 15 px del diseño) para no pisar la bajada
-    const curso = refCurso.current,
-      bajada = refBajada.current;
-    if (!curso || !bajada) return;
-    curso.style.fontSize = '';
-    const board = curso.closest('.board');
-    if (!board || !board.clientWidth) return;
-    const escala = board.clientWidth / (board.classList.contains('a4') ? 1240 : 1080);
-    let size = parseFloat(getComputedStyle(curso).fontSize);
-    let vueltas = 0;
-    while (size > 15 * escala && vueltas++ < 60 && curso.getBoundingClientRect().bottom > bajada.getBoundingClientRect().top - 12 * escala) {
-      size = Math.max(15 * escala, size - escala);
-      curso.style.fontSize = size + 'px';
-    }
-  }, [T.titulo1, T.titulo2, T.curso, T.bajada, formato]);
+    achicarAntesDe(refCurso.current, refBajada.current, 15, 12);
+    // Días y horarios largos: achican la letra para terminar antes de la franja del pie
+    achicarAntesDe(refDetalles.current, refPie.current, 13, 8);
+  }, [T.titulo1, T.titulo2, T.curso, T.bajada, T.detalles, formato]);
   if (!promo) return null;
   const foto = /*#__PURE__*/React.createElement("figure", {
     className: "photo-frame"
@@ -2643,9 +2765,11 @@ function UltimosCuposV1({
     className: "proof",
     "aria-label": "Características de la formación"
   }, /*#__PURE__*/React.createElement("span", null, T.badge1), /*#__PURE__*/React.createElement("span", null, T.badge2)), /*#__PURE__*/React.createElement("div", {
-    className: "course-details"
+    className: "course-details",
+    ref: refDetalles
   }, T.detalles), formato !== 'historia' && foto, /*#__PURE__*/React.createElement("footer", {
-    className: "footer-band"
+    className: "footer-band",
+    ref: refPie
   }, /*#__PURE__*/React.createElement("div", {
     className: "footer-copy"
   }, /*#__PURE__*/React.createElement("div", {

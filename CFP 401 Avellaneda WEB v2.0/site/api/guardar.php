@@ -40,6 +40,7 @@ if (!isset($data['courses']) || !is_array($data['courses']) || empty($data['cour
 }
 
 $slugsVistos = [];
+$cursosPorSlug = [];
 foreach ($data['courses'] as $idx => $c) {
     if (empty($c['curso']) || !is_string($c['curso'])) {
         http_response_code(400);
@@ -67,6 +68,60 @@ foreach ($data['courses'] as $idx => $c) {
         exit;
     }
     $slugsVistos[$slug] = true;
+    $cursosPorSlug[$slug] = $c;
+
+    if (isset($c['estadoCupo']) && !in_array($c['estadoCupo'], ['sin-confirmar', 'abierto', 'ultimos-cupos', 'completo'], true)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => "El estado de cupos del curso '{$c['curso']}' no es válido."]);
+        exit;
+    }
+    if (isset($c['cupoConfirmadoEn']) && $c['cupoConfirmadoEn'] !== '') {
+        $fechaCupo = DateTimeImmutable::createFromFormat('!Y-m-d', $c['cupoConfirmadoEn'], new DateTimeZone('America/Argentina/Buenos_Aires'));
+        if (!$fechaCupo || $fechaCupo->format('Y-m-d') !== $c['cupoConfirmadoEn']) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => "La fecha de confirmación de cupos del curso '{$c['curso']}' no es válida."]);
+            exit;
+        }
+    }
+}
+
+if (isset($data['promociones'])) {
+    if (!is_array($data['promociones'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'La lista de promociones no tiene un formato válido.']);
+        exit;
+    }
+    $hoy = new DateTimeImmutable('today', new DateTimeZone('America/Argentina/Buenos_Aires'));
+    foreach ($data['promociones'] as $promo) {
+        $desde = isset($promo['popupDesde']) ? trim($promo['popupDesde']) : '';
+        $hasta = isset($promo['popupHasta']) ? trim($promo['popupHasta']) : '';
+        foreach ([$desde, $hasta] as $fechaPromo) {
+            if ($fechaPromo !== '') {
+                $fecha = DateTimeImmutable::createFromFormat('!Y-m-d', $fechaPromo, new DateTimeZone('America/Argentina/Buenos_Aires'));
+                if (!$fecha || $fecha->format('Y-m-d') !== $fechaPromo) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'error' => 'Una fecha de vigencia de promoción no es válida.']);
+                    exit;
+                }
+            }
+        }
+        if ($desde !== '' && $hasta !== '' && $hasta < $desde) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'El vencimiento de una promoción no puede ser anterior a su inicio.']);
+            exit;
+        }
+        if (($promo['popupActivo'] ?? false) === true && ($promo['modelo'] ?? '') === 'ultimos-cupos-v1') {
+            $curso = $cursosPorSlug[$promo['cursoSlug'] ?? ''] ?? null;
+            $confirmada = $curso['cupoConfirmadoEn'] ?? '';
+            $fechaCupo = $confirmada ? DateTimeImmutable::createFromFormat('!Y-m-d', $confirmada, new DateTimeZone('America/Argentina/Buenos_Aires')) : false;
+            $vigente = $fechaCupo && $fechaCupo <= $hoy && $fechaCupo >= $hoy->modify('-30 days');
+            if (!$curso || ($curso['estadoCupo'] ?? '') !== 'ultimos-cupos' || !$vigente) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'No se puede activar un pop-up de últimos cupos sin estado confirmado y vigente en el curso.']);
+                exit;
+            }
+        }
+    }
 }
 
 // Convertir a estructura JavaScript limpia y legible
