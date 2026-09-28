@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Promo de curso (1080×1350)" description="Pieza para redes y pop-up: foto a sangre, ficha blanca con el nombre del curso, grilla de datos sobre azul y franja amarilla de WhatsApp. Texto editable por props." -->
+<helmet><script src="./ds-base.js"></script></helmet>
+<div id="promo" data-screen-label="Promo de curso" style="position:relative;width:1080px;height:1350px;overflow:hidden;background:var(--blue-900);font-family:var(--font-body);color:#fff;display:flex;flex-direction:column">
+<div style="position:relative;flex:1 1 auto;min-height:420px;overflow:hidden;background:var(--brand-primary)">
+<img src="{{ fotoSrc }}" alt="Taller del CFP 401" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%">
+<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,30,90,.55) 0%,rgba(0,30,90,0) 30%,rgba(0,30,90,0) 60%,rgba(0,30,90,.7) 100%)"></div>
+<img src="../../../assets/promociones/logo-blanco.png" alt="CFP N° 401 Avellaneda" style="position:absolute;left:56px;top:56px;width:300px;height:auto">
+<sc-if value="{{ conCinta }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;right:72px;top:0;width:176px;padding:56px 0 64px;background:var(--brand-accent);color:var(--blue-900);display:flex;flex-direction:column;align-items:center;text-align:center;clip-path:polygon(0 0,100% 0,100% 100%,50% 86%,0 100%)">
+<div style="font-family:var(--font-display);font-weight:800;font-size:54px;line-height:1;letter-spacing:-.03em">{{ cintaGrande }}</div>
+<div style="font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:.12em;margin-top:8px">{{ cintaChica }}</div>
+</div>
+</sc-if>
+</div>
+<div style="position:relative;z-index:2;margin:-150px 56px 0;background:#fff;color:var(--blue-900);border-radius:28px;padding:44px 52px 48px;display:flex;flex-direction:column;gap:18px;box-shadow:0 24px 60px rgba(0,20,70,.35)">
+<div style="display:flex;align-items:center;gap:14px;font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:.16em;color:var(--brand-primary)"><span style="width:14px;height:14px;border-radius:50%;background:var(--brand-accent);box-shadow:0 0 0 4px var(--blue-900)"></span><span>{{ categoria }}</span></div>
+<div style="font-family:var(--font-display);font-weight:800;font-size:92px;line-height:.95;letter-spacing:-.04em;text-wrap:balance;overflow-wrap:anywhere">{{ curso }}</div>
+<div style="font-size:28px;font-weight:500;line-height:1.35;color:var(--text-body);text-wrap:pretty;max-width:860px">{{ bajada }}</div>
+</div>
+<div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:28px 48px;padding:44px 108px 44px">
+<img src="../../../assets/promociones/arco-blanco.png" alt="" style="position:absolute;right:-60px;top:-20px;width:340px;opacity:.06;pointer-events:none">
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--brand-accent);padding-left:20px"><div style="font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:.16em;color:var(--brand-accent)">DÍAS</div><div style="font-family:var(--font-display);font-weight:700;font-size:32px;line-height:1.15">{{ dias }}</div></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--brand-accent);padding-left:20px"><div style="font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:.16em;color:var(--brand-accent)">HORARIO</div><div style="font-family:var(--font-display);font-weight:700;font-size:32px;line-height:1.15">{{ horario }}</div></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--brand-accent);padding-left:20px"><div style="font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:.16em;color:var(--brand-accent)">DURACIÓN</div><div style="font-family:var(--font-display);font-weight:700;font-size:32px;line-height:1.15">{{ duracion }}</div></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--brand-accent);padding-left:20px"><div style="font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:.16em;color:var(--brand-accent)">REQUISITO</div><div style="font-family:var(--font-display);font-weight:700;font-size:32px;line-height:1.15;text-wrap:pretty">{{ requisito }}</div></div>
+</div>
+<div style="flex:none;background:var(--brand-accent);color:var(--blue-900);display:flex;align-items:center;justify-content:space-between;gap:32px;padding:30px 56px">
+<div style="display:flex;flex-direction:column;gap:4px"><div style="font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1;letter-spacing:-.01em">{{ cta }}</div><div style="font-family:var(--font-display);font-weight:600;font-size:22px;letter-spacing:.04em">{{ sede }}</div></div>
+<div style="display:flex;align-items:center;gap:16px;background:var(--blue-900);color:#fff;border-radius:999px;padding:14px 34px 14px 16px;white-space:nowrap"><span style="width:52px;height:52px;border-radius:50%;background:var(--brand-accent);color:var(--blue-900);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.04em">WA</span><span style="font-family:var(--font-display);font-weight:800;font-size:40px;line-height:1">{{ whatsapp }}</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1080,&quot;height&quot;:1350},&quot;categoria&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;METALMECÁNICA&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Curso&quot;},&quot;curso&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Soldador básico&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Curso&quot;},&quot;bajada&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Aprendé soldadura por arco eléctrico en taller, con certificación oficial DGCyE.&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Curso&quot;},&quot;dias&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Martes y jueves&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;horario&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;17:50 a 21:50 hs&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;duracion&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;4 meses&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;requisito&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Primaria completa&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;cta&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;¡Inscribite ahora!&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;sede&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;J. P. Angulo 1272, Dock Sud&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;whatsapp&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;11 6105-6018&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;mostrarCinta&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cinta&quot;},&quot;cintaGrande&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;100%&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cinta&quot;},&quot;cintaChica&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;GRATUITO&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cinta&quot;},&quot;foto&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Soldadura&quot;,&quot;Electricidad&quot;,&quot;Energías renovables&quot;,&quot;Domótica&quot;],&quot;default&quot;:&quot;Soldadura&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Imagen&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const fotos = { 'Soldadura': '../../../assets/fotos/hero-soldadura.jpg', 'Electricidad': '../../../assets/fotos/hero-electricidad.jpg', 'Energías renovables': '../../../assets/fotos/hero-energias.jpg', 'Domótica': '../../../assets/fotos/hero-domotica.jpg' };
+    return {
+      fotoSrc: fotos[p.foto] || fotos.Soldadura,
+      conCinta: p.mostrarCinta ?? true,
+      cintaGrande: p.cintaGrande ?? '100%',
+      cintaChica: p.cintaChica ?? 'GRATUITO',
+      categoria: p.categoria ?? 'METALMECÁNICA',
+      curso: p.curso ?? 'Soldador básico',
+      bajada: p.bajada ?? 'Aprendé soldadura por arco eléctrico en taller, con certificación oficial DGCyE.',
+      dias: p.dias ?? 'Martes y jueves',
+      horario: p.horario ?? '17:50 a 21:50 hs',
+      duracion: p.duracion ?? '4 meses',
+      requisito: p.requisito ?? 'Primaria completa',
+      cta: p.cta ?? '¡Inscribite ahora!',
+      sede: p.sede ?? 'J. P. Angulo 1272, Dock Sud',
+      whatsapp: p.whatsapp ?? '11 6105-6018'
+    };
+  }
+}
+</script>
+</body>
+</html>

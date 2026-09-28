@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Últimos cupos · Filas A4 · CFP 401</title>
+  <link rel="stylesheet" href="grilla-cursos.css">
+</head>
+<body>
+  <nav class="editor" aria-label="Formatos y composiciones">
+    <strong>CURSOS POR FILA · A4</strong>
+    <span class="hint">Elegí período y cursos; cada ficha incluye días, horarios y requisitos.</span>
+    <a class="secondary" href="feed.html">Feed · Grilla</a>
+    <a class="secondary" href="feed-filas.html">Feed · Filas</a>
+    <a class="secondary" href="stories.html">Stories · Grilla</a>
+    <a class="secondary" href="stories-filas.html">Stories · Filas</a>
+    <a class="secondary" href="a4.html">A4 · Grilla</a>
+    <a href="a4-filas.html" aria-current="page">A4 · Filas</a>
+    <button class="secondary" type="button" data-grid-toggle aria-pressed="true">Quitar cuadrícula</button>
+  </nav>
+  <section class="course-tools" aria-label="Editor del listado">
+    <div class="tools-top">
+      <label class="period-control">Inicio de cursada
+        <select data-period><option value="marzo">Marzo</option><option value="agosto">Agosto</option></select>
+      </label>
+      <button type="button" data-load-data>Cargar/actualizar data.js</button>
+      <input type="file" accept=".js,text/javascript,application/javascript" data-data-file hidden>
+      <label class="search-control">Buscar curso <input type="search" data-search placeholder="Nombre o familia"></label>
+      <button class="secondary" type="button" data-select-period>Seleccionar sugeridos</button>
+      <button class="secondary" type="button" data-select-all>Seleccionar todos (listado general)</button>
+      <button class="secondary" type="button" data-clear>Limpiar</button>
+      <span class="data-status" data-source-status role="status" aria-live="polite">Cargando catálogo…</span>
+    </div>
+    <div class="page-controls" data-page-controls hidden><button class="secondary" type="button" data-page-prev>← Anterior</button><span data-page-status aria-live="polite"></span><button class="secondary" type="button" data-page-next>Siguiente →</button></div>
+    <div class="course-options" data-course-options aria-label="Cursos disponibles para seleccionar"></div>
+    <p class="tools-note">“Sugeridos” incluye cursos con inicio indicado en data.js. Los casos sin período explícito quedan disponibles para seleccionar manualmente, luego de confirmarlos.</p>
+  </section>
+  <main class="stage" id="stage">
+    <article class="board a4 rows" id="artboard" aria-label="Aviso de últimos cupos con listado de cursos">
+      <div class="topline"></div>
+      <img class="logo" src="assets/logo-cfp401-horizontal.png" alt="Centro de Formación Profesional N° 401 Avellaneda">
+      <div class="campaign-ribbon" contenteditable="true" spellcheck="false">ÚLTIMOS CUPOS</div>
+      <div class="eyebrow" contenteditable="true" spellcheck="false">CFP N° 401 · FORMACIÓN PROFESIONAL</div>
+      <h1 class="headline" contenteditable="true" spellcheck="false">CURSOS PARA EMPEZAR</h1>
+      <div class="period-line">INICIO EN <strong data-period-label>MARZO</strong></div>
+      <div class="course-counter"><strong data-course-count>0</strong><span>CURSOS<br>EN EL LISTADO</span></div>
+      <div class="category-note" contenteditable="true" spellcheck="false">ANUALES Y CUATRIMESTRALES</div>
+      <section class="course-grid" data-course-grid aria-label="Cursos seleccionados"><p class="empty-state">Elegí cursos en el panel para generar el listado.</p></section>
+      <footer class="footer-band">
+        <div class="footer-copy">
+          <div class="footer-kicker" contenteditable="true" spellcheck="false">CONSULTÁ SI QUEDAN CUPOS</div>
+          <p class="footer-title" contenteditable="true" spellcheck="false">TE AYUDAMOS A ELEGIR</p>
+        </div>
+        <div class="contact">
+          <div class="contact-label" contenteditable="true" spellcheck="false">ESCRIBINOS POR WHATSAPP</div>
+          <div class="phone" contenteditable="true" spellcheck="false">11 6105-6018</div>
+          <div class="note" contenteditable="true" spellcheck="false">(solo mensajes)</div>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <script src="../../../../CFP%20401%20Avellaneda%20WEB%20v2.0/site/data.js"></script>
+  <script src="grilla-cursos.js"></script>
+</body>
+</html>

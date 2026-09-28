@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Captación de estudiantes · A4 · CFP 401</title>
+  <link rel="stylesheet" href="captacion.css">
+</head>
+<body>
+  <nav class="editor" aria-label="Herramientas del template">
+    <strong>CAPTACIÓN · A4</strong>
+    <span class="hint">Hacé clic en un texto para editarlo. Reemplazá la foto desde “Cambiar foto”.</span>
+    <a class="secondary" href="feed.html">Feed</a><a class="secondary" href="stories.html">Stories</a><a href="a4.html" aria-current="page">A4</a>
+    <label for="photo-picker">Cambiar foto</label><input id="photo-picker" type="file" accept="image/*">
+    <button class="secondary" type="button" data-grid-toggle aria-label="Alternar trama cuadriculada" aria-pressed="true">Quitar cuadrícula</button>
+    <button class="secondary" type="button" data-reset>Restablecer</button>
+  </nav>
+  <main class="stage" id="stage">
+    <article class="board a4" id="artboard" aria-label="Template de publicidad para captar consultas">
+      <div class="topline"></div>
+      <img class="logo" src="assets/logo-cfp401-horizontal.png" alt="Centro de Formación Profesional N° 401 Avellaneda">
+      <div class="eyebrow" contenteditable="true" spellcheck="false">FORMACIÓN PROFESIONAL · CFP N° 401</div>
+      <h1 class="headline" contenteditable="true" spellcheck="false">¿QUERÉS<br>APRENDER<br><span class="accent">UN OFICIO?</span></h1>
+      <p class="deck" contenteditable="true" spellcheck="false">Formación gratuita y certificación oficial para aprender haciendo.</p>
+      <div class="proof" aria-label="Datos institucionales">
+        <span contenteditable="true" spellcheck="false">22 CURSOS · 7 ÁREAS</span>
+        <span contenteditable="true" spellcheck="false">FORMACIÓN GRATUITA</span>
+      </div>
+      <figure class="photo-frame" aria-label="Foto editable de un taller">
+        <img data-photo src="assets/foto-taller-default.jpg" alt="Estudiantes aprendiendo en un taller de formación profesional">
+        <figcaption class="photo-tag" contenteditable="true" spellcheck="false">APRENDÉ HACIENDO</figcaption>
+      </figure>
+      <footer class="cta-band">
+        <div class="cta-copy">
+          <div class="cta-label" contenteditable="true" spellcheck="false">TU PRÓXIMO PASO</div>
+          <p class="cta-title" contenteditable="true" spellcheck="false">Consultá por próximas inscripciones</p>
+          <div class="address" contenteditable="true" spellcheck="false">Sede Juan Pablo Angulo 1272 · Dock Sud</div>
+        </div>
+        <div class="wa">
+          <span>ESCRIBINOS POR WHATSAPP</span>
+          <b contenteditable="true" spellcheck="false">11 6105-6018</b>
+          <small>(solo mensajes)</small>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <script src="captacion.js"></script>
+</body>
+</html>

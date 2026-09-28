@@ -1,0 +1,56 @@
+# =============================================================================
+# CFP N° 401 AVELLANEDA — SEGURIDAD, CABECERAS Y CONTROL DE CACHÉ
+# =============================================================================
+
+# Desactivar listado de directorios
+Options -Indexes
+
+# 1. FORZAR HTTPS (si mod_rewrite está activo en Apache)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# 2. CABECERAS DE SEGURIDAD
+<IfModule mod_headers.c>
+  # Prevenir sniffing de tipo MIME
+  Header set X-Content-Type-Options "nosniff"
+  # Política de Referrer estricta
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  # Prevenir clickjacking (solo permitir iframes del mismo origen)
+  Header set X-Frame-Options "SAMEORIGIN"
+  # Desactivar permisos sensibles que el sitio no requiere
+  Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# 3. BLOQUEAR ACCESO A ARCHIVOS SENSIBLES Y MATERIAL INTERNO
+<FilesMatch "\.(txt|md|json|bak|tmp|log)$|^data\.backup\.js$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Permitir explícitamente robots.txt para rastreo de buscadores (C3)
+<Files "robots.txt">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Allow from all
+  </IfModule>
+</Files>
+
+# 4. CONTROL DE CACHÉ PARA DATOS DINÁMICOS
+# data.js debe revalidarse para que las modificaciones de cursos se vean de inmediato
+<Files "data.js">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+  </IfModule>
+</Files>

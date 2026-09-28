@@ -1,0 +1,41 @@
+@import url("tokens/fonts.css");
+@import url("tokens/colors.css");
+@import url("tokens/typography.css");
+@import url("tokens/spacing.css");
+@import url("tokens/radius.css");
+@import url("tokens/elevation.css");
+@import url("tokens/motion.css");
+@import url("tokens/base.css");
+
+@keyframes fadeInMenu {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.area-card-bg {
+  transition: opacity 0.3s ease, transform 0.4s ease;
+}
+.area-card-hover:hover .area-card-bg {
+  opacity: 0.20 !important;
+  transform: scale(1.04);
+}
+
+/* Nav links uniformidad */
+.cfp-nav-link {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+@media (max-width: 760px) {
+  .cfp-nav-link {
+    font-size: 13.5px !important;
+  }
+}
+

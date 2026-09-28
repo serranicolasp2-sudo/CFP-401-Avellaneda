@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="./ds-base.js"></script></helmet>
+<div id="aviso-stories" data-screen-label="Inscripciones abiertas · Stories" style="position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--brand-primary);font-family:var(--font-body);color:#fff;display:flex;flex-direction:column">
+<div style="position:absolute;inset:0;background:var(--gradient-hero-rich)"></div>
+<div style="position:relative;flex:none;height:1020px">
+<img src="../../../assets/promociones/arco-blanco.png" alt="" style="position:absolute;left:-272px;top:653px;width:904px;opacity:.08">
+<div style="position:absolute;right:-166px;top:187px;width:806px;height:806px;border-radius:50%;border:26px solid var(--brand-accent);box-sizing:border-box"></div>
+<div style="position:absolute;right:-140px;top:213px;width:754px;height:754px;border-radius:50%;overflow:hidden;background:var(--blue-900)">
+<img src="{{ fotoSrc }}" alt="Estudiantes del CFP 401" style="width:100%;height:100%;object-fit:cover;object-position:center">
+<div style="position:absolute;inset:0;background:linear-gradient(200deg,rgba(0,40,120,0) 45%,rgba(0,40,120,.45) 100%)"></div>
+</div>
+<img src="../../../assets/promociones/logo-blanco.png" alt="CFP N° 401 Avellaneda" style="position:absolute;left:80px;top:130px;width:620px;height:auto;display:block">
+<sc-if value="{{ conSello }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:490px;top:650px;width:290px;height:290px;z-index:2;border-radius:50%;background:var(--brand-accent);color:var(--blue-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-12deg);box-shadow:14px 14px 0 var(--blue-900)">
+<div style="font-family:var(--font-display);font-weight:800;font-size:84px;line-height:1;letter-spacing:-.03em">{{ selloGrande }}</div>
+<div style="font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:.1em;margin-top:6px">{{ selloChico }}</div>
+</div>
+</sc-if>
+</div>
+<div style="position:relative;flex:1 1 auto;min-height:0;overflow:hidden;padding:0 80px 40px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:0">
+<div style="display:flex;align-items:center;gap:18px;font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:.16em;color:var(--brand-accent)"><span style="flex:none;width:56px;height:8px;background:var(--brand-accent)"></span><span>{{ antetitulo }}</span></div>
+<div style="margin-top:18px;font-family:var(--font-display);font-weight:800;font-size:98px;line-height:.98;letter-spacing:-.04em;color:#fff;max-width:920px;text-wrap:balance">{{ linea1 }}</div>
+<div style="margin-top:18px;background:var(--brand-accent);color:var(--blue-900);font-family:var(--font-display);font-weight:800;font-size:98px;line-height:1;letter-spacing:-.04em;max-width:900px;text-wrap:balance;padding:4px 30px 12px;border-radius:22px;transform:rotate(-2deg);box-shadow:12px 12px 0 var(--blue-900)">{{ linea2 }}</div>
+<div style="margin-top:36px;max-width:900px;font-size:32px;font-weight:600;line-height:1.3;text-wrap:pretty">{{ bajada }}</div>
+<sc-if value="{{ conCursos }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:24px;display:flex;flex-wrap:wrap;gap:12px;max-width:920px">
+<sc-for list="{{ cursos }}" as="c" hint-placeholder-count="5"><span style="border:3px solid rgba(255,255,255,.75);border-radius:999px;padding:8px 22px;font-family:var(--font-display);font-weight:700;font-size:23px;letter-spacing:.02em;white-space:nowrap">{{ c }}</span></sc-for>
+</div>
+</sc-if>
+</div>
+<div style="position:relative;flex:none;background:#fff;color:var(--blue-900);border-top:14px solid var(--brand-accent);padding:40px 80px 70px;display:flex;flex-direction:column;gap:30px">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px">
+<div style="display:flex;flex-direction:column;gap:8px"><div style="font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:.14em;color:var(--brand-primary)">{{ dato1Label }}</div><div style="font-family:var(--font-display);font-weight:800;font-size:38px;line-height:1.08;text-wrap:balance">{{ dato1 }}</div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><div style="font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:.14em;color:var(--brand-primary)">{{ dato2Label }}</div><div style="font-family:var(--font-display);font-weight:800;font-size:38px;line-height:1.08;text-wrap:balance">{{ dato2 }}</div></div>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:40px;padding-top:26px;border-top:2px solid var(--blue-100)">
+<div style="font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:.14em;color:var(--brand-primary)">CONSULTAS POR WHATSAPP</div>
+<div style="background:var(--blue-900);color:var(--brand-accent);font-family:var(--font-display);font-weight:800;font-size:44px;line-height:1;padding:16px 34px;border-radius:999px;white-space:nowrap;justify-self:start">{{ whatsapp }}</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1080,&quot;height&quot;:1920},&quot;antetitulo&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;CICLO LECTIVO 2027&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;linea1&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;INSCRIPCIONES&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;linea2&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ABIERTAS&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;bajada&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Cursos de formación profesional con certificación oficial DGCyE.&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;cursos&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Soldadura, Electricidad, Energías renovables, Domótica, Refrigeración&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cursos&quot;},&quot;mostrarCursos&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cursos&quot;},&quot;mostrarSello&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sello&quot;},&quot;selloGrande&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;100%&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sello&quot;},&quot;selloChico&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;GRATUITO&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sello&quot;},&quot;dato1Label&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;INSCRIPCIÓN&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;dato1&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Desde el 1/12&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;dato2Label&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;SEDE&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;dato2&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;J. P. Angulo 1272&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;whatsapp&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;11 6105-6018&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;foto&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Egresados&quot;,&quot;Fachada&quot;,&quot;Electricidad&quot;,&quot;Soldadura&quot;],&quot;default&quot;:&quot;Egresados&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Imagen&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const fotos = { 'Egresados': '../../../assets/fotos/hero-egresados.jpg', 'Fachada': '../../../assets/fotos/fachada-cfp401.jpg', 'Electricidad': '../../../assets/fotos/hero-electricidad.jpg', 'Soldadura': '../../../assets/fotos/hero-soldadura.jpg' };
+    const cursos = (p.cursos ?? 'Soldadura, Electricidad, Energías renovables, Domótica, Refrigeración').split(',').map(s => s.trim()).filter(Boolean).slice(0, 6);
+    return {
+      fotoSrc: fotos[p.foto] || fotos.Egresados,
+      antetitulo: p.antetitulo ?? 'CICLO LECTIVO 2027',
+      linea1: p.linea1 ?? 'INSCRIPCIONES',
+      linea2: p.linea2 ?? 'ABIERTAS',
+      bajada: p.bajada ?? 'Cursos de formación profesional con certificación oficial DGCyE.',
+      cursos,
+      conCursos: (p.mostrarCursos ?? true) && cursos.length > 0,
+      conSello: p.mostrarSello ?? true,
+      selloGrande: p.selloGrande ?? '100%',
+      selloChico: p.selloChico ?? 'GRATUITO',
+      dato1Label: p.dato1Label ?? 'INSCRIPCIÓN',
+      dato1: p.dato1 ?? 'Desde el 1/12',
+      dato2Label: p.dato2Label ?? 'SEDE',
+      dato2: p.dato2 ?? 'J. P. Angulo 1272',
+      whatsapp: p.whatsapp ?? '11 6105-6018'
+    };
+  }
+}
+</script>
+</body>
+</html>

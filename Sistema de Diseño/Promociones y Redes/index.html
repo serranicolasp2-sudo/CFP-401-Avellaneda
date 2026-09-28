@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Centro de Promociones y Diseño Gráfico — CFP N° 401 Avellaneda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --preview-bg: #0f172a;
+      --panel-bg: #1e293b;
+      --panel-border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--preview-bg);
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 16px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-badge {
+      background: var(--brand-accent, #ffd100);
+      color: var(--blue-900, #002878);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: .04em;
+    }
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-group {
+      display: flex;
+      background: #0f172a;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .btn-tab {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-tab:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+    }
+    .btn-tab.active {
+      background: var(--brand-primary, #003890);
+      color: #fff;
+    }
+    .toggle-safe {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #cbd5e1;
+      cursor: pointer;
+      user-select: none;
+      background: #0f172a;
+      border: 1px solid var(--panel-border);
+      padding: 7px 12px;
+      border-radius: 8px;
+    }
+    .toggle-safe input { cursor: pointer; accent-color: var(--brand-accent, #ffd100); }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      position: relative;
+      overflow: auto;
+    }
+
+    /* Contenedor del lienzo de previsualización */
+    .viewport-box {
+      position: relative;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      transition: all 0.3s ease;
+    }
+
+    /* Medidas dinámicas con escala para pantalla */
+    .viewport-stories { width: 450px; height: 800px; } /* Proporción 9:16 */
+    .viewport-feed { width: 500px; height: 625px; }    /* Proporción 4:5 */
+    .viewport-a4 { width: 500px; height: 707px; }      /* Proporción A4 */
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Guías de zona segura de Instagram Stories */
+    .safe-guide {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-left: 2px dashed rgba(255, 209, 0, 0.7);
+      border-right: 2px dashed rgba(255, 209, 0, 0.7);
+      pointer-events: none;
+      z-index: 99;
+      display: none;
+    }
+    .safe-guide.visible { display: block; }
+    .safe-guide-top {
+      top: 0;
+      height: calc(100% * 150 / 1920);
+      background: rgba(255, 0, 0, 0.2);
+      border-bottom: 2px dashed #ff4444;
+    }
+    .safe-guide-top::after {
+      content: 'ZONA DE PERFIL (150px)';
+      position: absolute;
+      bottom: 4px;
+      left: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #ffaaaa;
+      font-family: monospace;
+    }
+    .safe-guide-bottom {
+      bottom: 0;
+      height: calc(100% * 150 / 1920);
+      background: rgba(255, 0, 0, 0.2);
+      border-top: 2px dashed #ff4444;
+    }
+    .safe-guide-bottom::after {
+      content: 'ZONA DE MENSAJE Y REACCIONES (150px)';
+      position: absolute;
+      top: 4px;
+      left: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #ffaaaa;
+      font-family: monospace;
+    }
+
+    /* Barra inferior con tokens y manual rápido */
+    footer {
+      background: var(--panel-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 16px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 13px;
+    }
+    .tokens-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .token-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0f172a;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .color-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .links-bar {
+      display: flex;
+      gap: 12px;
+    }
+    .links-bar a {
+      color: var(--brand-accent, #ffd100);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .links-bar a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-title">
+      <span class="brand-badge">CFP N° 401</span>
+      <div>
+        <h1>Centro de Promociones y Diseño Gráfico</h1>
+        <p class="subtitle">Plantillas definitivas de redes y afiches (Ambiente desacoplado del sitio web)</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <!-- Selector de Plantilla -->
+      <div class="btn-group" id="modelo-group">
+        <button class="btn-tab active" data-modelo="inscripciones">Inscripciones Abiertas</button>
+        <button class="btn-tab" data-modelo="promo">Promo Alternativa</button>
+        <button class="btn-tab" data-modelo="flyer">Flyer Estándar</button>
+      </div>
+
+      <!-- Selector de Formato -->
+      <div class="btn-group" id="formato-group">
+        <button class="btn-tab active" data-formato="stories">📱 Stories (9:16)</button>
+        <button class="btn-tab" data-formato="feed">📸 Feed (4:5)</button>
+        <button class="btn-tab" data-formato="a4">📄 Afiche A4</button>
+      </div>
+
+      <!-- Guías de zona segura -->
+      <label class="toggle-safe">
+        <input type="checkbox" id="check-safe" checked>
+        Zona segura Stories (150px)
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <div class="viewport-box viewport-stories" id="viewport">
+      <div class="safe-guide safe-guide-top visible" id="guide-top"></div>
+      <iframe id="preview-frame" src="templates/inscripciones-abiertas/InscripcionesAbiertasStories.dc.html"></iframe>
+      <div class="safe-guide safe-guide-bottom visible" id="guide-bottom"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="tokens-bar">
+      <span style="color:#94a3b8; font-weight:600;">Paleta Oficial:</span>
+      <div class="token-chip" onclick="copiar('#003890')"><span class="color-swatch" style="background:#003890"></span>#003890 Primario</div>
+      <div class="token-chip" onclick="copiar('#002878')"><span class="color-swatch" style="background:#002878"></span>#002878 Noche</div>
+      <div class="token-chip" onclick="copiar('#ffd100')"><span class="color-swatch" style="background:#ffd100"></span>#ffd100 Acento</div>
+      <div class="token-chip" onclick="copiar('#ffffff')"><span class="color-swatch" style="background:#ffffff"></span>#ffffff Blanco</div>
+      <span style="color:#94a3b8; margin-left:8px;">Tipografías: <strong>Poppins</strong> (800) + <strong>Source Sans 3</strong> (600)</span>
+    </div>
+
+    <div class="links-bar">
+      <a href="README.md" target="_blank">📖 Guía de Diseño</a>
+      <a id="link-directo" href="templates/inscripciones-abiertas/InscripcionesAbiertasStories.dc.html" target="_blank">↗️ Abrir Pantalla Completa</a>
+    </div>
+  </footer>
+
+  <script>
+    const rutas = {
+      inscripciones: {
+        stories: 'templates/inscripciones-abiertas/InscripcionesAbiertasStories.dc.html',
+        feed: 'templates/inscripciones-abiertas/InscripcionesAbiertas.dc.html',
+        a4: 'templates/inscripciones-abiertas/InscripcionesAbiertasA4.dc.html'
+      },
+      promo: {
+        stories: 'templates/promo-curso/PromoCursoStories.dc.html',
+        feed: 'templates/promo-curso/PromoCurso.dc.html',
+        a4: 'templates/promo-curso/PromoCursoA4.dc.html'
+      },
+      flyer: {
+        stories: 'templates/flyer-curso/FlyerCursoStories.dc.html',
+        feed: 'templates/flyer-curso/FlyerCurso.dc.html',
+        a4: 'templates/flyer-curso/FlyerCurso.dc.html'
+      }
+    };
+
+    let modeloActual = 'inscripciones';
+    let formatoActual = 'stories';
+
+    const viewport = document.getElementById('viewport');
+    const iframe = document.getElementById('preview-frame');
+    const linkDirecto = document.getElementById('link-directo');
+    const guideTop = document.getElementById('guide-top');
+    const guideBottom = document.getElementById('guide-bottom');
+    const checkSafe = document.getElementById('check-safe');
+
+    function actualizar() {
+      const src = rutas[modeloActual][formatoActual];
+      iframe.src = src;
+      linkDirecto.href = src;
+
+      viewport.className = 'viewport-box viewport-' + formatoActual;
+
+      const esStories = (formatoActual === 'stories');
+      checkSafe.parentElement.style.display = esStories ? 'flex' : 'none';
+      guideTop.classList.toggle('visible', esStories && checkSafe.checked);
+      guideBottom.classList.toggle('visible', esStories && checkSafe.checked);
+    }
+
+    document.querySelectorAll('#modelo-group .btn-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#modelo-group .btn-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        modeloActual = btn.dataset.modelo;
+        actualizar();
+      });
+    });
+
+    document.querySelectorAll('#formato-group .btn-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#formato-group .btn-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        formatoActual = btn.dataset.formato;
+        actualizar();
+      });
+    });
+
+    checkSafe.addEventListener('change', () => {
+      guideTop.classList.toggle('visible', formatoActual === 'stories' && checkSafe.checked);
+      guideBottom.classList.toggle('visible', formatoActual === 'stories' && checkSafe.checked);
+    });
+
+    function copiar(hex) {
+      navigator.clipboard.writeText(hex);
+      alert('Color copiado al portapapeles: ' + hex);
+    }
+  </script>
+</body>
+</html>

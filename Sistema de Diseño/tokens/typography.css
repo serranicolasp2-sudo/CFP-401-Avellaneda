@@ -1,0 +1,11 @@
+:root{
+--text-display-size:56px;--text-display-line:1.02;--text-display-weight:800;--text-display-tracking:-0.02em;
+--text-h1-size:40px;--text-h1-line:1.1;--text-h1-weight:700;--text-h1-tracking:-0.015em;
+--text-h2-size:30px;--text-h2-line:1.15;--text-h2-weight:700;--text-h2-tracking:-0.01em;
+--text-h3-size:22px;--text-h3-line:1.25;--text-h3-weight:600;--text-h3-tracking:0;
+--text-body-lg-size:18px;--text-body-lg-line:1.6;
+--text-body-size:16px;--text-body-line:1.6;
+--text-body-sm-size:14px;--text-body-sm-line:1.5;
+--text-caption-size:13px;--text-caption-line:1.4;
+--text-overline-size:12px;--text-overline-line:1.2;--text-overline-tracking:0.14em;--text-overline-weight:700;
+--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;--weight-black:800}

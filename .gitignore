@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Secrets and server-side files (NEVER commit these)
+*.clave*.json
+.intentos.json
+sesiones/
+backups/
+
+# Original uncompressed assets (too large for Git)
+_originales-assets/
+
+# Historical outputs
+Claude outputs/
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Antigravity/AI agent scratch files
+.gemini/
+
+# Design System caches
+Sistema de Diseño/.thumbnail

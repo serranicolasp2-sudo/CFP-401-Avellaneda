@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Flyer de curso (A4)" description="Flyer imprimible de un curso: titular, foto de taller, cápsula amarilla con días, horario y gratuidad, franja azul con requisitos, sede y certificación." -->
+<helmet><script src="./ds-base.js"></script><script src="./doc-page.js"></script><style>doc-page:not(:defined){visibility:hidden}</style></helmet>
+<doc-page size="a4">
+<section class="page" id="flier" data-screen-label="Flyer Soldador Básico">
+<div style="position:absolute;inset:0;overflow:hidden;background:#fff;font-family:var(--font-body);color:var(--text-body)">
+<sc-if value="{{ cuadricula }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:linear-gradient(var(--blue-100) 1px,transparent 1px),linear-gradient(90deg,var(--blue-100) 1px,transparent 1px);background-size:4.2cqw 4.2cqw;opacity:.55"></div></sc-if>
+<div style="position:absolute;top:0;left:0;right:0;height:0.9cqw;background:var(--brand-accent);z-index:4"></div>
+<div style="position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr) 31cqw;grid-template-rows:auto minmax(0,1fr) auto auto auto;column-gap:4cqw;padding:6cqw 5.5cqw 5cqw">
+<div style="grid-column:1 / 4;grid-row:3 / 6;margin:-10cqw -5.5cqw -5cqw;background:var(--gradient-hero-rich);border-top-left-radius:62% 14cqw;border-top-right-radius:38% 6cqw;position:relative;overflow:hidden;z-index:1">
+<img src="../../../assets/promociones/arco-blanco.png" alt="" style="position:absolute;right:-9cqw;bottom:-6cqw;width:62cqw;opacity:.08">
+</div>
+<div style="grid-column:1;grid-row:1;position:relative;z-index:2;padding-bottom:3.5cqw">
+<div style="display:flex;align-items:center;gap:1.6cqw;font-family:var(--font-display);font-weight:700;font-size:1.8cqw;letter-spacing:.14em;color:var(--brand-primary);white-space:nowrap"><span style="flex:none;width:4.4cqw;height:0.7cqw;background:var(--brand-accent)"></span><span>CURSO · FORMACIÓN PROFESIONAL</span></div>
+<h1 style="margin:2cqw 0 0;font-family:var(--font-display);font-weight:800;font-size:8.6cqw;line-height:.95;letter-spacing:-.03em;color:var(--blue-900);text-wrap:balance">SOLDADOR BÁSICO</h1>
+</div>
+<div style="grid-column:1;grid-row:2 / 4;position:relative;z-index:2;margin:-1.8cqw -1.8cqw 24cqw -5.5cqw;border-top:0.8cqw solid var(--brand-accent);border-right:0.8cqw solid var(--brand-accent);border-top-right-radius:33cqw;pointer-events:none"></div>
+<div style="grid-column:1;grid-row:2 / 4;position:relative;z-index:2;margin-left:-5.5cqw;border-top-right-radius:30cqw;overflow:hidden;min-height:0;-webkit-mask-image:linear-gradient(180deg,#000 58%,transparent 100%);mask-image:linear-gradient(180deg,#000 58%,transparent 100%)">
+<sc-if value="{{ f1 }}" hint-placeholder-val="{{ true }}"><img src="../../../assets/promociones/soldadura-1.webp" alt="Soldador trabajando en el taller" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 45%"></sc-if>
+<sc-if value="{{ f2 }}" hint-placeholder-val="{{ false }}"><img src="../../../assets/promociones/soldadura-2.jpg" alt="Soldador trabajando en el taller" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 45%"></sc-if>
+<sc-if value="{{ f3 }}" hint-placeholder-val="{{ false }}"><img src="../../../assets/promociones/soldadura-3.jpg" alt="Soldador trabajando en el taller" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 45%"></sc-if>
+<sc-if value="{{ f4 }}" hint-placeholder-val="{{ false }}"><img src="../../../assets/promociones/soldadura-4.jpg" alt="Soldador trabajando en el taller" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 45%"></sc-if>
+<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,40,120,0) 40%,rgba(0,40,120,.55) 80%)"></div>
+</div>
+<div style="grid-column:1;grid-row:3;align-self:end;position:relative;z-index:3;padding:1cqw 0 4cqw">
+<div style="font-family:var(--font-display);font-weight:800;font-size:5.4cqw;line-height:1;letter-spacing:-.02em;color:#fff">ES TU TIEMPO<br>DE APRENDER</div>
+<div style="width:9cqw;height:0.8cqw;background:var(--brand-accent);margin-top:2cqw"></div>
+</div>
+<div style="grid-column:2;grid-row:1 / 4;position:relative;z-index:3;background:var(--brand-accent);border-radius:999px;box-shadow:1.4cqw 1.4cqw 0 var(--blue-900);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:8cqw 3cqw 3cqw;text-align:center;color:var(--blue-900);margin-bottom:3cqw">
+<div style="font-family:var(--font-display);font-weight:800;font-size:3.4cqw;line-height:1.05;letter-spacing:-.01em">¡INSCRIBITE<br>AHORA!</div>
+<div style="width:8cqw;height:0.6cqw;background:var(--blue-900)"></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:.8cqw"><div style="font-family:var(--font-display);font-weight:700;font-size:2cqw;letter-spacing:.14em">DÍAS</div><div style="font-family:var(--font-display);font-weight:700;font-size:3.8cqw;line-height:1.08">Martes<br>y jueves</div></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:.8cqw"><div style="font-family:var(--font-display);font-weight:700;font-size:2cqw;letter-spacing:.14em">HORARIO</div><div style="font-family:var(--font-display);font-weight:800;font-size:4.2cqw;line-height:1.05;letter-spacing:-.01em">17:50 a<br>21:50 hs</div></div>
+<div style="width:24cqw;height:24cqw;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--brand-primary);box-shadow:0 0.6cqw 2cqw rgba(0,40,120,.18)">
+<div style="font-family:var(--font-display);font-weight:800;font-size:6.6cqw;line-height:1;letter-spacing:-.03em">100%</div>
+<div style="font-family:var(--font-display);font-weight:700;font-size:2.4cqw;letter-spacing:.1em;margin-top:.6cqw">GRATUITO</div>
+</div>
+</div>
+<div style="grid-column:1 / 3;grid-row:4;position:relative;z-index:2;display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:3.5cqw;padding:1cqw 0 4.5cqw;color:#fff">
+<div style="display:flex;flex-direction:column;gap:.8cqw"><div style="font-family:var(--font-display);font-weight:700;font-size:2cqw;letter-spacing:.14em;color:var(--brand-accent)">REQUISITO</div><div style="font-size:2.6cqw;font-weight:600;line-height:1.25;text-wrap:pretty">Constancia de estudios primarios o superiores</div></div>
+<div style="display:flex;flex-direction:column;gap:.8cqw"><div style="font-family:var(--font-display);font-weight:700;font-size:2cqw;letter-spacing:.14em;color:var(--brand-accent)">SEDE</div><div style="font-size:2.6cqw;font-weight:600;line-height:1.25;text-wrap:pretty">Juan Pablo Angulo 1272, Dock Sud</div></div>
+<div style="display:flex;flex-direction:column;gap:.8cqw"><div style="font-family:var(--font-display);font-weight:700;font-size:2cqw;letter-spacing:.14em;color:var(--brand-accent)">CERTIFICACIÓN</div><div style="font-size:2.6cqw;font-weight:600;line-height:1.25;text-wrap:pretty">Oficial DGCyE</div></div>
+</div>
+<div style="grid-column:1 / 3;grid-row:5;position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:4cqw;padding-top:3.5cqw;border-top:1px solid rgba(255,255,255,.35)">
+<img src="../../../assets/promociones/logo-blanco.png" alt="CFP N° 401 Avellaneda" style="height:auto;width:46cqw;max-width:100%;display:block;flex:0 1 auto;min-width:0">
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:1cqw;flex:none">
+<div style="font-family:var(--font-display);font-weight:700;font-size:2cqw;letter-spacing:.12em;color:#fff;white-space:nowrap">CONSULTAS POR WHATSAPP</div>
+<div style="background:var(--brand-accent);color:var(--blue-900);font-family:var(--font-display);font-weight:800;font-size:4.2cqw;line-height:1;padding:1.4cqw 3.6cqw;border-radius:999px;white-space:nowrap">11 6105-6018</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</doc-page>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;foto&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Taller, chispas azules&quot;,&quot;Soldador en banco&quot;,&quot;Primer plano MIG&quot;,&quot;Soldador con careta&quot;],&quot;default&quot;:&quot;Taller, chispas azules&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Imagen&quot;},&quot;fondo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Papel cuadriculado&quot;,&quot;Blanco liso&quot;],&quot;default&quot;:&quot;Papel cuadriculado&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Fondo&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const i = ['Taller, chispas azules','Soldador en banco','Primer plano MIG','Soldador con careta'].indexOf(this.props.foto);
+    const n = i < 0 ? 0 : i;
+    return { f1: n === 0, f2: n === 1, f3: n === 2, f4: n === 3, cuadricula: (this.props.fondo ?? 'Papel cuadriculado') === 'Papel cuadriculado' };
+  }
+}
+</script>
+</body>
+</html>

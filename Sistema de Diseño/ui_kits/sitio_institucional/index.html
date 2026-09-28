@@ -1,0 +1,681 @@
+<!-- @dsCard group="Sitio institucional" viewport="1160x760" name="Sitio institucional CFP 401" subtitle="Home, oferta de cursos, nosotros, inscripción y contacto — prototipo interactivo" -->
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CFP N° 401 Avellaneda — Sitio Institucional</title>
+  <link rel="icon" href="../../assets/Logos/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
+
+  <script src="../../_ds_bundle.js"></script>
+  <script src="data.js"></script>
+
+  <style>
+    :root {
+      --font-display: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      --font-body: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+      --brand-primary: #003890;
+      --brand-primary-strong: #002878;
+      --brand-accent: #ffd100;
+      --brand-accent-strong: #f5b800;
+      --blue-900: #002878;
+      --blue-800: #003080;
+      --blue-700: #003890;
+      --blue-100: #c0d0f0;
+      --blue-50: #e8eefb;
+      --surface-page: #f9fafc;
+      --surface-card: #ffffff;
+      --surface-subtle: #f2f5f9;
+      --surface-accent: #ffd100;
+      --surface-inverse: #002878;
+      --text-title: #002878;
+      --text-body: #333c4a;
+      --text-muted: #66707f;
+      --text-on-accent: #002878;
+      --container-max: 1160px;
+      --gutter: 24px;
+      --section-y: 80px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-pill: 999px;
+      --shadow-md: 0 6px 18px rgba(0,40,120,.12);
+      --border-subtle: #d2dae4;
+      --gradient-hero: linear-gradient(135deg, #003890 0%, #002878 100%);
+      --gradient-hero-rich: radial-gradient(92% 120% at 84% 10%, rgba(8,72,208,.55) 0%, rgba(8,72,208,0) 62%), radial-gradient(70% 95% at 6% 104%, rgba(0,80,176,.42) 0%, rgba(0,80,176,0) 66%), linear-gradient(135deg, #004098 0%, #003080 46%, #002878 100%);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--surface-page);
+      font-family: var(--font-body);
+      color: var(--text-body);
+      -webkit-font-smoothing: antialiased;
+    }
+    /* El header debe reflowar aunque el bundle compilado del NavBar traiga nowrap en estilos inline. */
+    header > div:last-of-type {
+      flex-wrap: wrap !important;
+      column-gap: 20px !important;
+      row-gap: 10px !important;
+    }
+    header > div:last-of-type > img {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      height: auto !important;
+      max-height: 38px !important;
+    }
+    header nav {
+      flex-wrap: wrap !important;
+      column-gap: clamp(14px, 2.2vw, 24px) !important;
+      row-gap: 8px !important;
+    }
+    header nav > a {
+      white-space: nowrap;
+    }
+    /* El destello del arco debe arrancar invisible */
+    .cfp-hero-sheen {
+      animation-fill-mode: backwards !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const {
+      Button,
+      Badge,
+      Card,
+      SectionHeading,
+      Logo,
+      Icon,
+      InfoList,
+      Callout,
+      StatBlock,
+      Hero,
+      CourseCard,
+      Select,
+      Input,
+      CourseTable,
+      Tabs,
+      Checkbox,
+      Radio,
+      Field,
+      Alert,
+      Modal,
+      NavBar,
+      Footer
+    } = window.CFP401AvellanedaDesignSystem_6c39ff;
+
+    const WHATSAPP_URL = 'https://wa.me/541161056018?text=Hola!%20Estoy%20interesad@%20en%20los%20cursos%20de%20Formaci%C3%B3n%20Profesional.';
+    const MAPS_URL = 'https://www.google.com/maps/place/Cfp+401/@-34.6516833,-58.347049,15z/data=!4m5!3m4!1s0x0:0x117f33b4198391f2!8m2!3d-34.6516831!4d-58.347049?shorturl=1';
+
+    // --- HomeScreen ---
+    function HomeScreen({ onNavigate, onInscripcion }) {
+      const courses = window.CFP_DATA.courses;
+      return (
+        <div>
+          <Hero
+            overline="Es tu tiempo de aprender"
+            title="Estudiá con nosotros"
+            subtitle="Cursos presenciales sin costo de inscripción ni de cursada, con certificado oficial de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires."
+            primaryCta={{ label: 'Ver los cursos', onClick: () => onNavigate('Cursos') }}
+            secondaryCta={{ label: 'Cómo inscribirme', onClick: onInscripcion }}
+            assetBase="../../assets"
+          />
+
+          <section style={{ background: 'var(--surface-accent)' }}>
+            <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: '18px var(--gutter)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
+              <strong style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: 'var(--text-on-accent)' }}>
+                Nuevas inscripciones A PARTIR DE NOVIEMBRE
+              </strong>
+              <span style={{ fontSize: 16, color: 'var(--blue-900)' }}>
+                Lunes a viernes de 10 a 19 hs · <a href={MAPS_URL} target="_blank" rel="noopener" style={{ color: 'var(--blue-900)', textDecoration: 'underline', fontWeight: 600 }}>Juan Pablo Angulo 1272, Dock Sud</a>
+              </span>
+              <Button size="sm" variant="primary" style={{ marginLeft: 'auto' }} onClick={onInscripcion}>
+                Quiero inscribirme
+              </Button>
+            </div>
+          </section>
+
+          <section style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--section-y) var(--gutter)' }}>
+            <SectionHeading
+              overline="Nuestra propuesta"
+              title="Aprendizajes que transforman"
+              subtitle="Porque aprender también es construir futuro. Nuestros talleres funcionan con equipamiento real y docentes de oficio."
+              align="center"
+            />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-6)', marginTop: 'var(--space-10)' }}>
+              {[
+                ['graduation-cap', 'Títulos oficiales', 'Certificación oficial de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires.'],
+                ['wallet', '100% gratuito', 'Sin costo de inscripción ni de cursada: solo necesitás presentar la documentación requerida.'],
+                ['wrench', 'Talleres equipados', 'Prácticas reales en herrería, soldadura, electricidad, informática, refrigeración y construcción.']
+              ].map(([ic, t, d]) => (
+                <Card key={t} accentBar>
+                  <Icon name={ic} size={28} color="var(--brand-primary)" />
+                  <h3 style={{ fontSize: 20, margin: 'var(--space-4) 0 var(--space-2)', fontFamily: 'var(--font-display)', color: 'var(--text-title)' }}>{t}</h3>
+                  <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'var(--text-muted)' }}>{d}</p>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          <section style={{ background: 'var(--surface-subtle)' }}>
+            <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--section-y) var(--gutter)' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 'var(--space-6)', flexWrap: 'wrap' }}>
+                <SectionHeading overline="Oferta formativa" title="Nuestros cursos destacados" />
+                <Button variant="secondary" onClick={() => onNavigate('Cursos')} iconRight={<Icon name="arrow-right" size={18} />}>
+                  {`Ver los ${courses.length} cursos`}
+                </Button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-6)', marginTop: 'var(--space-8)' }}>
+                {courses.slice(0, 6).map(c => (
+                  <CourseCard
+                    key={c.curso}
+                    title={c.curso}
+                    schedule={c.horarios}
+                    duration={c.duracion}
+                    requirements={c.requisitos}
+                    location={c.sede}
+                    status="Cursada en marcha"
+                    onAction={() => onNavigate('Cursos')}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section id="como-inscribirte" style={{ background: 'var(--surface-inverse)', color: '#fff', scrollMarginTop: 80 }}>
+            <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--section-y) var(--gutter)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-16)', alignItems: 'center' }}>
+              <div>
+                <SectionHeading invert overline="Cómo inscribirte" title="Acercate a la sede con tu documentación" />
+                <InfoList
+                  invert
+                  style={{ marginTop: 'var(--space-6)' }}
+                  items={[
+                    { label: '4 fotocopias del DNI', value: 'frente y dorso' },
+                    { label: 'Constancia de estudios', value: 'según el curso elegido' },
+                    { label: 'Horario de atención', value: 'lunes a viernes de 10 a 19 hs' },
+                    { label: 'Consultas por WhatsApp', value: '11 6105-6018 (solo mensajes)' }
+                  ]}
+                />
+                <div style={{ marginTop: 'var(--space-8)', paddingTop: 'var(--space-6)', borderTop: '1px solid rgba(255,255,255,.18)' }}>
+                  <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--brand-accent)', margin: 0 }}>
+                    Cuándo abren las inscripciones
+                  </h3>
+                  <p style={{ margin: 'var(--space-3) 0 0', fontSize: 16, lineHeight: 1.6, color: 'var(--blue-100)', maxWidth: 520 }}>
+                    Hay dos períodos por año: de diciembre a febrero para los cursos que comienzan en marzo, y durante junio y julio para los que comienzan en agosto.
+                  </p>
+                </div>
+                <div style={{ marginTop: 'var(--space-8)', display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
+                  <Button variant="accent" size="lg" href={WHATSAPP_URL} target="_blank" rel="noopener" iconLeft={<Icon name="message-circle" size={20} />}>
+                    Consultar por WhatsApp
+                  </Button>
+                  <Button variant="ghost" size="lg" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.5)' }} onClick={() => onNavigate('Inscripción')}>
+                    Formulario de Preinscripción
+                  </Button>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-8)', alignContent: 'center' }}>
+                <StatBlock invert value={courses.length} label="Cursos gratuitos con certificación oficial" />
+                <StatBlock invert value="+45" label="Años formando oficios en Dock Sud" />
+                <StatBlock invert value="1979" label="Año de creación del Centro" />
+                <StatBlock invert value="6" label="Familias profesionales" />
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    // --- CoursesScreen ---
+    function CoursesScreen({ onNavigate, onInscripcion }) {
+      const all = window.CFP_DATA.courses;
+      const familias = ['Todas', ...Array.from(new Set(all.map(c => c.familia)))];
+      const [fam, setFam] = React.useState('Todas');
+      const [q, setQ] = React.useState('');
+      const [view, setView] = React.useState('Tarjetas');
+      const rows = all.filter(c => (fam === 'Todas' || c.familia === fam) && c.curso.toLowerCase().includes(q.toLowerCase()));
+
+      return (
+        <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--space-12) var(--gutter) var(--section-y)' }}>
+          <SectionHeading
+            overline="Oferta formativa"
+            title="Cursos gratuitos con certificación oficial"
+            subtitle="Todos los cursos se dictan en la sede de Juan Pablo Angulo 1272, Dock Sud, salvo donde se indique un anexo específico."
+          />
+          <Callout tone="info" title="Inscripciones en marcha" style={{ marginTop: 'var(--space-8)' }}>
+            Las cursadas se inician en marzo y agosto. Podés reservar tu vacante completando el formulario online o acercándote a la sede.{' '}
+            <a onClick={onInscripcion} style={{ cursor: 'pointer', fontWeight: 700, textDecoration: 'underline' }}>Completar preinscripción online</a>.
+          </Callout>
+          <Callout tone="accent" title="Requisito general" style={{ marginTop: 'var(--space-4)' }}>
+            Presentar 4 fotocopias del DNI y la constancia de estudios requerida según el curso elegido.
+          </Callout>
+
+          <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'flex-end', marginTop: 'var(--space-8)', flexWrap: 'wrap' }}>
+            <Input label="Buscar curso" placeholder="Soldador, electricidad, informática…" value={q} onChange={e => setQ(e.target.value)} style={{ flex: '1 1 280px' }} />
+            <Select label="Familia profesional" options={familias} value={fam} onChange={e => setFam(e.target.value)} style={{ flex: '0 0 260px' }} />
+            <div style={{ marginLeft: 'auto' }}>
+              <Tabs items={['Tarjetas', 'Tabla']} active={view} onChange={setView} />
+            </div>
+          </div>
+
+          <div style={{ marginTop: 'var(--space-8)' }}>
+            {view === 'Tabla' ? (
+              <CourseTable rows={rows.map(c => ({ curso: c.curso, horarios: c.horarios, sede: c.sede, requisitos: c.requisitos }))} />
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 'var(--space-6)' }}>
+                {rows.map(c => (
+                  <Card key={c.curso} accentBar hoverable padding="var(--space-6)">
+                    <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                      <h3 style={{ fontSize: 20, margin: 0, lineHeight: 1.25, fontFamily: 'var(--font-display)', color: 'var(--text-title)' }}>{c.curso}</h3>
+                      <Badge tone="brand">{c.familia}</Badge>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', marginTop: 'var(--space-4)', fontSize: 14, color: 'var(--text-body)' }}>
+                      <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <Icon name="clock" size={16} color="var(--brand-primary)" />
+                        {c.horarios}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', marginTop: 'var(--space-2)', fontSize: 14, color: 'var(--text-muted)' }}>
+                      <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <Icon name="map-pin" size={16} color="var(--brand-primary)" />
+                        {c.sede}
+                      </span>
+                      <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <Icon name="file-check" size={16} color="var(--brand-primary)" />
+                        {c.requisitos}
+                      </span>
+                    </div>
+                    <div style={{ marginTop: 'var(--space-5)', display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <Badge tone="neutral">Cursada en marcha</Badge>
+                      <Badge tone="neutral">{c.duracion}</Badge>
+                      <Button size="sm" variant="secondary" style={{ marginLeft: 'auto' }} onClick={onInscripcion}>
+                        Inscribirme
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+          {rows.length === 0 && (
+            <p style={{ marginTop: 'var(--space-8)', color: 'var(--text-muted)', fontSize: 16 }}>
+              No encontramos cursos con ese criterio. Probá con otra búsqueda o seleccioná otra familia profesional.
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    // --- NosotrosScreen ---
+    const P_NOSOTROS = { margin: '0 0 var(--space-5)', fontSize: 17, lineHeight: 1.7, color: 'var(--text-body)' };
+    function Foto({ src, caption, ratio, style }) {
+      return (
+        <figure style={{ margin: 0, ...style }}>
+          <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', background: '#e2e8f0' }}>
+            <img src={src} alt={caption} style={{ width: '100%', aspectRatio: ratio, objectFit: 'cover', display: 'block' }} />
+          </div>
+          {caption && <figcaption style={{ marginTop: 'var(--space-3)', fontSize: 13, lineHeight: 1.5, color: 'var(--text-muted)' }}>{caption}</figcaption>}
+        </figure>
+      );
+    }
+
+    function NosotrosScreen({ onInscripcion }) {
+      return (
+        <div>
+          <div style={{ position: 'relative', background: 'var(--brand-primary)' }}>
+            <img
+              src="../../assets/fotos/fachada-cfp401.jpg"
+              alt="Fachada del CFP N° 401 en Juan Pablo Angulo 1272, Dock Sud"
+              style={{ width: '100%', height: 'clamp(240px, 32vw, 380px)', objectFit: 'cover', display: 'block', opacity: .92 }}
+            />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,45,98,.92) 0%, rgba(0,45,98,.72) 42%, rgba(0,45,98,0) 78%)' }} />
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}>
+              <div style={{ maxWidth: 'var(--container-max)', width: '100%', margin: '0 auto', padding: '0 var(--gutter)' }}>
+                <div style={{ maxWidth: 580 }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, letterSpacing: '.16em', textTransform: 'uppercase', color: 'var(--brand-accent)', marginBottom: 'var(--space-3)' }}>
+                    Nosotros
+                  </div>
+                  <h1 style={{ margin: 0, fontSize: 'clamp(28px, 3.4vw, 46px)', lineHeight: 1.1, fontWeight: 800, letterSpacing: '-.02em', color: '#fff' }}>
+                    Más de cuatro décadas formando trabajadores
+                  </h1>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--space-12) var(--gutter) var(--section-y)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-16)' }}>
+              <StatBlock value="1979" label="Año de creación" />
+              <StatBlock value="+2.300" label="Cursos dictados" />
+              <StatBlock value="+24.000" label="Egresados con certificado oficial" />
+            </div>
+
+            <SectionHeading
+              overline="Historia institucional"
+              title="De la Unidad de Formación Profesional N° 13 al CFP N° 401"
+              subtitle="El Establecimiento fue creado como Unidad de Formación Profesional Nº 13 el 10 de agosto de 1979. Su radicación en el distrito de Avellaneda se produjo el 22 de agosto de 1979."
+            />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-10)', marginTop: 'var(--space-8)', alignItems: 'start' }}>
+              <div>
+                <p style={P_NOSOTROS}>En abril de 1985 cambió su denominación a Centro de Formación Profesional Nº 13.</p>
+                <p style={P_NOSOTROS}>Luego de dictar cursos en la Escuela Primaria Nº 11 y tras intensas gestiones de los directivos, en 1986 se le otorgó el edificio propio de la calle Juan Pablo Angulo 1272 en Dock Sud.</p>
+                <p style={P_NOSOTROS}>El inmueble pertenecía a la D.G.C. y E. y requirió un enorme esfuerzo comunitario de recuperación y reacondicionamiento para transformar sus aulas y talleres.</p>
+              </div>
+              <div>
+                <p style={P_NOSOTROS}>Con la colaboración incansable de directivos, docentes y alumnos, en julio de 1987 se inauguraron formalmente las nuevas instalaciones y talleres de oficios pesados y livianos.</p>
+                <p style={P_NOSOTROS}>En 1994, al reenumerarse los servicios educativos de la Provincia de Buenos Aires, adoptó su denominación definitiva: <strong>Centro de Formación Profesional N° 401 de Avellaneda</strong>.</p>
+                <p style={{ ...P_NOSOTROS, marginBottom: 0 }}>Hoy contamos con 22 cursos gratuitos, equipamiento moderno y más de 24.000 trabajadores egresados con certificación provincial y nacional.</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: 'var(--space-6)', marginTop: 'var(--space-10)' }}>
+              <Foto src="../../assets/fotos/historia-obra-1.jpg" ratio="1280/320" caption="El edificio de J. P. Angulo 1272 al momento de su cesión en 1986, previo a las obras de remodelación." />
+              <Foto src="../../assets/fotos/historia-obra-2.jpg" ratio="1280/260" caption="Reconstrucción de aulas y talleres completada con éxito en julio de 1987." />
+            </div>
+
+            <div style={{ height: 1, background: 'var(--border-subtle)', margin: 'var(--space-16) 0' }} />
+
+            <SectionHeading overline="Alianzas y avales" title="Formación con título oficial al servicio del trabajo" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-10)', marginTop: 'var(--space-8)', alignItems: 'start' }}>
+              <div>
+                <p style={P_NOSOTROS}>El CFP 401 tiene como misión central impulsar la inserción laboral, la reconversión de mano de obra y la capacitación tecnológica continua.</p>
+                <p style={{ ...P_NOSOTROS, marginBottom: 0 }}>Todos los programas siguen los Diseños Curriculares del Consejo Federal de Educación y otorgan Títulos Oficiales de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires.</p>
+              </div>
+              <Card accentBar padding="var(--space-8)">
+                <Icon name="handshake" size={26} color="var(--brand-primary)" />
+                <h3 style={{ margin: 'var(--space-4) 0 var(--space-3)', fontFamily: 'var(--font-display)', fontSize: 20, lineHeight: 1.25, fontWeight: 700, color: 'var(--text-title)' }}>
+                  Red de CFP de Trabajadores de la Construcción
+                </h3>
+                <p style={{ ...P_NOSOTROS, fontSize: 15, marginBottom: 0 }}>
+                  Formamos parte de la Red de Centros en convenio con la Fundación de Educación y Capacitación para los Trabajadores de la Construcción, accediendo a equipamiento de última generación y constante perfeccionamiento docente.
+                </p>
+              </Card>
+            </div>
+
+            <Callout tone="accent" title="Inscripciones abiertas" style={{ marginTop: 'var(--space-16)' }}>
+              <p style={{ margin: '0 0 var(--space-5)', fontSize: 16, lineHeight: 1.6 }}>
+                Recordá que todas nuestras carreras y cursos son 100% gratuitos y otorgan certificación oficial.
+              </p>
+              <Button variant="accent" onClick={onInscripcion} iconLeft={<Icon name="clipboard-list" size={18} />}>
+                Completar preinscripción
+              </Button>
+            </Callout>
+          </div>
+        </div>
+      );
+    }
+
+    // --- ContactScreen ---
+    function ContactScreen() {
+      return (
+        <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--space-12) var(--gutter) var(--section-y)' }}>
+          <SectionHeading
+            overline="Contacto"
+            title="Estamos en Dock Sud, Avellaneda"
+            subtitle="Podés escribirnos por WhatsApp o acercarte directamente a la sede central en nuestro horario de atención."
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-8)', marginTop: 'var(--space-8)', alignItems: 'start' }}>
+            <Card padding="var(--space-8)">
+              <InfoList
+                items={[
+                  { label: 'Sede central:', value: <a href={MAPS_URL} target="_blank" rel="noopener" style={{ color: 'var(--brand-primary)', textDecoration: 'underline', fontWeight: 600 }}>Juan Pablo Angulo 1272, Dock Sud</a> },
+                  { label: 'Anexo formativo:', value: 'Polideportivo Plaza Renunciamiento — Irala y Argentino Valle' },
+                  { label: 'Atención presencial:', value: 'Lunes a viernes de 10 a 19 hs' },
+                  { label: 'WhatsApp oficial:', value: '11 6105-6018 (solo mensajes)' },
+                  { label: 'Sitio Web:', value: 'www.cfp401avellaneda.com.ar' }
+                ]}
+              />
+              <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-8)', flexWrap: 'wrap' }}>
+                <Button variant="accent" href={WHATSAPP_URL} target="_blank" rel="noopener" iconLeft={<Icon name="message-circle" size={18} />}>
+                  Escribir por WhatsApp
+                </Button>
+                <Button variant="secondary" href={MAPS_URL} target="_blank" rel="noopener" iconLeft={<Icon name="map-pin" size={18} />}>
+                  Ver en Google Maps
+                </Button>
+              </div>
+            </Card>
+            <a
+              href={MAPS_URL}
+              target="_blank"
+              rel="noopener"
+              style={{ display: 'block', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-md)', textDecoration: 'none' }}
+            >
+              <img src="../../assets/fotos/mapa-cfp401.png" alt="Mapa de ubicación del CFP N° 401 en Dock Sud, Avellaneda" style={{ width: '100%', display: 'block' }} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', padding: 'var(--space-4) var(--space-5)', background: 'var(--surface-card)', fontSize: 14, fontWeight: 600, color: 'var(--brand-primary)' }}>
+                <Icon name="external-link" size={16} />
+                Abrir en Google Maps
+              </span>
+            </a>
+          </div>
+          <figure style={{ margin: 'var(--space-10) 0 0' }}>
+            <img src="../../assets/fotos/fachada-cfp401.jpg" alt="Fachada de la sede de J. P. Angulo 1272, Dock Sud" style={{ width: '100%', aspectRatio: '2048/480', objectFit: 'cover', display: 'block', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)' }} />
+            <figcaption style={{ marginTop: 'var(--space-3)', fontSize: 13, color: 'var(--text-muted)' }}>
+              Sede central de Juan Pablo Angulo 1272, Dock Sud, Avellaneda.
+            </figcaption>
+          </figure>
+        </div>
+      );
+    }
+
+    // --- EnrollScreen ---
+    function EnrollScreen({ onNavigate }) {
+      const all = window.CFP_DATA.courses;
+      const [step, setStep] = React.useState(1);
+      const [form, setForm] = React.useState({
+        nombre: '',
+        dni: '',
+        tel: '',
+        curso: all[0] ? all[0].curso : 'Soldador Básico',
+        turno: 'Tarde',
+        dniOk: false,
+        constancia: false
+      });
+      const [modal, setModal] = React.useState(false);
+      const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+      const steps = ['Tus datos', 'Curso y turno', 'Documentación'];
+      const selectedCourse = all.find(c => c.curso === form.curso) || all[0];
+
+      return (
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: 'var(--space-12) var(--gutter) var(--section-y)' }}>
+          <SectionHeading
+            overline="Preinscripción online"
+            title="Reservá tu vacante en 3 pasos"
+            subtitle="Completá este formulario para reservar tu lugar. Recordá luego acercarte a la sede con tu documentación para confirmar tu inscripción definitiva."
+          />
+          <div style={{ display: 'flex', gap: 'var(--space-2)', margin: 'var(--space-8) 0' }}>
+            {steps.map((s, i) => (
+              <div key={s} style={{ flex: 1 }}>
+                <div style={{ height: 6, borderRadius: 3, background: i < step ? 'var(--brand-accent)' : '#e2e8f0' }} />
+                <div style={{ marginTop: 8, fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: i < step ? 'var(--brand-primary)' : 'var(--text-muted)' }}>
+                  {i + 1}. {s}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Card padding="var(--space-8)">
+            {step === 1 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-5)' }}>
+                <Input label="Nombre y apellido" required value={form.nombre} onChange={e => set('nombre', e.target.value)} placeholder="Como figura en el DNI" />
+                <Input label="DNI" required value={form.dni} onChange={e => set('dni', e.target.value)} hint="Sin puntos ni espacios" />
+                <Input label="Teléfono / WhatsApp" value={form.tel} onChange={e => set('tel', e.target.value)} placeholder="11 6105-6018" />
+                <Input label="Correo electrónico" type="email" placeholder="nombre@correo.com" />
+              </div>
+            )}
+
+            {step === 2 && (
+              <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
+                <Select label="Curso elegido" options={all.map(c => c.curso)} value={form.curso} onChange={e => set('curso', e.target.value)} hint={selectedCourse ? selectedCourse.horarios : ''} />
+                <Field label="Turno de preferencia" hint="Los horarios definitivos se coordinan al presentar la documentación.">
+                  <Radio label="Mañana" checked={form.turno === 'Mañana'} onChange={() => set('turno', 'Mañana')} />
+                  <Radio label="Tarde" checked={form.turno === 'Tarde'} onChange={() => set('turno', 'Tarde')} />
+                  <Radio label="Noche" checked={form.turno === 'Noche'} onChange={() => set('turno', 'Noche')} />
+                </Field>
+                {selectedCourse && (
+                  <Callout tone="info" title="Requisitos de ingreso">{selectedCourse.requisitos}</Callout>
+                )}
+              </div>
+            )}
+
+            {step === 3 && (
+              <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
+                <Field label="Confirmá que vas a presentar en la sede:">
+                  <Checkbox label="4 fotocopias del DNI (frente y dorso)" checked={form.dniOk} onChange={v => set('dniOk', v)} />
+                  <Checkbox label="Constancia de estudios requerida por el curso" checked={form.constancia} onChange={v => set('constancia', v)} />
+                </Field>
+                {!(form.dniOk && form.constancia) && (
+                  <Alert tone="warning">Necesitás tildar ambos requisitos para habilitar el envío de la preinscripción.</Alert>
+                )}
+                <InfoList
+                  items={[
+                    { label: 'Sede central:', value: 'Juan Pablo Angulo 1272, Dock Sud' },
+                    { label: 'Horario de recepción:', value: 'Lunes a viernes de 10 a 19 hs' },
+                    { label: 'WhatsApp de dudas:', value: '11 6105-6018' }
+                  ]}
+                />
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-8)' }}>
+              {step > 1 && (
+                <Button variant="ghost" onClick={() => setStep(step - 1)} iconLeft={<Icon name="arrow-left" size={18} />}>
+                  Atrás
+                </Button>
+              )}
+              {step < 3 ? (
+                <Button style={{ marginLeft: 'auto' }} onClick={() => setStep(step + 1)} iconRight={<Icon name="arrow-right" size={18} />}>
+                  Continuar
+                </Button>
+              ) : (
+                <Button variant="accent" style={{ marginLeft: 'auto' }} disabled={!(form.dniOk && form.constancia)} onClick={() => setModal(true)}>
+                  Enviar preinscripción
+                </Button>
+              )}
+            </div>
+          </Card>
+
+          <Modal
+            open={modal}
+            title="¡Preinscripción enviada con éxito!"
+            onClose={() => setModal(false)}
+            footer={
+              <>
+                <Button variant="ghost" onClick={() => setModal(false)}>Cerrar</Button>
+                <Button variant="accent" onClick={() => { setModal(false); onNavigate('Campus'); }}>Ir al Campus Virtual</Button>
+              </>
+            }
+          >
+            Guardamos tu lugar en <strong>{form.curso}</strong> (Turno {form.turno}). Te esperamos en la sede de Juan Pablo Angulo 1272 de lunes a viernes de 10 a 19 hs con las 4 fotocopias de DNI y la constancia de estudios.
+          </Modal>
+        </div>
+      );
+    }
+
+    // --- App Shell ---
+    function App() {
+      const [page, setPage] = React.useState('Inicio');
+      const go = p => {
+        setPage(p);
+        window.scrollTo(0, 0);
+      };
+      const goInscripcion = () => {
+        setPage('Inscripción');
+        window.scrollTo(0, 0);
+      };
+
+      return (
+        <div>
+          <NavBar
+            items={["Inicio", "Cursos", "Nosotros", "Inscripción", "Contacto"]}
+            active={page}
+            onNavigate={go}
+            assetBase="../../assets"
+            cta={{ label: 'Campus Virtual', onClick: () => go('Campus') }}
+          />
+
+          {page === 'Inicio' && <HomeScreen onNavigate={go} onInscripcion={goInscripcion} />}
+          {page === 'Cursos' && <CoursesScreen onNavigate={go} onInscripcion={goInscripcion} />}
+          {page === 'Nosotros' && <NosotrosScreen onInscripcion={goInscripcion} />}
+          {page === 'Inscripción' && <EnrollScreen onNavigate={go} />}
+          {page === 'Contacto' && <ContactScreen />}
+          {page === 'Campus' && (
+            <div style={{ maxWidth: 760, margin: '0 auto', padding: '96px 24px', textAlign: 'center' }}>
+              <img src="../../assets/Logos/logo-campus-horizontal.png" alt="Campus Virtual" style={{ maxWidth: 420, width: '100%' }} />
+              <h2 style={{ fontFamily: 'var(--font-display)', color: 'var(--brand-primary)', marginTop: 24 }}>
+                Entorno Virtual de Aprendizaje
+              </h2>
+              <p style={{ fontSize: 18, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                El Campus Virtual con login de alumnos, tablero del estudiante y aulas de cursos se encuentra recreado en su kit interactivo específico:
+              </p>
+              <div style={{ marginTop: 28 }}>
+                <a
+                  href="../campus_virtual/index.html"
+                  style={{
+                    display: 'inline-block',
+                    background: 'var(--brand-accent)',
+                    color: 'var(--blue-900)',
+                    padding: '12px 28px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    boxShadow: 'var(--shadow-md)'
+                  }}
+                >
+                  Abrir UI Kit Campus Virtual →
+                </a>
+              </div>
+            </div>
+          )}
+
+          <Footer
+            assetBase="../../assets"
+            address={
+              <>
+                <a
+                  href={MAPS_URL}
+                  target="_blank"
+                  rel="noopener"
+                  style={{ color: 'var(--blue-100)', textDecoration: 'underline' }}
+                >
+                  Juan Pablo Angulo 1272, Dock Sud, Avellaneda
+                </a>
+                <br />
+                Lunes a viernes de 10 a 19 hs
+                <br />
+                WhatsApp 11 6105-6018
+              </>
+            }
+            columns={[
+              { title: 'Cursos', links: ['Oferta formativa', 'Requisitos', 'Familias profesionales'] },
+              { title: 'Institucional', links: ['Nosotros', 'Contacto', 'Campus Virtual'] }
+            ]}
+          />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

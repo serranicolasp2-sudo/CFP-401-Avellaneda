@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="./ds-base.js"></script></helmet>
+<div id="flyer-stories" data-screen-label="Flyer de curso · Stories" style="position:relative;width:1080px;height:1920px;overflow:hidden;background:#fff;font-family:var(--font-body);color:var(--text-body)">
+<sc-if value="{{ cuadricula }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:linear-gradient(var(--blue-100) 1px,transparent 1px),linear-gradient(90deg,var(--blue-100) 1px,transparent 1px);background-size:46px 46px;opacity:.55"></div></sc-if>
+<div style="position:absolute;top:0;left:0;right:0;height:12px;background:var(--brand-accent);z-index:5"></div>
+<div style="position:absolute;left:0;right:0;top:1120px;bottom:0;background:var(--gradient-hero-rich);border-top-left-radius:62% 180px;border-top-right-radius:38% 80px;overflow:hidden;z-index:1"><img src="../../../assets/promociones/arco-blanco.png" alt="" style="position:absolute;right:-110px;bottom:-90px;width:720px;opacity:.08"></div>
+<div style="position:absolute;left:80px;right:80px;top:150px;z-index:2">
+<div style="display:flex;align-items:center;gap:18px;font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:.14em;color:var(--brand-primary)"><span style="flex:none;width:56px;height:8px;background:var(--brand-accent)"></span><span>{{ antetitulo }}</span></div>
+<h1 style="margin:22px 0 0;max-width:920px;font-family:var(--font-display);font-weight:800;font-size:126px;line-height:1.04;letter-spacing:-.035em;color:var(--blue-900);text-wrap:balance">{{ curso }}</h1>
+</div>
+<div style="position:absolute;left:0;top:516px;width:674px;height:560px;border-top:12px solid var(--brand-accent);border-right:12px solid var(--brand-accent);border-top-right-radius:364px;z-index:2;pointer-events:none"></div>
+<div style="position:absolute;left:0;top:540px;width:650px;height:840px;border-top-right-radius:340px;overflow:hidden;z-index:2;-webkit-mask-image:linear-gradient(180deg,#000 60%,transparent 100%);mask-image:linear-gradient(180deg,#000 60%,transparent 100%)">
+<img src="{{ fotoSrc }}" alt="Soldador trabajando en el taller" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 45%">
+<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,40,120,0) 40%,rgba(0,40,120,.55) 80%)"></div>
+</div>
+<div style="position:absolute;left:80px;top:1170px;z-index:3">
+<div style="max-width:580px;font-family:var(--font-display);font-weight:800;font-size:78px;line-height:1;letter-spacing:-.02em;color:#fff;text-wrap:balance">{{ frase }}</div>
+<div style="width:110px;height:10px;background:var(--brand-accent);margin-top:26px"></div>
+</div>
+<div style="position:absolute;right:64px;top:500px;width:330px;height:880px;z-index:3;background:var(--brand-accent);border-radius:999px;box-shadow:16px 16px 0 var(--blue-900);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:110px 30px 30px;text-align:center;color:var(--blue-900)">
+<div style="font-family:var(--font-display);font-weight:800;font-size:46px;line-height:1.05;letter-spacing:-.01em;max-width:250px;text-wrap:balance">{{ cta }}</div>
+<div style="width:90px;height:7px;background:var(--blue-900)"></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:.14em">DÍAS</div><div style="font-family:var(--font-display);font-weight:700;font-size:50px;line-height:1.08;max-width:260px;text-wrap:balance">{{ dias }}</div></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:.14em">HORARIO</div><div style="font-family:var(--font-display);font-weight:800;font-size:54px;line-height:1.05;letter-spacing:-.01em;max-width:260px;text-wrap:balance">{{ horario }}</div></div>
+<sc-if value="{{ conSello }}" hint-placeholder-val="{{ true }}"><div style="width:270px;height:270px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--brand-primary);box-shadow:0 8px 24px rgba(0,40,120,.18)"><div style="font-family:var(--font-display);font-weight:800;font-size:76px;line-height:1;letter-spacing:-.03em">{{ selloGrande }}</div><div style="font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:.1em;margin-top:8px">{{ selloChico }}</div></div></sc-if>
+</div>
+<div style="position:absolute;left:80px;right:80px;bottom:150px;z-index:2;display:flex;flex-direction:column;gap:44px;color:#fff">
+<div style="display:grid;grid-template-columns:1.15fr 1fr .9fr;gap:36px">
+<div style="display:flex;flex-direction:column;gap:10px"><div style="font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:.14em;color:var(--brand-accent)">REQUISITO</div><div style="font-size:30px;font-weight:600;line-height:1.25;text-wrap:pretty">{{ requisito }}</div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div style="font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:.14em;color:var(--brand-accent)">SEDE</div><div style="font-size:30px;font-weight:600;line-height:1.25;text-wrap:pretty">{{ sede }}</div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div style="font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:.14em;color:var(--brand-accent)">CERTIFICACIÓN</div><div style="font-size:30px;font-weight:600;line-height:1.25;text-wrap:pretty">{{ certificacion }}</div></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:40px;padding-top:40px;border-top:1px solid rgba(255,255,255,.35)">
+<img src="../../../assets/promociones/logo-blanco.png" alt="CFP N° 401 Avellaneda" style="width:430px;max-width:100%;height:auto;display:block;flex:0 1 auto;min-width:0">
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex:none"><div style="font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:.12em;white-space:nowrap">CONSULTAS POR WHATSAPP</div><div style="background:var(--brand-accent);color:var(--blue-900);font-family:var(--font-display);font-weight:800;font-size:50px;line-height:1;padding:18px 40px;border-radius:999px;white-space:nowrap">{{ whatsapp }}</div></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1080,&quot;height&quot;:1920},&quot;antetitulo&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;CURSO · FORMACIÓN PROFESIONAL&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;curso&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;SOLDADOR BÁSICO&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;frase&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ES TU TIEMPO DE APRENDER&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;cta&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;¡INSCRIBITE AHORA!&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cápsula&quot;},&quot;dias&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Martes y jueves&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cápsula&quot;},&quot;horario&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;17:50 a 21:50 hs&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cápsula&quot;},&quot;mostrarSello&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cápsula&quot;},&quot;selloGrande&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;100%&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cápsula&quot;},&quot;selloChico&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;GRATUITO&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cápsula&quot;},&quot;requisito&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Constancia de estudios primarios o superiores&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;sede&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Juan Pablo Angulo 1272, Dock Sud&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;certificacion&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Oficial DGCyE&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;whatsapp&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;11 6105-6018&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos&quot;},&quot;foto&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Taller, chispas azules&quot;,&quot;Soldador en banco&quot;,&quot;Primer plano MIG&quot;,&quot;Soldador con careta&quot;],&quot;default&quot;:&quot;Taller, chispas azules&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Imagen&quot;},&quot;fondo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Papel cuadriculado&quot;,&quot;Blanco liso&quot;],&quot;default&quot;:&quot;Papel cuadriculado&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Imagen&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const fotos = { 'Taller, chispas azules': '../../../assets/promociones/soldadura-1.webp', 'Soldador en banco': '../../../assets/promociones/soldadura-2.jpg', 'Primer plano MIG': '../../../assets/promociones/soldadura-3.jpg', 'Soldador con careta': '../../../assets/promociones/soldadura-4.jpg' };
+    return {
+      fotoSrc: fotos[p.foto] || fotos['Taller, chispas azules'],
+      cuadricula: (p.fondo ?? 'Papel cuadriculado') === 'Papel cuadriculado',
+      antetitulo: p.antetitulo ?? 'CURSO · FORMACIÓN PROFESIONAL',
+      curso: p.curso ?? 'SOLDADOR BÁSICO',
+      frase: p.frase ?? 'ES TU TIEMPO DE APRENDER',
+      cta: p.cta ?? '¡INSCRIBITE AHORA!',
+      dias: p.dias ?? 'Martes y jueves',
+      horario: p.horario ?? '17:50 a 21:50 hs',
+      conSello: p.mostrarSello ?? true,
+      selloGrande: p.selloGrande ?? '100%',
+      selloChico: p.selloChico ?? 'GRATUITO',
+      requisito: p.requisito ?? 'Constancia de estudios primarios o superiores',
+      sede: p.sede ?? 'Juan Pablo Angulo 1272, Dock Sud',
+      certificacion: p.certificacion ?? 'Oficial DGCyE',
+      whatsapp: p.whatsapp ?? '11 6105-6018'
+    };
+  }
+}
+</script>
+</body>
+</html>

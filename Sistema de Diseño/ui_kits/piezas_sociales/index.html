@@ -1,0 +1,727 @@
+<!-- @dsCard group="Piezas sociales" viewport="1240x800" name="Piezas para redes oficiales" subtitle="Inscripciones abiertas, Promo alternativa y Flyer estándar (Stories 9:16 y Feed 4:5)" -->
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Piezas para Redes Oficiales — CFP N° 401</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface-subtle, #f8fafc);
+      font-family: var(--font-body, "Source Sans 3", sans-serif);
+      color: var(--text-body, #1e293b);
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle, #e2e8f0);
+    }
+    .title-group h1 {
+      margin: 0;
+      font-family: var(--font-display, Poppins, sans-serif);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--blue-900, #002878);
+    }
+    .title-group p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--text-muted, #64748b);
+    }
+    .toggle-group {
+      display: flex;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 8px;
+      gap: 4px;
+    }
+    .toggle-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-family: var(--font-display, Poppins, sans-serif);
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      color: #475569;
+      transition: all 0.15s;
+    }
+    .toggle-btn.active {
+      background: #ffffff;
+      color: var(--brand-primary, #003890);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .frames {
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+      overflow-x: auto;
+      padding-bottom: 16px;
+    }
+    .frame-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cap {
+      font-family: var(--font-display, Poppins, sans-serif);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--brand-primary, #003890);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 10px;
+      background: var(--brand-accent, #ffd100);
+      color: var(--blue-900, #002878);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .frame-container {
+      border: 1px solid var(--border-subtle, #cbd5e1);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0,40,120,0.12);
+      background: #000;
+    }
+    /* Escalado visual para que los 1080px entren en la pantalla del diseñador */
+    .scale-stories { width: 340px; height: 604px; } /* 1080x1920 escalado a ~0.315 */
+    .scale-feed { width: 340px; height: 425px; }    /* 1080x1350 escalado a ~0.315 */
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+// --- InscripcionesAbiertas.jsx ---
+// UI Kit — Piezas Sociales: Inscripciones Abiertas (Definitiva)
+// Admite formatos 'feed' (4:5 - 1080x1350) y 'historia' (9:16 - 1080x1920)
+function InscripcionesAbiertas({
+  formato = 'historia',
+  antetitulo = 'CICLO LECTIVO 2027',
+  linea1 = 'INSCRIPCIONES',
+  linea2 = 'ABIERTAS',
+  bajada = 'Cursos de formación profesional con certificación oficial DGCyE.',
+  cursos = ['Soldadura', 'Electricidad', 'Energías renovables', 'Domótica', 'Refrigeración'],
+  dato1Label = 'INSCRIPCIÓN',
+  dato1 = 'Desde el 1/12',
+  dato2Label = 'SEDE',
+  dato2 = 'J. P. Angulo 1272',
+  whatsapp = '11 6105-6018',
+  foto = '../../assets/promociones/soldadura-1.webp',
+  conSello = true,
+  conCursos = true,
+  scale = 1
+}) {
+  const esHistoria = formato === 'historia';
+  const ancho = 1080;
+  const alto = esHistoria ? 1920 : 1350;
+
+  return (
+    <div style={{
+      width: ancho,
+      height: alto,
+      transform: scale !== 1 ? `scale(${scale})` : undefined,
+      transformOrigin: 'top left',
+      position: 'relative',
+      background: 'var(--brand-primary, #003890)',
+      fontFamily: 'var(--font-body, "Source Sans 3", sans-serif)',
+      color: '#ffffff',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      {/* Fondo degradado hero rich */}
+      <div style={{ position: 'absolute', inset: 0, background: 'var(--gradient-hero-rich, linear-gradient(135deg, #004098 0%, #003080 46%, #002878 100%))' }} />
+
+      {/* Zona Superior: Foto circular protagonista y sello */}
+      <div style={{ position: 'relative', flex: 'none', height: esHistoria ? 1020 : 660 }}>
+        {/* Marca de agua del arco detrás del titular */}
+        <img
+          src="../../assets/promociones/arco-blanco.png"
+          alt=""
+          style={{ position: 'absolute', left: esHistoria ? -272 : -180, top: esHistoria ? 653 : 420, width: esHistoria ? 904 : 640, opacity: 0.08, pointerEvents: 'none' }}
+        />
+
+        {/* Aro amarillo exterior */}
+        <div style={{
+          position: 'absolute',
+          right: esHistoria ? -166 : -110,
+          top: esHistoria ? 187 : 110,
+          width: esHistoria ? 806 : 560,
+          height: esHistoria ? 806 : 560,
+          borderRadius: '50%',
+          border: `${esHistoria ? 26 : 18}px solid var(--brand-accent, #ffd100)`,
+          boxSizing: 'border-box'
+        }} />
+
+        {/* Foto circular con recorte azul */}
+        <div style={{
+          position: 'absolute',
+          right: esHistoria ? -140 : -92,
+          top: esHistoria ? 213 : 128,
+          width: esHistoria ? 754 : 524,
+          height: esHistoria ? 754 : 524,
+          borderRadius: '50%',
+          overflow: 'hidden',
+          background: 'var(--blue-900, #002878)'
+        }}>
+          <img src={foto} alt="Alumnos del CFP 401" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(200deg, rgba(0,40,120,0) 45%, rgba(0,40,120,.45) 100%)' }} />
+        </div>
+
+        {/* Logo Institucional Blanco */}
+        <img
+          src="../../assets/promociones/logo-blanco.png"
+          alt="CFP N° 401 Avellaneda"
+          style={{ position: 'absolute', left: 70, top: esHistoria ? 130 : 60, width: esHistoria ? 620 : 480, height: 'auto', display: 'block' }}
+        />
+
+        {/* Sello rotado 100% Gratuito */}
+        {conSello && (
+          <div style={{
+            position: 'absolute',
+            left: esHistoria ? 490 : 340,
+            top: esHistoria ? 650 : 400,
+            width: esHistoria ? 290 : 220,
+            height: esHistoria ? 290 : 220,
+            zIndex: 2,
+            borderRadius: '50%',
+            background: 'var(--brand-accent, #ffd100)',
+            color: 'var(--blue-900, #002878)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            transform: 'rotate(-12deg)',
+            boxShadow: '14px 14px 0 var(--blue-900, #002878)'
+          }}>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: esHistoria ? 84 : 64, lineHeight: 1 }}>100%</div>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: esHistoria ? 28 : 22, letterSpacing: '.1em', marginTop: 4 }}>GRATUITO</div>
+          </div>
+        )}
+      </div>
+
+      {/* Zona Media: Titulares y etiquetas de oficios */}
+      <div style={{
+        position: 'relative',
+        flex: '1 1 auto',
+        minHeight: 0,
+        overflow: 'hidden',
+        padding: esHistoria ? '0 80px 40px' : '0 60px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-start'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 26, letterSpacing: '.16em', color: 'var(--brand-accent, #ffd100)' }}>
+          <span style={{ width: 50, height: 7, background: 'var(--brand-accent, #ffd100)' }} />
+          <span>{antetitulo}</span>
+        </div>
+        <div style={{ marginTop: 14, fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: esHistoria ? 96 : 74, lineHeight: .98, letterSpacing: '-.04em', color: '#fff', maxWidth: 920, textWrap: 'balance' }}>{linea1}</div>
+        <div style={{
+          marginTop: 14,
+          background: 'var(--brand-accent, #ffd100)',
+          color: 'var(--blue-900, #002878)',
+          fontFamily: 'var(--font-display, Poppins, sans-serif)',
+          fontWeight: 800,
+          fontSize: esHistoria ? 96 : 74,
+          lineHeight: 1,
+          letterSpacing: '-.04em',
+          maxWidth: 900,
+          textWrap: 'balance',
+          padding: '4px 30px 12px',
+          borderRadius: 22,
+          transform: 'rotate(-2deg)',
+          boxShadow: '12px 12px 0 var(--blue-900, #002878)'
+        }}>{linea2}</div>
+        <div style={{ marginTop: 28, maxWidth: 900, fontSize: esHistoria ? 32 : 26, fontWeight: 600, lineHeight: 1.3, textWrap: 'pretty' }}>{bajada}</div>
+
+        {conCursos && (
+          <div style={{ marginTop: 20, display: 'flex', flexWrap: 'wrap', gap: 10, maxWidth: 920 }}>
+            {cursos.map((c, i) => (
+              <span key={i} style={{ border: '3px solid rgba(255,255,255,.75)', borderRadius: 999, padding: '6px 20px', fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 21, letterSpacing: '.02em', whiteSpace: 'nowrap' }}>{c}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Zona Inferior: Pie blanco con datos y WhatsApp */}
+      <div style={{
+        position: 'relative',
+        flex: 'none',
+        background: '#fff',
+        color: 'var(--blue-900, #002878)',
+        borderTop: '14px solid var(--brand-accent, #ffd100)',
+        padding: esHistoria ? '40px 80px 70px' : '30px 60px 36px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 24
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 36 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 20, letterSpacing: '.14em', color: 'var(--brand-primary, #003890)' }}>{dato1Label}</div>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: 36, lineHeight: 1.08, textWrap: 'balance' }}>{dato1}</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 20, letterSpacing: '.14em', color: 'var(--brand-primary, #003890)' }}>{dato2Label}</div>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: 36, lineHeight: 1.08, textWrap: 'balance' }}>{dato2}</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', alignItems: 'center', gap: 36, paddingTop: 20, borderTop: '2px solid var(--blue-100, #c0d0f0)' }}>
+          <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 20, letterSpacing: '.14em', color: 'var(--brand-primary, #003890)' }}>CONSULTAS POR WHATSAPP</div>
+          <div style={{ background: 'var(--blue-900, #002878)', color: 'var(--brand-accent, #ffd100)', fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: 40, lineHeight: 1, padding: '14px 30px', borderRadius: 999, whiteSpace: 'nowrap', justifySelf: 'start' }}>{whatsapp}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+</script>
+
+<script type="text/babel">
+// --- PromoCurso.jsx ---
+// UI Kit — Piezas Sociales: Promo de Curso Alternativa (Definitiva)
+// Admite formatos 'feed' (4:5 - 1080x1350) y 'historia' (9:16 - 1080x1920)
+function PromoCurso({
+  formato = 'feed',
+  categoria = 'METALMECÁNICA',
+  curso = 'Soldador básico',
+  bajada = 'Aprendé soldadura por arco eléctrico en taller, con certificación oficial DGCyE.',
+  dias = 'Martes y jueves',
+  horario = '17:50 a 21:50 hs',
+  duracion = '4 meses',
+  requisito = 'Primaria completa',
+  cta = '¡Inscribite ahora!',
+  sede = 'J. P. Angulo 1272, Dock Sud',
+  whatsapp = '11 6105-6018',
+  foto = '../../assets/promociones/soldadura-1.webp',
+  conCinta = true,
+  scale = 1
+}) {
+  const esHistoria = formato === 'historia';
+  const ancho = 1080;
+  const alto = esHistoria ? 1920 : 1350;
+
+  return (
+    <div style={{
+      width: ancho,
+      height: alto,
+      transform: scale !== 1 ? `scale(${scale})` : undefined,
+      transformOrigin: 'top left',
+      position: 'relative',
+      background: 'var(--blue-900, #002878)',
+      fontFamily: 'var(--font-body, "Source Sans 3", sans-serif)',
+      color: '#ffffff',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      {/* Mitad superior: Foto a sangre con degradado */}
+      <div style={{
+        position: 'relative',
+        flex: '1 1 auto',
+        minHeight: esHistoria ? 760 : 480,
+        overflow: 'hidden',
+        background: 'var(--brand-primary, #003890)'
+      }}>
+        <img src={foto} alt={curso} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }} />
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(180deg, rgba(0,30,90,.65) 0%, rgba(0,30,90,0) 32%, rgba(0,30,90,0) 65%, rgba(0,30,90,.6) 100%)'
+        }} />
+        <img src="../../assets/promociones/logo-blanco.png" alt="CFP N° 401 Avellaneda" style={{ position: 'absolute', left: 64, top: esHistoria ? 100 : 50, width: esHistoria ? 620 : 480, height: 'auto' }} />
+
+        {/* Cinta de acento en la esquina */}
+        {conCinta && (
+          <div style={{
+            position: 'absolute',
+            right: 72,
+            top: 0,
+            width: 180,
+            padding: esHistoria ? '150px 0 60px' : '90px 0 45px',
+            background: 'var(--brand-accent, #ffd100)',
+            color: 'var(--blue-900, #002878)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 88%, 0 100%)',
+            zIndex: 3
+          }}>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: 50, lineHeight: 1 }}>100%</div>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 18, letterSpacing: '.12em', marginTop: 6 }}>GRATUITO</div>
+          </div>
+        )}
+      </div>
+
+      {/* Tarjeta blanca flotante con sombra */}
+      <div style={{
+        position: 'relative',
+        zIndex: 2,
+        flex: 'none',
+        margin: esHistoria ? '-150px 56px 0' : '-90px 52px 0',
+        background: '#fff',
+        color: 'var(--blue-900, #002878)',
+        borderRadius: 30,
+        padding: esHistoria ? '44px 52px 48px' : '36px 48px 40px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        boxShadow: '0 24px 60px rgba(0,20,70,.35)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 24, letterSpacing: '.16em', color: 'var(--brand-primary, #003890)' }}>
+          <span style={{ width: 14, height: 14, borderRadius: '50%', background: 'var(--brand-accent, #ffd100)', boxShadow: '0 0 0 4px var(--blue-900, #002878)' }} />
+          <span>{categoria}</span>
+        </div>
+        <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: esHistoria ? 84 : 64, lineHeight: .98, letterSpacing: '-.035em', textWrap: 'balance' }}>{curso}</div>
+        <div style={{ fontSize: esHistoria ? 29 : 24, fontWeight: 500, lineHeight: 1.35, color: 'var(--text-body, #333c4a)', textWrap: 'pretty' }}>{bajada}</div>
+      </div>
+
+      {/* Grilla de 4 datos */}
+      <div style={{ position: 'relative', flex: 'none', padding: esHistoria ? '36px 88px 40px' : '28px 70px 32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: esHistoria ? '22px 40px' : '16px 36px' }}>
+          {[
+            { label: 'DÍAS', val: dias },
+            { label: 'HORARIO', val: horario },
+            { label: 'DURACIÓN', val: duracion },
+            { label: 'REQUISITO', val: requisito }
+          ].map((d, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 4, borderLeft: '4px solid var(--brand-accent, #ffd100)', paddingLeft: 18 }}>
+              <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 19, letterSpacing: '.16em', color: 'var(--brand-accent, #ffd100)' }}>{d.label}</div>
+              <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 28, lineHeight: 1.15, textWrap: 'balance' }}>{d.val}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Franja amarilla inferior de contacto */}
+      <div style={{
+        position: 'relative',
+        flex: 'none',
+        background: 'var(--brand-accent, #ffd100)',
+        color: 'var(--blue-900, #002878)',
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0,1fr) auto',
+        alignItems: 'center',
+        gap: 28,
+        padding: esHistoria ? '36px 56px 80px' : '28px 52px 32px'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+          <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: 38, lineHeight: 1 }}>{cta}</div>
+          <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 600, fontSize: 22, lineHeight: 1.25, color: 'var(--blue-900, #002878)' }}>{sede}</div>
+        </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          background: 'var(--blue-900, #002878)',
+          color: '#fff',
+          borderRadius: 999,
+          padding: '12px 30px 12px 12px',
+          whiteSpace: 'nowrap'
+        }}>
+          <span style={{ width: 50, height: 50, borderRadius: '50%', background: 'var(--brand-accent, #ffd100)', color: 'var(--blue-900, #002878)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: 18 }}>WA</span>
+          <span style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: 38, lineHeight: 1 }}>{whatsapp}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+</script>
+
+<script type="text/babel">
+// --- FlyerCurso.jsx ---
+// UI Kit — Piezas Sociales: Flyer de Curso Estándar (Definitivo)
+// Admite formatos 'feed' (4:5 - 1080x1350) y 'historia' (9:16 - 1080x1920)
+function FlyerCurso({
+  formato = 'feed',
+  curso = 'SOLDADOR BÁSICO',
+  antetitulo = 'CURSO · FORMACIÓN PROFESIONAL',
+  frase = 'ES TU TIEMPO DE APRENDER',
+  dias = 'Martes y jueves',
+  horario = '17:50 a 21:50 hs',
+  requisito = 'Constancia de estudios primarios o superiores',
+  sede = 'Juan Pablo Angulo 1272, Dock Sud',
+  certificacion = 'Oficial DGCyE',
+  whatsapp = '11 6105-6018',
+  foto = '../../assets/promociones/soldadura-1.webp',
+  conCuadricula = true,
+  conSello = true,
+  scale = 1
+}) {
+  const esHistoria = formato === 'historia';
+  const ancho = 1080;
+  const alto = esHistoria ? 1920 : 1350;
+
+  return (
+    <div style={{
+      width: ancho,
+      height: alto,
+      transform: scale !== 1 ? `scale(${scale})` : undefined,
+      transformOrigin: 'top left',
+      position: 'relative',
+      background: '#ffffff',
+      fontFamily: 'var(--font-body, "Source Sans 3", sans-serif)',
+      color: 'var(--text-body, #333c4a)',
+      overflow: 'hidden'
+    }}>
+      {/* Fondo cuadriculado */}
+      {conCuadricula && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'linear-gradient(var(--blue-100, #c0d0f0) 1px, transparent 1px), linear-gradient(90deg, var(--blue-100, #c0d0f0) 1px, transparent 1px)',
+          backgroundSize: '46px 46px',
+          opacity: 0.55,
+          pointerEvents: 'none'
+        }} />
+      )}
+
+      {/* Filete superior amarillo */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 12, background: 'var(--brand-accent, #ffd100)', zIndex: 5 }} />
+
+      {/* Franja azul curva inferior */}
+      <div style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: esHistoria ? 1120 : 790,
+        bottom: 0,
+        background: 'var(--gradient-hero-rich, linear-gradient(135deg, #004098 0%, #003080 46%, #002878 100%))',
+        borderTopLeftRadius: '62% 160px',
+        borderTopRightRadius: '38% 70px',
+        overflow: 'hidden',
+        zIndex: 1
+      }}>
+        <img src="../../assets/promociones/arco-blanco.png" alt="" style={{ position: 'absolute', right: -110, bottom: -80, width: 700, opacity: 0.08 }} />
+      </div>
+
+      {/* Antetítulo y Titular */}
+      <div style={{ position: 'absolute', left: 70, right: 70, top: esHistoria ? 150 : 70, zIndex: 2 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 24, letterSpacing: '.14em', color: 'var(--brand-primary, #003890)' }}>
+          <span style={{ width: 50, height: 7, background: 'var(--brand-accent, #ffd100)' }} />
+          <span>{antetitulo}</span>
+        </div>
+        <h1 style={{
+          margin: '18px 0 0',
+          fontFamily: 'var(--font-display, Poppins, sans-serif)',
+          fontWeight: 800,
+          fontSize: esHistoria ? 126 : 88,
+          lineHeight: 1.04,
+          letterSpacing: '-.035em',
+          color: 'var(--blue-900, #002878)',
+          maxWidth: esHistoria ? 920 : 660,
+          textWrap: 'balance'
+        }}>{curso}</h1>
+      </div>
+
+      {/* Foto con Arco */}
+      <div style={{
+        position: 'absolute',
+        left: 0,
+        top: esHistoria ? 520 : 330,
+        width: esHistoria ? 650 : 620,
+        height: esHistoria ? 820 : 600,
+        borderTopRightRadius: 320,
+        overflow: 'hidden',
+        zIndex: 2,
+        WebkitMaskImage: 'linear-gradient(180deg, #000 65%, transparent 100%)',
+        maskImage: 'linear-gradient(180deg, #000 65%, transparent 100%)'
+      }}>
+        <img src={foto} alt={curso} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,40,120,0) 40%, rgba(0,40,120,.55) 85%)' }} />
+      </div>
+      {/* Filete de arco decorativo */}
+      <div style={{
+        position: 'absolute',
+        left: 0,
+        top: esHistoria ? 500 : 314,
+        width: esHistoria ? 670 : 640,
+        height: esHistoria ? 540 : 400,
+        borderTop: '12px solid var(--brand-accent, #ffd100)',
+        borderRight: '12px solid var(--brand-accent, #ffd100)',
+        borderTopRightRadius: 340,
+        zIndex: 2,
+        pointerEvents: 'none'
+      }} />
+
+      {/* Cápsula Amarilla con Días y Horarios */}
+      <div style={{
+        position: 'absolute',
+        right: 60,
+        top: esHistoria ? 500 : 310,
+        width: esHistoria ? 320 : 310,
+        height: esHistoria ? 860 : 640,
+        zIndex: 3,
+        background: 'var(--brand-accent, #ffd100)',
+        borderRadius: 999,
+        boxShadow: '16px 16px 0 var(--blue-900, #002878)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: esHistoria ? '90px 26px 36px' : '60px 24px 30px',
+        textAlign: 'center',
+        color: 'var(--blue-900, #002878)'
+      }}>
+        <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: 38, lineHeight: 1.05, letterSpacing: '-.01em', textWrap: 'balance' }}>¡INSCRIBITE AHORA!</div>
+        <div style={{ width: 80, height: 6, background: 'var(--blue-900, #002878)' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 22, letterSpacing: '.14em' }}>DÍAS</div>
+          <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: esHistoria ? 44 : 36, lineHeight: 1.1, textWrap: 'balance' }}>{dias}</div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 22, letterSpacing: '.14em' }}>HORARIO</div>
+          <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: esHistoria ? 46 : 38, lineHeight: 1.08 }}>{horario}</div>
+        </div>
+        {conSello && (
+          <div style={{
+            width: esHistoria ? 240 : 200,
+            height: esHistoria ? 240 : 200,
+            borderRadius: '50%',
+            background: '#fff',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--brand-primary, #003890)',
+            boxShadow: '0 8px 24px rgba(0,40,120,.18)'
+          }}>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: esHistoria ? 64 : 54, lineHeight: 1 }}>100%</div>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: esHistoria ? 24 : 20, letterSpacing: '.1em', marginTop: 4 }}>GRATUITO</div>
+          </div>
+        )}
+      </div>
+
+      {/* Frase institucional sobre fondo azul */}
+      <div style={{ position: 'absolute', left: 70, top: esHistoria ? 1160 : 810, zIndex: 3 }}>
+        <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: esHistoria ? 68 : 50, lineHeight: 1.05, letterSpacing: '-.02em', color: '#fff', maxWidth: 580, textWrap: 'balance' }}>{frase}</div>
+        <div style={{ width: 90, height: 8, background: 'var(--brand-accent, #ffd100)', marginTop: 18 }} />
+      </div>
+
+      {/* Datos inferiores y pie */}
+      <div style={{
+        position: 'absolute',
+        left: 70,
+        right: 70,
+        bottom: esHistoria ? 150 : 50,
+        zIndex: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: esHistoria ? 36 : 24,
+        color: '#fff'
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr .9fr', gap: 28 }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 20, letterSpacing: '.14em', color: 'var(--brand-accent, #ffd100)' }}>REQUISITO</div>
+            <div style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.25, marginTop: 6 }}>{requisito}</div>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 20, letterSpacing: '.14em', color: 'var(--brand-accent, #ffd100)' }}>SEDE</div>
+            <div style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.25, marginTop: 6 }}>{sede}</div>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 20, letterSpacing: '.14em', color: 'var(--brand-accent, #ffd100)' }}>CERTIFICACIÓN</div>
+            <div style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.25, marginTop: 6 }}>{certificacion}</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 30, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,.3)' }}>
+          <img src="../../assets/promociones/logo-blanco.png" alt="CFP N° 401 Avellaneda" style={{ width: esHistoria ? 400 : 340, height: 'auto', display: 'block' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            <div style={{ fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 700, fontSize: 18, letterSpacing: '.12em' }}>CONSULTAS POR WHATSAPP</div>
+            <div style={{ background: 'var(--brand-accent, #ffd100)', color: 'var(--blue-900, #002878)', fontFamily: 'var(--font-display, Poppins, sans-serif)', fontWeight: 800, fontSize: esHistoria ? 42 : 36, lineHeight: 1, padding: '14px 34px', borderRadius: 999 }}>{whatsapp}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+</script>
+
+  <script type="text/babel">
+    function App() {
+      const [formato, setFormato] = React.useState('historia');
+      const esHistoria = formato === 'historia';
+      const scale = 0.3148; // Escala para ajustar 1080px a 340px de ancho
+
+      return (
+        <div>
+          <div className="top-bar">
+            <div className="title-group">
+              <h1>Piezas Gráficas Oficiales — CFP N° 401 Avellaneda</h1>
+              <p>Modelos definitivos sincronizados con Promociones y Redes (Fuentes: Poppins 800 + Source Sans 3)</p>
+            </div>
+            <div className="toggle-group">
+              <button
+                className={`toggle-btn ${esHistoria ? 'active' : ''}`}
+                onClick={() => setFormato('historia')}
+              >
+                📱 Stories (9:16)
+              </button>
+              <button
+                className={`toggle-btn ${!esHistoria ? 'active' : ''}`}
+                onClick={() => setFormato('feed')}
+              >
+                📸 Feed (4:5)
+              </button>
+            </div>
+          </div>
+
+          <div className="frames">
+            {/* Columna 1: Inscripciones Abiertas */}
+            <div className="frame-col">
+              <p className="cap">1. Inscripciones Abiertas <span className="badge">Campaña General</span></p>
+              <div className={`frame-container ${esHistoria ? 'scale-stories' : 'scale-feed'}`}>
+                <InscripcionesAbiertas formato={formato} scale={scale} />
+              </div>
+            </div>
+
+            {/* Columna 2: Promo de Curso Alternativa */}
+            <div className="frame-col">
+              <p className="cap">2. Promo Curso Alternativa <span className="badge">Taller Moderno</span></p>
+              <div className={`frame-container ${esHistoria ? 'scale-stories' : 'scale-feed'}`}>
+                <PromoCurso formato={formato} scale={scale} />
+              </div>
+            </div>
+
+            {/* Columna 3: Flyer de Curso Estándar */}
+            <div className="frame-col">
+              <p className="cap">3. Flyer Curso Estándar <span className="badge">Institucional</span></p>
+              <div className={`frame-container ${esHistoria ? 'scale-stories' : 'scale-feed'}`}>
+                <FlyerCurso formato={formato} scale={scale} />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

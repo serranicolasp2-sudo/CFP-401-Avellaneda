@@ -1,0 +1,58 @@
+CÓDIGO FUENTE DE LA APLICACIÓN — CÓMO REGENERAR app.js
+======================================================
+
+QUÉ HAY ACÁ
+-----------
+  app.jsx               código fuente de las pantallas del sitio público (JSX).
+  admin.jsx             código fuente del panel de administración (JSX).
+  plantillas-promo.jsx  plantillas de flyers y generador de promociones (JSX).
+
+ESTA CARPETA NO SE SUBE AL SERVIDOR. Queda fuera de site/ a propósito.
+
+POR QUÉ EXISTE
+--------------
+Tanto index.html como admin.html tenían el JSX adentro y el navegador del
+visitante lo compilaba con Babel Standalone en cada carga (~3 MB de descarga
+y demora de varios segundos en celulares).
+
+Ahora todo el JSX se compila de antemano y el sitio carga los archivos
+precompilados: site/app.js, site/admin.js y site/plantillas-promo.js.
+Babel desapareció tanto de index.html como de admin.html.
+
+CUÁNDO HAY QUE RECOMPILAR
+-------------------------
+SOLO si se cambian componentes, pantallas o maquetas.
+NO hace falta recompilar para actualizar cursos, horarios ni fotos (viven en data.js).
+
+CÓMO RECOMPILAR
+---------------
+Hace falta Node.js instalado (nodejs.org). Desde esta carpeta:
+
+1. Compilar el sitio público:
+   cmd /c "npx babel app.jsx --out-file ../site/app.js --config-file ./babel.config.json"
+
+2. Compilar el panel de administración:
+   cmd /c "npx babel admin.jsx --out-file ../site/admin.js --config-file ./babel.config.json"
+
+3. Compilar las plantillas de promoción:
+   cmd /c "npx babel plantillas-promo.jsx --out-file ../site/plantillas-promo.js --config-file ./babel.config.json"
+
+IMPORTANTE: el preset tiene que correr en modo "classic", que es el que
+genera React.createElement. Si el app.js resultante contiene la palabra
+`require(`, la compilación salió en modo automático y el sitio va a fallar
+con "require is not defined". En ese caso, usar:
+
+  npx babel app.jsx --out-file ../site/app.js \
+    --plugins @babel/plugin-transform-react-jsx \
+    --config-file ./babel.config.json
+
+con este babel.config.json al lado:
+
+  { "presets": [["@babel/preset-react", { "runtime": "classic" }]] }
+
+CÓMO VERIFICAR QUE QUEDÓ BIEN
+-----------------------------
+Subir el sitio, abrirlo y comprobar que:
+  - se ven las tarjetas de áreas en el inicio;
+  - la pantalla Cursos lista los cursos;
+  - la consola del navegador (F12) no muestra errores en rojo.

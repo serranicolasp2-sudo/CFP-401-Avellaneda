@@ -1,0 +1,24 @@
+# =============================================================================
+# CFP N° 401 AVELLANEDA — PROTECCIÓN CARPETA API
+# =============================================================================
+# Desactivar listado de directorios
+Options -Indexes
+
+# Denegar acceso directo a archivos que comiencen con punto (.clave.json, .intentos.json)
+# y a copias de seguridad o archivos de configuración sensibles
+<FilesMatch "^\.|\.(bak|log|tmp|json)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Proteger las carpetas de respaldos rotativos y de sesiones del panel
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^backups/ - [F,L]
+  RewriteRule ^sesiones/ - [F,L]
+</IfModule>

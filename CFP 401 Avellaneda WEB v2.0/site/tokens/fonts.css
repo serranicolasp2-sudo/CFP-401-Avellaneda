@@ -1,0 +1,6 @@
+/* CFP 401 webfonts. No binaries were supplied with the brand assets; the marks
+   are set in a geometric grotesk (Poppins is the closest Google Fonts match for the
+   CAMPUS VIRTUAL wordmark) and a neo-grotesk (Arial/Helvetica in the institutional logo,
+   substituted with Source Sans 3 for UI text). Flag: substitution, pending real files. */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap");
+:root{--font-display:"Poppins","Helvetica Neue",Arial,sans-serif;--font-body:"Source Sans 3","Helvetica Neue",Arial,sans-serif;--font-mono:ui-monospace,"SFMono-Regular",Menlo,monospace}

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Últimos cupos · Stories · CFP 401</title>
+  <link rel="stylesheet" href="ultimos-cupos.css">
+</head>
+<body>
+  <nav class="editor" aria-label="Herramientas del template">
+    <strong>ÚLTIMOS CUPOS · STORIES 9:16</strong>
+    <span class="hint">Editá los textos y reemplazá la foto desde “Cambiar foto”.</span>
+    <a class="secondary" href="feed.html">Feed</a><a href="stories.html" aria-current="page">Stories</a><a class="secondary" href="a4.html">A4</a>
+    <button class="photo-button" type="button" data-photo-button>Cambiar foto</button>
+    <input type="file" accept="image/*" data-photo-input aria-label="Elegir una foto" hidden>
+    <button class="secondary" type="button" data-grid-toggle aria-label="Alternar trama cuadriculada" aria-pressed="true">Quitar cuadrícula</button>
+    <button class="secondary" type="button" data-reset>Restablecer</button>
+  </nav>
+  <main class="stage" id="stage">
+    <article class="board stories" id="artboard" aria-label="Aviso de últimos cupos disponibles">
+      <div class="topline"></div>
+      <img class="logo" src="assets/logo-cfp401-horizontal.png" alt="Centro de Formación Profesional N° 401 Avellaneda">
+      <div class="eyebrow" contenteditable="true" spellcheck="false">INSCRIPCIONES · CFP N° 401</div>
+      <h1 class="headline" contenteditable="true" spellcheck="false" data-fit data-min-font="64">¡ÚLTIMOS<br><span class="accent">CUPOS!</span></h1>
+      <figure class="photo-frame">
+        <img src="assets/foto-taller-default.jpg" alt="Estudiantes en un taller de formación profesional" data-photo-target>
+        <figcaption contenteditable="true" spellcheck="false">TU LUGAR PUEDE ESTAR ACÁ</figcaption>
+      </figure>
+      <div class="course-tag" contenteditable="true" spellcheck="false">[NOMBRE DEL CURSO]</div>
+      <p class="deck" contenteditable="true" spellcheck="false">Consultá disponibilidad y conocé cómo inscribirte.</p>
+      <div class="proof" aria-label="Características de la formación">
+        <span contenteditable="true" spellcheck="false">FORMACIÓN GRATUITA</span>
+        <span contenteditable="true" spellcheck="false">CERTIFICACIÓN OFICIAL</span>
+      </div>
+      <div class="course-details" contenteditable="true" spellcheck="false">[DÍAS · HORARIOS · REQUISITO]</div>
+      <footer class="footer-band">
+        <div class="footer-copy">
+          <div class="footer-kicker" contenteditable="true" spellcheck="false">CONSULTÁ SI QUEDAN CUPOS</div>
+          <p class="footer-title" contenteditable="true" spellcheck="false">ESCRIBINOS Y TE ORIENTAMOS</p>
+        </div>
+        <div class="contact">
+          <div class="contact-label" contenteditable="true" spellcheck="false">ESCRIBINOS POR WHATSAPP</div>
+          <div class="phone" contenteditable="true" spellcheck="false">11 6105-6018</div>
+          <div class="note" contenteditable="true" spellcheck="false">(solo mensajes)</div>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <script src="ultimos-cupos.js"></script>
+</body>
+</html>

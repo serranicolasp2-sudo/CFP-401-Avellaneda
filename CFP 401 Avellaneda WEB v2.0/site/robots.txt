@@ -1,0 +1,17 @@
+# robots.txt para CFP N° 401 de Avellaneda
+# https://campuscfp401avellaneda.com.ar/cfp/
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /curso.php
+Allow: /styles.css
+Allow: /data.js
+Allow: /app.js
+Allow: /plantillas-promo.js
+Allow: /assets/
+
+# Bloquear indexación de administración y backend privado
+Disallow: /admin.html
+Disallow: /admin.js
+Disallow: /api/

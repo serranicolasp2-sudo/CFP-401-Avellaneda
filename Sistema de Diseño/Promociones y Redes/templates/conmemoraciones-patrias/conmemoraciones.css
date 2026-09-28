@@ -1,0 +1,123 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Source+Sans+3:wght@400;600;700;800&display=swap");
+
+:root {
+  --blue: #003890;
+  --deep: #002878;
+  --yellow: #ffd100;
+  --paper: #fff;
+  --soft: #f4f7fc;
+  --grid: #c0d0f0;
+  --ink: #18263d;
+  --celeste: #75aadb;
+  --display: "Poppins", Arial, sans-serif;
+  --body: "Source Sans 3", Arial, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--soft); color: var(--ink); }
+body { font-family: var(--body); }
+.editor {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px;
+  min-height: 68px; padding: 10px 18px; background: var(--deep); color: #fff;
+  box-shadow: 0 4px 16px rgba(0,40,120,.18); font-size: 16px;
+}
+.editor strong { font: 700 14px var(--display); letter-spacing: .04em; }
+.editor .hint { margin-right: auto; color: #dbe6fb; }
+.editor a, .editor button {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 8px 16px;
+  border: 2px solid var(--yellow); border-radius: 999px; background: var(--yellow); color: var(--deep);
+  font: 700 15px var(--body); cursor: pointer; text-decoration: none;
+}
+.editor button.photo-button { border-color: var(--yellow); background: var(--yellow); color: var(--deep); }
+.editor a.secondary, .editor button.secondary { border-color: rgba(255,255,255,.45); background: transparent; color: #fff; }
+.editor a[aria-current="page"] { border-color: #fff; }
+.editor button:hover, .editor a:hover { filter: brightness(1.08); }
+.stage { width: calc(var(--board-width) * var(--scale,1)); height: calc(var(--board-height) * var(--scale,1)); margin: 34px auto 56px; }
+.board {
+  position: relative; width: var(--board-width); height: var(--board-height); overflow: hidden; isolation: isolate;
+  transform: scale(var(--scale,1)); transform-origin: top left; background-color: var(--paper);
+  background-image: linear-gradient(rgba(192,208,240,.38) 1px,transparent 1px),linear-gradient(90deg,rgba(192,208,240,.38) 1px,transparent 1px);
+  background-size: 48px 48px; color: var(--deep); font-family: var(--body);
+}
+.board.grid-off { background-image: none; }
+.topline { position: absolute; inset: 0 0 auto; height: 12px; background: var(--yellow); }
+.logo { position: absolute; display: block; object-fit: contain; object-position: left center; }
+.eyebrow { position: absolute; color: var(--blue); font: 700 20px/1.25 var(--body); letter-spacing: .13em; text-transform: uppercase; }
+.headline { position: absolute; margin: 0; color: var(--deep); font: 800 86px/1.06 var(--display); letter-spacing: -.045em; text-wrap: balance; overflow: hidden; }
+.headline .accent { color: var(--blue); text-decoration: underline; text-decoration-color: var(--yellow); text-decoration-thickness: .16em; text-underline-offset: .08em; }
+.date-pill { position: absolute; display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 10px 22px; border-radius: 999px; background: var(--yellow); color: var(--deep); font: 800 24px/1.1 var(--display); letter-spacing: .04em; }
+.deck { position: absolute; margin: 0; color: #28364c; font: 600 30px/1.35 var(--body); text-wrap: balance; }
+.flag-block { position: absolute; margin: 0; }
+.flag-frame { width: 100%; aspect-ratio: 3 / 2; padding: 10px; background: var(--yellow); clip-path: polygon(6% 0,100% 0,100% 100%,0 100%,0 10%); filter: drop-shadow(9px 9px 0 var(--deep)); }
+.flag-frame svg { display: block; width: 100%; height: 100%; clip-path: polygon(6% 0,100% 0,100% 100%,0 100%,0 10%); }
+.flag-frame img { display:block; width:100%; height:100%; object-fit:cover; clip-path:polygon(6% 0,100% 0,100% 100%,0 100%,0 10%); }
+.flag-caption { margin-top: 20px; color: var(--blue); font: 800 17px/1.2 var(--display); letter-spacing: .12em; text-align: center; text-transform: uppercase; }
+.footer-band { position: absolute; inset: auto 0 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; background: var(--blue); color: #fff; text-align: center; }
+.footer-kicker { color: var(--yellow); font: 700 17px/1.2 var(--body); letter-spacing: .15em; text-transform: uppercase; }
+.footer-title { margin: 0; color: #fff; font: 800 30px/1.15 var(--display); letter-spacing: .015em; text-transform: uppercase; }
+[contenteditable="true"] { outline: none; cursor: text; }
+[contenteditable="true"]:focus { outline: 3px dashed rgba(255,209,0,.95); outline-offset: 5px; }
+
+/* Feed: titular editorial, fecha y mensaje a la izquierda; bandera como pieza central a la derecha. */
+.feed {
+  --board-width:1080px; --board-height:1350px; --photo-url:url("assets/bandera-argentina-default.png");
+  background-image:linear-gradient(90deg,rgba(0,40,120,.94) 0%,rgba(0,40,120,.88) 38%,rgba(0,40,120,.46) 68%,rgba(0,40,120,.12) 100%),linear-gradient(rgba(255,255,255,.11) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.11) 1px,transparent 1px),var(--photo-url);
+  background-size:cover,48px 48px,48px 48px,cover; background-position:center; background-repeat:no-repeat,repeat,repeat,no-repeat;
+}
+.feed.grid-off {
+  background-image:linear-gradient(90deg,rgba(0,40,120,.94) 0%,rgba(0,40,120,.88) 38%,rgba(0,40,120,.46) 68%,rgba(0,40,120,.12) 100%),var(--photo-url);
+  background-size:cover,cover; background-position:center,center; background-repeat:no-repeat,no-repeat;
+}
+.feed .logo { top:62px; left:66px; width:360px; height:50px; }
+.feed .eyebrow { top:168px; left:68px; color:var(--yellow); }
+.feed .headline { top:235px; left:64px; width:500px; height:240px; color:#fff; font-size:82px; }
+.feed .headline .accent { color:var(--yellow); text-decoration-color:#fff; }
+.feed .date-pill { top:478px; left:68px; }
+.feed .deck { top:572px; left:70px; width:440px; max-height:138px; color:#fff; }
+.feed .footer-band { height:190px; padding:30px 66px; }
+
+/* Stories: símbolo central amplio, con la fecha y el mensaje debajo y el pie dentro de zona segura. */
+.stories { --board-width:1080px; --board-height:1920px; }
+.stories .logo { top:164px; left:66px; width:410px; height:58px; }
+.stories .eyebrow { top:275px; left:68px; }
+.stories .headline { top:350px; left:68px; width:944px; height:238px; font-size:92px; }
+.stories .date-pill { top:604px; left:50%; transform:translateX(-50%); min-height:60px; padding-inline:34px; font-size:28px; }
+.stories .flag-block { top:760px; left:50%; width:790px; transform:translateX(-50%); }
+.stories .flag-caption { margin-top:26px; font-size:19px; }
+.stories .deck { top:1390px; left:130px; width:820px; max-height:126px; font-size:34px; text-align:center; }
+.stories .footer-band { top:1600px; height:240px; padding:26px 76px; }
+.stories .footer-kicker { font-size:19px; }
+.stories .footer-title { font-size:36px; }
+
+/* A4: lectura amplia de afiche, con la insignia a la derecha del titular. */
+.a4 {
+  --board-width:1240px; --board-height:1754px; --photo-url:url("assets/bandera-argentina-default.png");
+  background-image:linear-gradient(90deg,rgba(0,40,120,.96) 0%,rgba(0,40,120,.91) 43%,rgba(0,40,120,.58) 63%,rgba(0,40,120,.08) 100%),linear-gradient(rgba(255,255,255,.11) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.11) 1px,transparent 1px),var(--photo-url);
+  background-size:cover,48px 48px,48px 48px,cover; background-position:center; background-repeat:no-repeat,repeat,repeat,no-repeat;
+}
+.a4.grid-off {
+  background-image:linear-gradient(90deg,rgba(0,40,120,.96) 0%,rgba(0,40,120,.91) 43%,rgba(0,40,120,.58) 63%,rgba(0,40,120,.08) 100%),var(--photo-url);
+  background-size:cover,cover; background-position:center,center; background-repeat:no-repeat,no-repeat;
+}
+.a4 .logo { top:82px; left:78px; width:430px; height:62px; }
+.a4 .eyebrow { top:218px; left:80px; color:var(--yellow); }
+.a4 .headline { top:306px; left:74px; width:580px; height:248px; color:#fff; font-size:94px; }
+.a4 .headline .accent { color:var(--yellow); text-decoration-color:#fff; }
+.a4 .date-pill { top:610px; left:80px; min-height:62px; padding-inline:28px; font-size:29px; }
+.a4 .deck { top:720px; left:84px; width:520px; max-height:180px; color:#fff; font-size:35px; }
+.a4 .footer-band { height:220px; padding:36px 80px; }
+.a4 .footer-kicker { font-size:19px; }
+.a4 .footer-title { font-size:36px; }
+
+@media (max-width:760px) {
+  .editor { position:relative; flex-wrap:wrap; }
+  .editor .hint { flex-basis:100%; order:3; }
+}
+@media print {
+  @page { margin:0; }
+  html,body { width:var(--board-width); height:var(--board-height); min-height:0; background:#fff; }
+  .editor { display:none !important; }
+  .stage { width:var(--board-width); height:var(--board-height); margin:0; }
+  .board { transform:none !important; }
+}

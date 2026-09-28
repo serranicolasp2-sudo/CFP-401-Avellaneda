@@ -1,0 +1,530 @@
+[
+  {
+    "id": "f-auxiliar-contable-1",
+    "familia": "Administración",
+    "cursoSlug": "auxiliar-contable",
+    "archivo": "assets/promociones/auxiliar-contable-1.jpg",
+    "nombre": "Auxiliar Contable - Planillas y Balances",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-auxiliar-contable-2",
+    "familia": "Administración",
+    "cursoSlug": "auxiliar-contable",
+    "archivo": "assets/promociones/auxiliar-contable-2.jpg",
+    "nombre": "Auxiliar Contable - Gestión y Finanzas",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-auxiliar-contable-3",
+    "familia": "Administración",
+    "cursoSlug": "auxiliar-contable",
+    "archivo": "assets/promociones/auxiliar-contable-3.jpg",
+    "nombre": "Auxiliar Contable - Documentación Comercial",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-sueldos-y-jornales-1",
+    "familia": "Administración",
+    "cursoSlug": "sueldos-y-jornales",
+    "archivo": "assets/promociones/sueldos-y-jornales-1.jpg",
+    "nombre": "Sueldos y Jornales - Liquidación de Sueldos",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-sueldos-y-jornales-2",
+    "familia": "Administración",
+    "cursoSlug": "sueldos-y-jornales",
+    "archivo": "assets/promociones/sueldos-y-jornales-2.jpg",
+    "nombre": "Sueldos y Jornales - Recursos Humanos",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-sueldos-y-jornales-3",
+    "familia": "Administración",
+    "cursoSlug": "sueldos-y-jornales",
+    "archivo": "assets/promociones/sueldos-y-jornales-3.jpg",
+    "nombre": "Sueldos y Jornales - Gestión Laboral",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-auxiliar-de-seguridad-e-higiene-laboral-1",
+    "familia": "Administración",
+    "cursoSlug": "auxiliar-de-seguridad-e-higiene-laboral",
+    "archivo": "assets/promociones/auxiliar-de-seguridad-e-higiene-laboral-1.jpg",
+    "nombre": "Seguridad e Higiene - Inspección y Control",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-auxiliar-de-seguridad-e-higiene-laboral-2",
+    "familia": "Administración",
+    "cursoSlug": "auxiliar-de-seguridad-e-higiene-laboral",
+    "archivo": "assets/promociones/auxiliar-de-seguridad-e-higiene-laboral-2.jpg",
+    "nombre": "Seguridad e Higiene - Elementos de Protección Personal",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-auxiliar-de-seguridad-e-higiene-laboral-3",
+    "familia": "Administración",
+    "cursoSlug": "auxiliar-de-seguridad-e-higiene-laboral",
+    "archivo": "assets/promociones/auxiliar-de-seguridad-e-higiene-laboral-3.jpg",
+    "nombre": "Seguridad e Higiene - Seguridad en Planta",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-administracion-general-de-medio-ambiente-1",
+    "familia": "Administración",
+    "cursoSlug": "administracion-general-de-medio-ambiente",
+    "archivo": "assets/promociones/administracion-general-de-medio-ambiente-1.jpg",
+    "nombre": "Gestión Ambiental - Sustentabilidad y Auditoría",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-administracion-general-de-medio-ambiente-2",
+    "familia": "Administración",
+    "cursoSlug": "administracion-general-de-medio-ambiente",
+    "archivo": "assets/promociones/administracion-general-de-medio-ambiente-2.jpg",
+    "nombre": "Gestión Ambiental - Control Ambiental",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-administracion-general-de-medio-ambiente-3",
+    "familia": "Administración",
+    "cursoSlug": "administracion-general-de-medio-ambiente",
+    "archivo": "assets/promociones/administracion-general-de-medio-ambiente-3.jpg",
+    "nombre": "Gestión Ambiental - Recursos Naturales",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-operador-de-informatica-de-oficina-operador-de-pc-1",
+    "familia": "Informática",
+    "cursoSlug": "operador-de-informatica-de-oficina-operador-de-pc",
+    "archivo": "assets/promociones/operador-de-informatica-de-oficina-operador-de-pc-1.jpg",
+    "nombre": "Operador de PC - Ofimática y Escritorio",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-operador-de-informatica-de-oficina-operador-de-pc-2",
+    "familia": "Informática",
+    "cursoSlug": "operador-de-informatica-de-oficina-operador-de-pc",
+    "archivo": "assets/promociones/operador-de-informatica-de-oficina-operador-de-pc-2.jpg",
+    "nombre": "Operador de PC - Carga y Procesamiento de Datos",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-operador-de-informatica-de-oficina-operador-de-pc-3",
+    "familia": "Informática",
+    "cursoSlug": "operador-de-informatica-de-oficina-operador-de-pc",
+    "archivo": "assets/promociones/operador-de-informatica-de-oficina-operador-de-pc-3.jpg",
+    "nombre": "Operador de PC - Herramientas Digitales",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc-1",
+    "familia": "Informática",
+    "cursoSlug": "instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc",
+    "archivo": "assets/promociones/instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc-1.jpg",
+    "nombre": "Reparador de PC - Placas y Componentes",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc-2",
+    "familia": "Informática",
+    "cursoSlug": "instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc",
+    "archivo": "assets/promociones/instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc-2.jpg",
+    "nombre": "Reparador de PC - Mantenimiento de Hardware",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc-3",
+    "familia": "Informática",
+    "cursoSlug": "instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc",
+    "archivo": "assets/promociones/instalador-y-soporte-de-sistemas-informaticos-reparador-de-pc-3.jpg",
+    "nombre": "Reparador de PC - Diagnóstico y Reparación",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-diseno-grafico-i-y-ii-diseno-de-paginas-web-1",
+    "familia": "Informática",
+    "cursoSlug": "diseno-grafico-i-y-ii-diseno-de-paginas-web",
+    "archivo": "assets/promociones/diseno-grafico-i-y-ii-diseno-de-paginas-web-1.jpg",
+    "nombre": "Diseño Gráfico y Web - Creación y Bocetado",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-diseno-grafico-i-y-ii-diseno-de-paginas-web-2",
+    "familia": "Informática",
+    "cursoSlug": "diseno-grafico-i-y-ii-diseno-de-paginas-web",
+    "archivo": "assets/promociones/diseno-grafico-i-y-ii-diseno-de-paginas-web-2.jpg",
+    "nombre": "Diseño Gráfico y Web - Maquetación y Proyectos Web",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-diseno-grafico-i-y-ii-diseno-de-paginas-web-3",
+    "familia": "Informática",
+    "cursoSlug": "diseno-grafico-i-y-ii-diseno-de-paginas-web",
+    "archivo": "assets/promociones/diseno-grafico-i-y-ii-diseno-de-paginas-web-3.jpg",
+    "nombre": "Diseño Gráfico y Web - Identidad Visual y Marca",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales-1",
+    "familia": "Informática",
+    "cursoSlug": "realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales",
+    "archivo": "assets/promociones/realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales-1.jpg",
+    "nombre": "Audiovisuales y Redes - Edición de Video",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales-2",
+    "familia": "Informática",
+    "cursoSlug": "realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales",
+    "archivo": "assets/promociones/realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales-2.jpg",
+    "nombre": "Audiovisuales y Redes - Grabación y Cámara",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales-3",
+    "familia": "Informática",
+    "cursoSlug": "realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales",
+    "archivo": "assets/promociones/realizador-de-piezas-graficas-y-audiovisuales-para-redes-sociales-3.jpg",
+    "nombre": "Audiovisuales y Redes - Creación de Contenido Multimedia",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricidad-en-inmuebles-gestor-energetico-1",
+    "familia": "Electricidad",
+    "cursoSlug": "electricidad-en-inmuebles-gestor-energetico",
+    "archivo": "assets/promociones/electricidad-en-inmuebles-gestor-energetico-1.jpg",
+    "nombre": "Electricidad Inmuebles - Tableros Principales",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricidad-en-inmuebles-gestor-energetico-2",
+    "familia": "Electricidad",
+    "cursoSlug": "electricidad-en-inmuebles-gestor-energetico",
+    "archivo": "assets/promociones/electricidad-en-inmuebles-gestor-energetico-2.jpg",
+    "nombre": "Electricidad Inmuebles - Mediciones e Instrumental",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricidad-en-inmuebles-gestor-energetico-3",
+    "familia": "Electricidad",
+    "cursoSlug": "electricidad-en-inmuebles-gestor-energetico",
+    "archivo": "assets/promociones/electricidad-en-inmuebles-gestor-energetico-3.jpg",
+    "nombre": "Electricidad Inmuebles - Instalaciones Domiciliarias",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricidad-en-inmuebles-paneles-solares-1",
+    "familia": "Electricidad",
+    "cursoSlug": "electricidad-en-inmuebles-paneles-solares",
+    "archivo": "assets/promociones/electricidad-en-inmuebles-paneles-solares-1.jpg",
+    "nombre": "Electricidad y Solar - Instalación Fotovoltaica",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricidad-en-inmuebles-paneles-solares-2",
+    "familia": "Electricidad",
+    "cursoSlug": "electricidad-en-inmuebles-paneles-solares",
+    "archivo": "assets/promociones/electricidad-en-inmuebles-paneles-solares-2.jpg",
+    "nombre": "Electricidad y Solar - Montaje de Paneles en Altura",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricidad-en-inmuebles-paneles-solares-3",
+    "familia": "Electricidad",
+    "cursoSlug": "electricidad-en-inmuebles-paneles-solares",
+    "archivo": "assets/promociones/electricidad-en-inmuebles-paneles-solares-3.jpg",
+    "nombre": "Electricidad y Solar - Generación y Energías Limpias",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables-1",
+    "familia": "Electricidad",
+    "cursoSlug": "electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables",
+    "archivo": "assets/promociones/electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables-1.jpg",
+    "nombre": "Electricista Industrial - Gabinetes y Fuerza Motriz",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables-2",
+    "familia": "Electricidad",
+    "cursoSlug": "electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables",
+    "archivo": "assets/promociones/electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables-2.jpg",
+    "nombre": "Electricista Industrial - Automatización y PLC",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables-3",
+    "familia": "Electricidad",
+    "cursoSlug": "electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables",
+    "archivo": "assets/promociones/electricista-industrial-sistemas-embebidos-sistemas-electronicos-programables-3.jpg",
+    "nombre": "Electricista Industrial - Controladores Programables",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica-1",
+    "familia": "Electricidad",
+    "cursoSlug": "sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica",
+    "archivo": "assets/promociones/sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica-1.jpg",
+    "nombre": "Redes y Domótica - Fibra Óptica y Cableado Estructurado",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica-2",
+    "familia": "Electricidad",
+    "cursoSlug": "sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica",
+    "archivo": "assets/promociones/sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica-2.jpg",
+    "nombre": "Redes y Domótica - Racks y Conectividad",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica-3",
+    "familia": "Electricidad",
+    "cursoSlug": "sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica",
+    "archivo": "assets/promociones/sistemas-de-muy-baja-tension-reparacion-de-redes-ftth-fibra-optica-domotica-3.jpg",
+    "nombre": "Redes y Domótica - Automatización Domiciliaria",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-herreria-y-carpinteria-metalica-1",
+    "familia": "Metalmecánica",
+    "cursoSlug": "herreria-y-carpinteria-metalica",
+    "archivo": "assets/promociones/herreria-y-carpinteria-metalica-1.jpg",
+    "nombre": "Herrería - Amolado y Corte de Metales",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-herreria-y-carpinteria-metalica-2",
+    "familia": "Metalmecánica",
+    "cursoSlug": "herreria-y-carpinteria-metalica",
+    "archivo": "assets/promociones/herreria-y-carpinteria-metalica-2.jpg",
+    "nombre": "Herrería - Forja y Deformación",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-herreria-y-carpinteria-metalica-3",
+    "familia": "Metalmecánica",
+    "cursoSlug": "herreria-y-carpinteria-metalica",
+    "archivo": "assets/promociones/herreria-y-carpinteria-metalica-3.jpg",
+    "nombre": "Herrería - Armado de Rejas y Estructuras",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-soldador-basico-1",
+    "familia": "Metalmecánica",
+    "cursoSlug": "soldador-basico",
+    "archivo": "assets/promociones/soldador-basico-1.jpg",
+    "nombre": "Soldador Básico - Soldadura Eléctrica por Arco",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-soldador-basico-2",
+    "familia": "Metalmecánica",
+    "cursoSlug": "soldador-basico",
+    "archivo": "assets/promociones/soldador-basico-2.jpg",
+    "nombre": "Soldador Básico - Máscara y Protecciones",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-soldador-basico-3",
+    "familia": "Metalmecánica",
+    "cursoSlug": "soldador-basico",
+    "archivo": "assets/promociones/soldador-basico-3.jpg",
+    "nombre": "Soldador Básico - Uniones y Perfiles de Acero",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-soldador-mig-tig-1",
+    "familia": "Metalmecánica",
+    "cursoSlug": "soldador-mig-tig",
+    "archivo": "assets/promociones/soldador-mig-tig-1.jpg",
+    "nombre": "Soldador MIG-TIG - Soldadura TIG de Alta Precisión",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-soldador-mig-tig-2",
+    "familia": "Metalmecánica",
+    "cursoSlug": "soldador-mig-tig",
+    "archivo": "assets/promociones/soldador-mig-tig-2.jpg",
+    "nombre": "Soldador MIG-TIG - Antorcha y Gas Inerte",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-soldador-mig-tig-3",
+    "familia": "Metalmecánica",
+    "cursoSlug": "soldador-mig-tig",
+    "archivo": "assets/promociones/soldador-mig-tig-3.jpg",
+    "nombre": "Soldador MIG-TIG - Soldadura Semiautomática MIG",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-mantenimiento-de-edificio-1",
+    "familia": "Construcción",
+    "cursoSlug": "mantenimiento-de-edificio",
+    "archivo": "assets/promociones/mantenimiento-de-edificio-1.jpg",
+    "nombre": "Mantenimiento de Edificios - Herramientas Generales",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-mantenimiento-de-edificio-2",
+    "familia": "Construcción",
+    "cursoSlug": "mantenimiento-de-edificio",
+    "archivo": "assets/promociones/mantenimiento-de-edificio-2.jpg",
+    "nombre": "Mantenimiento de Edificios - Albañilería y Terminaciones",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-mantenimiento-de-edificio-3",
+    "familia": "Construcción",
+    "cursoSlug": "mantenimiento-de-edificio",
+    "archivo": "assets/promociones/mantenimiento-de-edificio-3.jpg",
+    "nombre": "Mantenimiento de Edificios - Mantenimiento Integral",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-colocador-de-paneles-y-placas-de-yeso-1",
+    "familia": "Construcción",
+    "cursoSlug": "colocador-de-paneles-y-placas-de-yeso",
+    "archivo": "assets/promociones/colocador-de-paneles-y-placas-de-yeso-1.jpg",
+    "nombre": "Colocador de Yeso - Estructura y Placas Durlock",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-colocador-de-paneles-y-placas-de-yeso-2",
+    "familia": "Construcción",
+    "cursoSlug": "colocador-de-paneles-y-placas-de-yeso",
+    "archivo": "assets/promociones/colocador-de-paneles-y-placas-de-yeso-2.jpg",
+    "nombre": "Colocador de Yeso - Masillado y Juntas",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-colocador-de-paneles-y-placas-de-yeso-3",
+    "familia": "Construcción",
+    "cursoSlug": "colocador-de-paneles-y-placas-de-yeso",
+    "archivo": "assets/promociones/colocador-de-paneles-y-placas-de-yeso-3.jpg",
+    "nombre": "Colocador de Yeso - Cielorrasos y Tabiques",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables-1",
+    "familia": "Construcción",
+    "cursoSlug": "montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables",
+    "archivo": "assets/promociones/montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables-1.jpg",
+    "nombre": "Instalaciones Sanitarias - Cañerías y Termofusión",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables-2",
+    "familia": "Construcción",
+    "cursoSlug": "montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables",
+    "archivo": "assets/promociones/montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables-2.jpg",
+    "nombre": "Instalaciones Sanitarias - Conexiones de Agua y Desagües",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables-3",
+    "familia": "Construcción",
+    "cursoSlug": "montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables",
+    "archivo": "assets/promociones/montador-de-instalaciones-sanitarias-y-de-gas-domiciliario-instalador-de-sistemas-termicos-sanitarios-de-energias-renovables-3.jpg",
+    "nombre": "Instalaciones Sanitarias - Termotanques Solares Térmicos",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad-1",
+    "familia": "Construcción",
+    "cursoSlug": "gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad",
+    "archivo": "assets/promociones/gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad-1.jpg",
+    "nombre": "Gasista Matriculado - Calderas y Pruebas de Presión",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad-2",
+    "familia": "Construcción",
+    "cursoSlug": "gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad",
+    "archivo": "assets/promociones/gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad-2.jpg",
+    "nombre": "Gasista Matriculado - Planos y Proyecto en CAD",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad-3",
+    "familia": "Construcción",
+    "cursoSlug": "gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad",
+    "archivo": "assets/promociones/gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad-3.jpg",
+    "nombre": "Gasista Matriculado - Instalación de Cañerías de Gas",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual-1",
+    "familia": "Climatización",
+    "cursoSlug": "reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual",
+    "archivo": "assets/promociones/reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual-1.jpg",
+    "nombre": "Refrigeración y AA - Diagnóstico de Compresores",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual-2",
+    "familia": "Climatización",
+    "cursoSlug": "reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual",
+    "archivo": "assets/promociones/reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual-2.jpg",
+    "nombre": "Refrigeración y AA - Manifold y Carga de Refrigerante",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual-3",
+    "familia": "Climatización",
+    "cursoSlug": "reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual",
+    "archivo": "assets/promociones/reparacion-de-refrigeradores-domesticos-instalacion-de-aire-acondicionado-individual-3.jpg",
+    "nombre": "Refrigeración y AA - Circuitos Frigoríficos",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-instalador-y-reparador-de-aire-acondicionado-individual-1",
+    "familia": "Climatización",
+    "cursoSlug": "instalador-y-reparador-de-aire-acondicionado-individual",
+    "archivo": "assets/promociones/instalador-y-reparador-de-aire-acondicionado-individual-1.jpg",
+    "nombre": "Aire Acondicionado - Instalación de Split",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-instalador-y-reparador-de-aire-acondicionado-individual-2",
+    "familia": "Climatización",
+    "cursoSlug": "instalador-y-reparador-de-aire-acondicionado-individual",
+    "archivo": "assets/promociones/instalador-y-reparador-de-aire-acondicionado-individual-2.jpg",
+    "nombre": "Aire Acondicionado - Montaje y Conexión de Líneas",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-instalador-y-reparador-de-aire-acondicionado-individual-3",
+    "familia": "Climatización",
+    "cursoSlug": "instalador-y-reparador-de-aire-acondicionado-individual",
+    "archivo": "assets/promociones/instalador-y-reparador-de-aire-acondicionado-individual-3.jpg",
+    "nombre": "Aire Acondicionado - Mantenimiento y Carga",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas-1",
+    "familia": "Climatización",
+    "cursoSlug": "reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas",
+    "archivo": "assets/promociones/reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas-1.jpg",
+    "nombre": "Línea Blanca y Plaquetas - Reparación de Lavarropas",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas-2",
+    "familia": "Climatización",
+    "cursoSlug": "reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas",
+    "archivo": "assets/promociones/reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas-2.jpg",
+    "nombre": "Línea Blanca y Plaquetas - Reparación de Placas Electrónicas",
+    "encuadre": "40% 45%"
+  },
+  {
+    "id": "f-reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas-3",
+    "familia": "Climatización",
+    "cursoSlug": "reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas",
+    "archivo": "assets/promociones/reparador-de-electrodomesticos-de-linea-blanca-y-reparacion-de-plaquetas-3.jpg",
+    "nombre": "Línea Blanca y Plaquetas - Soldadura y Cambio de Componentes",
+    "encuadre": "40% 45%"
+  }
+]

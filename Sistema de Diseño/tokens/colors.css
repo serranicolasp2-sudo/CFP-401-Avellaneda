@@ -1,0 +1,22 @@
+:root{
+/* --- Primitives: institutional blue (sampled from the logos) --- */
+--blue-900:#002878;--blue-800:#003080;--blue-700:#003890;--blue-600:#004098;--blue-500:#0050b0;--blue-400:#0848d0;--blue-300:#4870d8;--blue-200:#80a0e8;--blue-100:#c0d0f0;--blue-50:#e8eefb;
+/* --- Primitives: institutional yellow --- */
+--yellow-700:#c98f00;--yellow-600:#f5b800;--yellow-500:#ffd100;--yellow-400:#f8d800;--yellow-300:#ffe45c;--yellow-100:#fff4c2;--yellow-50:#fffaea;
+/* --- Neutrals --- */
+--neutral-0:#ffffff;--neutral-25:#f9fafc;--neutral-50:#f2f5f9;--neutral-100:#e6ebf2;--neutral-200:#d2dae4;--neutral-300:#b3bdcb;--neutral-400:#8a94a4;--neutral-500:#66707f;--neutral-600:#4a5464;--neutral-700:#333c4a;--neutral-800:#1f2733;--neutral-900:#121820;
+/* --- Semantic status --- */
+--green-600:#1c7a48;--green-100:#dcf3e6;--red-600:#c02626;--red-100:#fbe3e3;--amber-600:#b5710a;--amber-100:#fdefd6;
+/* --- Semantic aliases --- */
+--brand-primary:var(--blue-700);--brand-primary-strong:var(--blue-900);--brand-primary-bright:var(--blue-400);--brand-accent:var(--yellow-500);--brand-accent-strong:var(--yellow-600);
+--text-title:var(--blue-900);--text-body:var(--neutral-700);--text-muted:var(--neutral-500);--text-on-brand:var(--neutral-0);--text-on-accent:var(--blue-900);--text-link:var(--blue-400);--text-link-hover:var(--blue-900);
+--surface-page:var(--neutral-25);--surface-card:var(--neutral-0);--surface-subtle:var(--neutral-50);--surface-brand:var(--blue-700);--surface-brand-soft:var(--blue-50);--surface-accent:var(--yellow-500);--surface-accent-soft:var(--yellow-50);--surface-inverse:var(--blue-900);
+--border-subtle:var(--neutral-200);--border-strong:var(--neutral-300);--border-brand:var(--blue-700);--border-accent:var(--yellow-500);
+--state-success-fg:var(--green-600);--state-success-bg:var(--green-100);--state-danger-fg:var(--red-600);--state-danger-bg:var(--red-100);--state-warning-fg:var(--amber-600);--state-warning-bg:var(--amber-100);
+--focus-ring:var(--yellow-500);
+/* Signature institutional gradient: the isotipo fades blue-500 → blue-900 top to bottom */
+--gradient-isotipo:linear-gradient(180deg,var(--blue-500) 0%,var(--blue-900) 100%);
+--gradient-hero:linear-gradient(135deg,var(--blue-700) 0%,var(--blue-900) 100%);
+/* Hero de portada: el mismo azul institucional en capas, con un brillo alto a la derecha */
+--gradient-hero-rich:radial-gradient(92% 120% at 84% 10%,rgba(8,72,208,.55) 0%,rgba(8,72,208,0) 62%),radial-gradient(70% 95% at 6% 104%,rgba(0,80,176,.42) 0%,rgba(0,80,176,0) 66%),linear-gradient(135deg,var(--blue-600) 0%,var(--blue-800) 46%,var(--blue-900) 100%);
+--rule-accent:var(--yellow-500)}

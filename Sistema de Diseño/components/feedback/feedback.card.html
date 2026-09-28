@@ -1,0 +1,22 @@
+<!-- @dsCard group="Components" viewport="700x300" name="Feedback — Alert, ProgressBar, Modal" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>*{box-sizing:border-box}body{margin:0;padding:20px;background:var(--surface-card);font-family:var(--font-body)}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.stack{display:flex;flex-direction:column;gap:14px}</style>
+</head><body><div id="root"></div><script type="text/babel">
+const { Button, Badge, Card, SectionHeading, Logo, Icon, Input, Select, Checkbox, Radio, Field, NavBar, SideNav, Footer, Tabs, CourseCard, CourseTable, InfoList, Callout, StatBlock, Hero, ProgressBar, Alert, Modal } = window.CFP401AvellanedaDesignSystem_6c39ff;
+function Demo(){const [o,setO]=React.useState(false);
+return <div className="stack">
+<Alert tone="success" onDismiss={()=>{}}>Tu preinscripción fue registrada.</Alert>
+<Alert tone="warning">Faltan documentos: constancia de estudios.</Alert>
+<Alert tone="danger">No pudimos validar tu DNI.</Alert>
+<ProgressBar label="Avance del curso" value={62}/>
+<ProgressBar label="Entregas corregidas" value={25}/>
+<div className="row"><Button onClick={()=>setO(true)}>Abrir diálogo</Button></div>
+<Modal open={o} title="Confirmar preinscripción" onClose={()=>setO(false)} footer={<><Button variant="ghost" onClick={()=>setO(false)}>Cancelar</Button><Button variant="accent" onClick={()=>setO(false)}>Confirmar</Button></>}>Te esperamos en Juan Pablo Angulo 1272, Dock Sud, de lunes a viernes de 10 a 19 hs.</Modal>
+</div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

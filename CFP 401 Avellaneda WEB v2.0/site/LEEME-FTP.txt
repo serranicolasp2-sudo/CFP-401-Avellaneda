@@ -1,0 +1,138 @@
+SITIO INSTITUCIONAL CFP N° 401 — PAQUETE COMPLETO PARA FTP (VERSIÓN 2.0)
+========================================================================
+Revisión: Versión 2.0 con Panel de Administración y Guardado PHP
+
+QUÉ SUBIR
+---------
+Subí el CONTENIDO de esta carpeta `site/` (no la carpeta en sí) a la carpeta
+donde esté alojado tu sitio en el servidor (/public_html/, /cfp/, etc.):
+
+  index.html        <- Sitio web principal para alumnos y visitantes
+  admin.html        <- Panel de Administración visual
+  admin.js          <- NUEVO: Código precompilado del Panel de Administración (carga instantánea)
+  app.js            <- Pantallas del sitio ya compiladas
+  plantillas-promo.js <- Plantillas de los flyers de promoción (las usan el sitio y el panel)
+  curso.php         <- NUEVO: Enlace directo con OpenGraph para compartir cursos en redes (SEO)
+  robots.txt        <- NUEVO: Reglas de rastreo e indexación para buscadores
+  data.js           <- Base de datos del sitio (cursos, fotos, campus, avisos, etc.)
+  styles.css        <- Estilos base
+  tokens/           <- Variables de color, tipografía, espaciado (8 archivos)
+  _ds_bundle.js     <- Componentes del Design System (header, hero, tarjetas, footer)
+  assets/           <- Fotos, logos, isotipos y nuevas imágenes subidas
+  api/              <- NUEVO: Endpoints PHP para guardado directo y subida de fotos
+    config.php      <- Rutas y constantes (no contiene contraseñas)
+    auth.php        <- Verificación segura de credenciales
+    guardar.php     <- Guarda data.js en el servidor y crea data.backup.js
+    subir-foto.php  <- Carga y optimización de fotos a assets/ (con corrección de rotación EXIF para móviles)
+    cambiar-clave.php <- Modificación de la clave común del equipo
+    sesion.php      <- Estado de la sesión (el panel no pide la clave al recargar)
+    .htaccess       <- Bloquea el acceso web a los archivos de claves y respaldos
+    .clave-maestra.json <- Hash de la clave maestra (subirlo la primera vez; ver ACCESO)
+
+NO SUBIR (se generan solos en el servidor; subirlos pisa los del servidor):
+  api/.clave.json     <- Hash de la clave común del equipo (se define desde el panel)
+  api/.intentos.json  <- Registro de intentos fallidos de ingreso
+  api/backups/        <- Respaldos rotativos de data.js
+  api/sesiones/       <- Sesiones abiertas del panel
+  LEEME-FTP.txt       <- Este archivo
+
+NO HACE FALTA SUBIR (el sitio no los usa; unos 11 MB):
+  assets/referencia-copy-info.png, assets/referencia-estilo-redes.png, assets/tabla-cursos-2026.png (material interno)
+  assets/área de *.png (6 duplicados con tilde de las fotos area-*.jpg)
+  assets/qr-cfp401.jpg, assets/logo-cfp401-horizontal.jpg, assets/logo-campus-horizontal-chico.png
+  assets/promociones/qr.jpg
+
+Mantené la estructura de carpetas tal cual: `assets/`, `tokens/` y `api/`
+deben quedar como subcarpetas al lado de `index.html` y `admin.html`.
+
+PERMISOS EN EL SERVIDOR (REGLAS DE SEGURIDAD ESTRICTAS)
+-------------------------------------------------------
+Para que el guardado directo y la subida de fotos funcionen sin errores:
+1. El archivo `data.js` debe tener permisos de escritura para el servidor web (CHMOD 644 o 664).
+   NUNCA asignar permisos globales 666.
+2. La carpeta `api/` debe tener permisos de escritura para el servidor web (CHMOD 755 o 775)
+   para guardar los respaldos rotativos en `api/backups/`, registrar la clave hasheada y rate-limiting.
+3. La carpeta `assets/` debe tener permisos de escritura para el servidor web (CHMOD 755 o 775)
+   para permitir subir nuevas imágenes desde el panel. NUNCA asignar permisos globales 777.
+4. El archivo `api/config.php` es de SOLO LECTURA (CHMOD 644 o 444). Las contraseñas se
+   almacenan con hash Bcrypt en `api/.clave.json` y `api/.clave-maestra.json`, protegidas por `.htaccess`.
+
+ACCESO AL PANEL DE ADMINISTRACIÓN
+---------------------------------
+URL de acceso: https://tusitio.com/admin.html (o enlace "Acceso Administración ⚙️" al pie de página)
+El panel acepta dos contraseñas:
+  - CLAVE COMÚN: la usa el equipo (dirección y personal de administración). Se cambia desde
+    la pestaña "Sistema y Seguridad" del panel.
+  - CLAVE MAESTRA: la conoce solo el responsable del sitio. No se puede cambiar desde el panel.
+    Sirve para entrar si alguien cambió u olvidó la clave común, y restablecerla desde
+    "Sistema y Seguridad".
+Por seguridad, ninguna de las dos se escribe en este archivo ni en ningún otro documento.
+
+Primer ingreso (o si falta la clave común): entrar con la clave maestra y definir la clave
+común desde "Sistema y Seguridad".
+
+La sesión dura 2 horas. Si vence mientras se edita, el panel vuelve a pedir la clave y los
+cambios sin guardar se conservan. Para cambiar la clave común se pide la actual (o la maestra).
+
+Tras 5 intentos fallidos desde una misma conexión, el ingreso se bloquea 15 minutos para esa
+conexión (también para la clave maestra, si se intenta desde la misma red).
+
+Cambiar la clave maestra (solo el responsable, en su computadora, con PHP instalado):
+  1. Abrir una terminal en la carpeta "CFP 401 Avellaneda WEB v2.0".
+  2. Ejecutar:  php herramientas/generar-clave-maestra.php
+  3. Escribir la clave nueva cuando la pida (no queda guardada en ningún archivo ni historial).
+  4. Subir por FTP el archivo site/api/.clave-maestra.json a la carpeta api/ del servidor.
+ADVERTENCIA: NO subas este archivo de texto al servidor, o asegurate de subir el archivo `.htaccess`
+que bloquea automáticamente el acceso público a todos los archivos .txt, .md y .json.
+
+FUNCIONES DEL PANEL DE ADMINISTRACIÓN (v2.0)
+-------------------------------------------
+1. GESTIÓN DE CURSOS:
+   - Agregar nuevos cursos o modificar los existentes.
+   - Modificar títulos, familias profesionales, horarios, duración, requisitos y sedes.
+   - Búsqueda en tiempo real y filtrado rápido por familia.
+   - Eliminar cursos obsoletos.
+
+2. CAMPUS VIRTUAL (CONTROL VISUAL Y OPERATIVO):
+   - Interruptor general: Activar o Desactivar el Campus con un solo clic.
+   - 3 modos de comportamiento cuando esté inactivo:
+     * "Ventana Informativa (Modal)": El botón se mantiene visible pero al hacer clic
+       muestra una ventana emergente institucional con el aviso personalizado (ej: "En desarrollo...").
+     * "Deshabilitado visualmente": Muestra la etiqueta "Campus (Próximamente)".
+     * "Ocultar por completo": Remueve el botón de la barra de navegación y del pie.
+   - Modificación de la URL del Campus Virtual.
+
+3. FOTOS DEL HEADER (HERO ROTATIVO):
+   - Galería de las fotos que giran en el lente circular animado del inicio.
+   - Subida de nuevas imágenes directamente al servidor (`assets/`) con selector de archivos.
+   - Reordenar fotos (subir / bajar) y eliminar fotos que ya no se deseen mostrar.
+
+4. CONTACTO Y SEDES:
+   - Modificación de la dirección de la sede central y del anexo.
+   - Horarios de atención al público.
+   - Número de WhatsApp con enlace directo para consultas.
+   - Múltiples líneas telefónicas (llamada directa desde celulares).
+
+5. INSCRIPCIONES Y AVISOS:
+   - Texto del banner amarillo destacado en la cabecera del inicio.
+   - Estado general de inscripciones (Abiertas, Cerradas, Próximamente).
+   - Fechas y períodos del ciclo lectivo.
+   - Requisitos generales de documentación.
+
+6. ASISTENTE VIRTUAL MARBOT:
+   - Interruptor para habilitar o deshabilitar el asistente flotante en la web.
+   - Mensaje de saludo y bienvenida personalizado.
+
+7. SISTEMA, RESPALDOS Y SEGURIDAD:
+   - Guardado directo en el servidor vía PHP con confirmación visual.
+   - Respaldo automático previo en `data.backup.js` cada vez que se guarda.
+   - Descarga de respaldo completo en formato JSON / JS.
+   - Restauración de respaldo desde un archivo guardado previamente.
+   - Cambio de la clave común del equipo (la clave maestra no se cambia desde el panel).
+
+RESPALDO DE LA VERSIÓN 1.0
+--------------------------
+La versión 1.0 original previa a estos cambios está conservada íntegra e intacta en la carpeta:
+`CFP 401 Avellaneda WEB` (en tu computadora).
+Esta carpeta de la versión 2.0 es:
+`CFP 401 Avellaneda WEB v2.0`.

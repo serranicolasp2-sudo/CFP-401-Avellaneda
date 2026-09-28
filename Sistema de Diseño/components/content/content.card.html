@@ -1,0 +1,20 @@
+<!-- @dsCard group="Components" viewport="700x400" name="Content — CourseCard, CourseTable, InfoList, Callout, Stat" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>*{box-sizing:border-box}body{margin:0;padding:20px;background:var(--surface-card);font-family:var(--font-body)}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.stack{display:flex;flex-direction:column;gap:14px}</style>
+</head><body><div id="root"></div><script type="text/babel">
+const { Button, Badge, Card, SectionHeading, Logo, Icon, Input, Select, Checkbox, Radio, Field, NavBar, SideNav, Footer, Tabs, CourseCard, CourseTable, InfoList, Callout, StatBlock, Hero, ProgressBar, Alert, Modal } = window.CFP401AvellanedaDesignSystem_6c39ff;
+const ROWS=[{curso:'Soldador MIG-TIG',horarios:'Lunes, miércoles y viernes de 17:50 a 21:50 hs',sede:'Juan Pablo Angulo 1272',requisitos:'Estudios primarios o superiores'},{curso:'Montador electricista',horarios:'Lunes, martes, jueves y viernes de 13:30 a 17:00 hs',sede:'Juan Pablo Angulo 1272',requisitos:'Estudios primarios o superiores'}];
+function Demo(){return <div className="stack">
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+<CourseCard title="Soldador MIG-TIG" schedule="Lun, mié y vie de 17:50 a 21:50 hs" duration="1 año" requirements="Estudios primarios"/>
+<div className="stack"><Callout tone="accent" title="Últimos cupos">Todavía estás a tiempo de sumarte a nuestros cursos.</Callout><InfoList dense items={[{label:'Inscripción:',value:'lunes a viernes de 10 a 19 hs'},'Cursos con títulos oficiales','Formación gratuita']}/></div></div>
+<CourseTable rows={ROWS}/>
+<div className="row" style={{gap:40}}><StatBlock value="14" label="Cursos gratuitos"/><StatBlock value="+40" label="Años formando oficios"/><StatBlock value="100%" label="Certificación oficial"/></div>
+</div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

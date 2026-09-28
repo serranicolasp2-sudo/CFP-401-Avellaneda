@@ -1,0 +1,20 @@
+<!-- @dsCard group="Components" viewport="700x380" name="Navigation — NavBar, Tabs, SideNav, Footer" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>*{box-sizing:border-box}body{margin:0;padding:20px;background:var(--surface-card);font-family:var(--font-body)}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.stack{display:flex;flex-direction:column;gap:14px}</style>
+</head><body><div id="root"></div><script type="text/babel">
+const { Button, Badge, Card, SectionHeading, Logo, Icon, Input, Select, Checkbox, Radio, Field, NavBar, SideNav, Footer, Tabs, CourseCard, CourseTable, InfoList, Callout, StatBlock, Hero, ProgressBar, Alert, Modal } = window.CFP401AvellanedaDesignSystem_6c39ff;
+function Demo(){const [t,setT]=React.useState('Cursos');
+return <div className="stack">
+<div style={{border:'1px solid var(--border-subtle)',borderRadius:10,overflow:'hidden'}}><NavBar items={["Inicio","Cursos","Inscripción","Contacto"]} active="Cursos" cta={{label:"Inscribite"}} assetBase="../../assets" sticky={false}/></div>
+<Tabs items={["Contenidos","Requisitos","Horarios"]} active={t} onChange={setT}/>
+<div style={{display:'flex',gap:16,height:150}}>
+<SideNav style={{borderRadius:10,width:200,flex:'0 0 200px'}} items={[{label:'Mis cursos',count:3},{label:'Calificaciones'},{label:'Mensajes',count:2},{label:'Perfil'}]} active="Mis cursos"/>
+<div style={{flex:1,overflow:'hidden',borderRadius:10,border:'1px solid var(--border-subtle)'}}><Footer assetBase="../../assets" address="Juan Pablo Angulo 1272, Dock Sud" columns={[{title:'Cursos',links:['Oferta formativa','Requisitos']},{title:'Contacto',links:['WhatsApp','Campus']}]}/></div>
+</div></div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>
