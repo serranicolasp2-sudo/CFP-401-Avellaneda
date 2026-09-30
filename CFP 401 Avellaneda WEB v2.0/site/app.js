@@ -47,7 +47,11 @@ const WHATSAPP_URL = getWhatsAppUrl();
 const ANIO_ACTUAL = new Date().getFullYear();
 const CAMPUS_URL = 'https://campuscfp401avellaneda.com.ar/login/index.php';
 const MAPS_URL = 'https://www.google.com/maps/place/Cfp+401/@-34.6516833,-58.347049,15z/data=!4m5!3m4!1s0x0:0x117f33b4198391f2!8m2!3d-34.6516831!4d-58.347049?shorturl=1';
-const abrirCampus = () => window.open(CAMPUS_URL, '_blank', 'noopener,noreferrer');
+
+// Campus del Secundario para Adultos (CENS N° 453), en el mismo dominio (instalado el 30/09/2026).
+const SEMI_URL = 'https://campuscfp401avellaneda.com.ar/semi/';
+// Todos los accesos "Campus Virtual" abren el selector (secundario o cursos del CFP); lo escucha <App/>.
+const abrirCampus = () => window.dispatchEvent(new CustomEvent('cfp:selector-campus'));
 
 /* Un curso pertenece a una familia si es su familia principal o si figura en
    su lista "tambien" (cursos que cruzan dos especialidades). */
@@ -1286,16 +1290,14 @@ function HomeScreen({
       name: "message-circle",
       size: 20
     })
-  }, "Pre-Inscripción"), cvConfig?.activo !== false && /*#__PURE__*/React.createElement(Button, {
+  }, "Pre-Inscripción"), /*#__PURE__*/React.createElement(Button, {
     variant: "ghost",
     size: "lg",
     style: {
       color: '#fff',
       borderColor: 'rgba(255,255,255,.5)'
     },
-    href: cvConfig?.url || CAMPUS_URL,
-    target: "_blank",
-    rel: "noopener"
+    onClick: abrirCampus
   }, "Ir al Campus"))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
@@ -2157,11 +2159,15 @@ function ContactScreen() {
       }, CT.whatsapp || '11 6105-6018 (solo mensajes)')
     }, {
       label: 'Campus Virtual:',
-      value: /*#__PURE__*/React.createElement("a", {
+      value: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("a", {
+        href: SEMI_URL,
+        target: "_blank",
+        rel: "noopener"
+      }, "Secundario (CENS N° 453)"), ' / ', /*#__PURE__*/React.createElement("a", {
         href: CAMPUS_URL,
         target: "_blank",
         rel: "noopener"
-      }, "campuscfp401avellaneda.com.ar")
+      }, "Cursos del CFP"))
     }]
   })), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2615,17 +2621,22 @@ function mbResponder(q, ir) {
   if (mbTiene(q, ['certificado', 'titulo', 'oficial', 'sirve para trabajar', 'matricula'])) return {
     texto: 'Sí: los cursos otorgan certificación oficial de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires. Varios además son aptos para matrícula.'
   };
-  if (mbTiene(q, ['campus', 'campus virtual', 'aula virtual', 'moodle', 'plataforma'])) {
+  if (mbTiene(q, ['campus', 'campus virtual', 'aula virtual', 'moodle', 'plataforma', 'semipresencial', 'cens', 'secundario para adultos'])) {
     const cv = window.CFP_DATA.campusVirtual || {};
+    const semi = {
+      label: 'Campus del Secundario (CENS N° 453)',
+      href: SEMI_URL
+    };
     if (cv.activo === false) {
       return {
-        texto: cv.mensajeModal || 'El Campus Virtual se encuentra actualmente en desarrollo y mantenimiento. Muy pronto estará disponible.'
+        texto: 'El campus del Secundario para Adultos está disponible. ' + (cv.mensajeModal || 'El campus de los cursos del CFP se encuentra en mantenimiento.'),
+        acciones: [semi]
       };
     }
     return {
-      texto: 'El Campus Virtual es la plataforma donde cursás en línea. Te dejo el acceso:',
-      acciones: [{
-        label: 'Ir al Campus Virtual',
+      texto: '¿Sos alumno del Secundario para Adultos o de un curso del CFP? Te dejo los dos accesos:',
+      acciones: [semi, {
+        label: 'Campus de los cursos del CFP',
         href: cv.url || CAMPUS_URL
       }]
     };
@@ -3376,6 +3387,12 @@ function App() {
   const [familyFilter, setFamilyFilter] = React.useState('Todas');
   const [selectedCourse, setSelectedCourse] = React.useState(null);
   const [campusModalAbierto, setCampusModalAbierto] = React.useState(false);
+  const [selectorCampusAbierto, setSelectorCampusAbierto] = React.useState(false);
+  React.useEffect(() => {
+    const abrir = () => setSelectorCampusAbierto(true);
+    window.addEventListener('cfp:selector-campus', abrir);
+    return () => window.removeEventListener('cfp:selector-campus', abrir);
+  }, []);
   const [modalAgendaAbierto, setModalAgendaAbierto] = React.useState(false);
   const [cintaCerrada, setCintaCerrada] = React.useState(typeof window !== 'undefined' ? sessionStorage.getItem('cfp401_cinta_efemeride_cerrada') === 'true' : false);
   const cvConfig = window.CFP_DATA.campusVirtual || {
@@ -3465,35 +3482,24 @@ function App() {
     }, 80);
   };
 
-  /* Configuración dinámica del botón del Campus Virtual */
-  let navCta = undefined;
-  let campusFooterLink = null;
-  if (cvConfig.activo !== false) {
-    navCta = {
-      label: 'Campus Virtual',
-      onClick: () => window.open(cvConfig.url || CAMPUS_URL, '_blank', 'noopener,noreferrer')
-    };
-    campusFooterLink = {
-      label: 'Campus Virtual',
-      href: cvConfig.url || CAMPUS_URL
-    };
-  } else {
-    campusFooterLink = null;
-    if (cvConfig.modoInactivo === 'deshabilitado') {
-      navCta = {
-        label: 'Campus (Próximamente)',
-        onClick: () => setCampusModalAbierto(true)
-      };
-    } else if (cvConfig.modoInactivo === 'ocultar' || cvConfig.modoInactivo === 'oculto') {
-      navCta = undefined;
-    } else {
-      // modo 'modal' (default cuando inactivo)
-      navCta = {
-        label: 'Campus Virtual',
-        onClick: () => setCampusModalAbierto(true)
-      };
+  /* Botón del Campus Virtual: siempre abre el selector. Si el campus de los cursos del CFP está inactivo
+     (panel: campusVirtual.activo = false), el selector lo avisa en su opción; el del secundario sigue disponible. */
+  const navCta = {
+    label: 'Campus Virtual',
+    onClick: abrirCampus
+  };
+  const campusFooterLink = {
+    label: 'Campus Virtual',
+    onClick: abrirCampus
+  };
+  const abrirCampusCFP = () => {
+    setSelectorCampusAbierto(false);
+    if (cvConfig.activo === false) {
+      if (cvConfig.modoInactivo !== 'ocultar' && cvConfig.modoInactivo !== 'oculto') setCampusModalAbierto(true);
+      return;
     }
-  }
+    window.open(cvConfig.url || CAMPUS_URL, '_blank', 'noopener,noreferrer');
+  };
   const instLinks = [{
     label: 'Nosotros',
     onClick: () => go('Nosotros')
@@ -3564,7 +3570,73 @@ function App() {
     onNavegar: go
   }), modalAgendaAbierto && /*#__PURE__*/React.createElement(AgendaEfemeridesModal, {
     onClose: () => setModalAgendaAbierto(false)
-  }), campusModalAbierto && /*#__PURE__*/React.createElement(Modal, {
+  }), selectorCampusAbierto && /*#__PURE__*/React.createElement(Modal, {
+    open: true,
+    onClose: () => setSelectorCampusAbierto(false),
+    title: "¿A qué campus querés entrar?",
+    footer: /*#__PURE__*/React.createElement(Button, {
+      variant: "secondary",
+      onClick: () => setSelectorCampusAbierto(false)
+    }, "Cancelar")
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 12,
+      padding: '4px 0'
+    }
+  }, /*#__PURE__*/React.createElement("a", {
+    href: SEMI_URL,
+    target: "_blank",
+    rel: "noopener",
+    onClick: () => setSelectorCampusAbierto(false),
+    style: {
+      display: 'block',
+      padding: '16px 18px',
+      borderRadius: 12,
+      border: '2px solid var(--brand-primary)',
+      textDecoration: 'none',
+      color: 'var(--text-body)'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      display: 'block',
+      fontFamily: 'var(--font-display)',
+      fontSize: 17,
+      color: 'var(--brand-primary)'
+    }
+  }, "Secundario para Adultos · CENS N° 453"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 15,
+      lineHeight: 1.5
+    }
+  }, "Semipresencial: tus materias, los módulos y las entregas de actividades.")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: abrirCampusCFP,
+    style: {
+      display: 'block',
+      width: '100%',
+      textAlign: 'left',
+      padding: '16px 18px',
+      borderRadius: 12,
+      border: '2px solid var(--border-subtle, #cfd6e4)',
+      background: 'transparent',
+      cursor: 'pointer',
+      font: 'inherit',
+      color: 'var(--text-body)'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      display: 'block',
+      fontFamily: 'var(--font-display)',
+      fontSize: 17,
+      color: 'var(--brand-primary)'
+    }
+  }, "Cursos de Formación Profesional · CFP N° 401"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 15,
+      lineHeight: 1.5
+    }
+  }, "El aula de los cursos del CFP", cvConfig.activo === false ? ' (en mantenimiento)' : '', ".")))), campusModalAbierto && /*#__PURE__*/React.createElement(Modal, {
     open: true,
     onClose: () => setCampusModalAbierto(false),
     title: "Campus Virtual CFP N° 401",
