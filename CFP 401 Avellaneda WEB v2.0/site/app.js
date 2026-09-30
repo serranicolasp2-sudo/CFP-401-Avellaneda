@@ -354,6 +354,8 @@ function SiteNavBar({
           whiteSpace: 'nowrap',
           cursor: 'pointer',
           color: isActive ? 'var(--brand-primary)' : 'var(--neutral-600)',
+          paddingTop: 7,
+          // = relleno + subrayado de abajo: el texto queda centrado con el botón del campus
           paddingBottom: 4,
           borderBottom: '3px solid ' + (isActive ? 'var(--brand-accent)' : 'transparent'),
           textDecoration: 'none',
@@ -829,6 +831,8 @@ function SiteNavBar({
         whiteSpace: 'nowrap',
         cursor: 'pointer',
         color: isActive ? 'var(--brand-primary)' : 'var(--neutral-600)',
+        paddingTop: 7,
+        // = relleno + subrayado de abajo: el texto queda centrado con el botón del campus
         paddingBottom: 4,
         borderBottom: '3px solid ' + (isActive ? 'var(--brand-accent)' : 'transparent'),
         textDecoration: 'none',
