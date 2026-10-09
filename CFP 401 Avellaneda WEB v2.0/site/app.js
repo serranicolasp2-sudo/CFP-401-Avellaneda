@@ -3353,7 +3353,24 @@ function PromoPopUp({
     onClick: handleClose,
     "aria-label": "Cerrar aviso de promoción",
     title: "Cerrar"
-  }, "✕"), /*#__PURE__*/React.createElement("div", {
+  }, "✕"), formatoParaPromo(promoActual, 'feed') === 'historia' ? /*#__PURE__*/React.createElement("div", {
+    className: "cfp-promo-canvas-wrapper",
+    style: {
+      flex: 'none',
+      display: 'flex',
+      justifyContent: 'center',
+      background: '#002878'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 'min(calc(100vh - 150px), 680px)',
+      aspectRatio: '1080 / 1920',
+      maxWidth: '100%'
+    }
+  }, /*#__PURE__*/React.createElement(RenderPromoFlyer, {
+    promo: promoActual,
+    formato: "historia"
+  }))) : /*#__PURE__*/React.createElement("div", {
     className: "cfp-promo-canvas-wrapper"
   }, /*#__PURE__*/React.createElement(RenderPromoFlyer, {
     promo: promoActual,

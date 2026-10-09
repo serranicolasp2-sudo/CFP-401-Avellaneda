@@ -180,8 +180,10 @@ function inscripcionesAPromo(data) {
   };
 }
 
-/* Fotos disponibles: las institucionales del sitio (hero y fachada) más la biblioteca de promociones */
-function fotosParaPromo(data) {
+/* Fotos disponibles: las propias de la plantilla (si trae), las institucionales del sitio (hero y
+   fachada) y la biblioteca de promociones */
+function fotosParaPromo(data, promo) {
+  const propias = promo && plantillaDePromo(promo).fotos || [];
   const institucionales = [...(data.heroFotos || []).map(f => f.includes('/') ? f : 'assets/' + f), 'assets/fachada-cfp401.jpg'].map(archivo => ({
     id: 'inst-' + archivo,
     familia: 'Institucional',
@@ -189,7 +191,7 @@ function fotosParaPromo(data) {
     nombre: archivo.split('/').pop().replace(/^hero-|\.\w+$/g, '').replace(/-/g, ' '),
     encuadre: 'center'
   }));
-  return [...institucionales, ...(data.bibliotecaFotosPromo || [])];
+  return [...propias, ...institucionales, ...(data.bibliotecaFotosPromo || [])];
 }
 
 /* Paso 4: formulario con todos los textos de la plantilla, agrupados como en la pieza */
@@ -569,7 +571,8 @@ function OpcionesPromo({
     'captacion-oficios-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
     'ultimos-cupos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
     'conmemoraciones-patrias-v1': [['mostrarCuadricula', 'Cuadrícula sobre la foto']],
-    'grilla-cursos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']]
+    'grilla-cursos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
+    'aviso-primaria-v1': [['mostrarSello', 'Sello de fecha límite'], ['mostrarExtranjero', 'Recuadro para extranjeros']]
   }[promo.modelo] || [['mostrarSello', 'Círculo (100% gratuito)']];
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
     className: "form-label",
@@ -644,6 +647,7 @@ async function exportarPromoPNG(promo, formato = 'feed', showToast, guardarEnSer
     if (showToast) showToast('La biblioteca html-to-image no se encuentra cargada.', 'error');
     return;
   }
+  formato = formatoParaPromo(promo, formato);
   if (showToast) showToast(`Generando PNG ${formato.toUpperCase()}...`, 'info');
   let w = 1080;
   let h = 1350;
@@ -837,6 +841,13 @@ const MUESTRAS_PLANTILLAS = {
     imagen: 'assets/promociones/tematicas/dias-patrios/dias-patrios-1.jpg',
     textos: {}
   },
+  'aviso-primaria-v1': {
+    id: 'muestra-primaria',
+    modelo: 'aviso-primaria-v1',
+    tipo: 'aviso',
+    imagen: 'assets/promociones/tematicas/primaria/primaria-egresados.jpg',
+    textos: {}
+  },
   'grilla-cursos-v1': {
     id: 'muestra-grilla',
     modelo: 'grilla-cursos-v1',
@@ -872,9 +883,15 @@ function AdminApp() {
 
   // Promociones y Flyers
   const [promoModal, setPromoModal] = useState(null); // null o promo object
-  const [promoIndex, setPromoIndex] = useState(-1);
   const [promoStep, setPromoStep] = useState(1); // 1: modelo, 2: curso, 3: foto & encuadre, 4: preview & overrides
   const [promoPreviewFormat, setPromoPreviewFormat] = useState('feed'); // 'feed' | 'historia' | 'a4'
+  // Plantillas de un solo formato (Aviso Primaria = solo Stories): la vista previa pasa a uno que admita
+  useEffect(() => {
+    if (!promoModal) return;
+    const admitido = formatoParaPromo(promoModal, promoPreviewFormat);
+    if (admitido !== promoPreviewFormat) setPromoPreviewFormat(admitido);
+  }, [promoModal && promoModal.modelo, promoPreviewFormat]);
+  const [promoIndex, setPromoIndex] = useState(-1);
   const [filtroPromoBusqueda, setFiltroPromoBusqueda] = useState('');
   const [filtroPromoCursoSelect, setFiltroPromoCursoSelect] = useState('');
   const [filtroFotoFamilia, setFiltroFotoFamilia] = useState('Todas');
@@ -1919,7 +1936,7 @@ function AdminApp() {
       style: {
         aspectRatio: '1080 / 1350'
       }
-    }, /*#__PURE__*/React.createElement(RenderPromoFlyer, {
+    }, /*#__PURE__*/React.createElement(MiniaturaPromo, {
       promo: p,
       formato: "feed"
     })), /*#__PURE__*/React.createElement("div", {
@@ -2103,7 +2120,7 @@ function AdminApp() {
         color: 'var(--neutral-500)',
         marginRight: 2
       }
-    }, "Descargar:"), /*#__PURE__*/React.createElement("button", {
+    }, "Descargar:"), formatosDePromo(p).includes('feed') && /*#__PURE__*/React.createElement("button", {
       className: "btn btn-secondary btn-sm",
       onClick: () => exportarPromoPNG(p, 'feed', showToast),
       title: "Descargar en formato vertical cuadrado/feed (1350x1687)"
@@ -2121,7 +2138,7 @@ function AdminApp() {
       style: {
         width: 13
       }
-    }), " Historia 9:16"), /*#__PURE__*/React.createElement("button", {
+    }), " Historia 9:16"), formatosDePromo(p).includes('a4') && /*#__PURE__*/React.createElement("button", {
       className: "btn btn-secondary btn-sm",
       onClick: () => exportarPromoPNG(p, 'a4', showToast),
       title: "Descargar en formato A4 para imprimir en alta resolución (2480x3508)"
@@ -4901,6 +4918,19 @@ function AdminApp() {
             fechaCreacion: new Date().toISOString().split('T')[0]
           }));
           setFiltroFotoFamilia(esCaptacion ? 'Captación de Oficios' : 'Días Patrios y Conmemoraciones');
+        } else if (plt.tipo === 'aviso') {
+          setPromoModal(prev => ({
+            id: 'promo-aviso-' + Date.now().toString(36),
+            modelo: plt.id,
+            tipo: 'aviso',
+            cursoSlug: '',
+            imagen: ((plt.fotos || [])[0] || {}).archivo || 'assets/hero-egresados.jpg',
+            encuadre: 'center',
+            textos: {},
+            popupActivo: prev.popupActivo === true,
+            fechaCreacion: new Date().toISOString().split('T')[0]
+          }));
+          setFiltroFotoFamilia(plt.familiaFotos || 'Institucional');
         } else if (plt.tipo === 'grilla') {
           setPromoModal(prev => ({
             id: 'promo-grilla-' + Date.now().toString(36),
@@ -4945,7 +4975,7 @@ function AdminApp() {
         display: 'flex',
         alignItems: 'stretch'
       }
-    }, muestra && /*#__PURE__*/React.createElement(RenderPromoFlyer, {
+    }, muestra && /*#__PURE__*/React.createElement(MiniaturaPromo, {
       promo: muestra,
       formato: "feed"
     })), /*#__PURE__*/React.createElement("div", {
@@ -5283,7 +5313,9 @@ function AdminApp() {
     }
   }, /*#__PURE__*/React.createElement("option", {
     value: "Todas"
-  }, "📸 Todas las fotos (institucionales, talleres y temáticas)"), /*#__PURE__*/React.createElement("optgroup", {
+  }, "📸 Todas las fotos (institucionales, talleres y temáticas)"), plantillaDePromo(promoModal).familiaFotos && /*#__PURE__*/React.createElement("option", {
+    value: plantillaDePromo(promoModal).familiaFotos
+  }, "⭐ Fotos de esta plantilla (", plantillaDePromo(promoModal).familiaFotos, ")"), /*#__PURE__*/React.createElement("optgroup", {
     label: "🌟 Campañas y Temáticas Curadas"
   }, /*#__PURE__*/React.createElement("option", {
     value: "Temáticas"
@@ -5343,7 +5375,7 @@ function AdminApp() {
       overflowY: 'auto',
       padding: 4
     }
-  }, fotosParaPromo(data).filter(f => {
+  }, fotosParaPromo(data, promoModal).filter(f => {
     if (filtroFotoFamilia === 'Todas') return true;
     if (filtroFotoFamilia === 'Temáticas') {
       return f.categoria === 'Campañas y Temáticas' || f.archivo && f.archivo.includes('tematicas');
@@ -5518,7 +5550,7 @@ function AdminApp() {
   }, {
     id: 'a4',
     label: 'Afiche A4'
-  }].map(fmt => /*#__PURE__*/React.createElement("button", {
+  }].filter(fmt => formatosDePromo(promoModal).includes(fmt.id)).map(fmt => /*#__PURE__*/React.createElement("button", {
     key: fmt.id,
     type: "button",
     onClick: () => setPromoPreviewFormat(fmt.id),
@@ -5741,7 +5773,7 @@ function AdminApp() {
     style: {
       width: 14
     }
-  }), " Guardar PNG en servidor (", promoPreviewFormat.toUpperCase(), ")"), /*#__PURE__*/React.createElement("button", {
+  }), " Guardar PNG en servidor (", promoPreviewFormat.toUpperCase(), ")"), formatosDePromo(promoModal).includes('feed') && /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-secondary btn-sm",
     onClick: () => exportarPromoPNG(promoModal, 'feed', showToast),
@@ -5761,7 +5793,7 @@ function AdminApp() {
     style: {
       width: 14
     }
-  }), " Historia"), /*#__PURE__*/React.createElement("button", {
+  }), " Historia"), formatosDePromo(promoModal).includes('a4') && /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-secondary btn-sm",
     onClick: () => exportarPromoPNG(promoModal, 'a4', showToast),

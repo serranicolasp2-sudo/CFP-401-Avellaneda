@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Aviso Primaria · No pierdas el año (Stories 1080×1920)" description="Stories de WhatsApp para terminalidad primaria: logo grande, foto circular con sello de fecha límite, titular en dos líneas, aviso para extranjeros y pie con sede y WhatsApp." -->
+<helmet><script src="./ds-base.js"></script></helmet>
+<div id="aviso-primaria" data-screen-label="Aviso Primaria · Stories" style="position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--brand-primary);font-family:var(--font-body);color:#fff;display:flex;flex-direction:column">
+<div style="position:absolute;inset:0;background:var(--gradient-hero-rich)"></div>
+<div style="position:relative;flex:none;height:800px">
+<img src="img/arco-blanco.png" alt="" style="position:absolute;left:-170px;top:380px;width:600px;opacity:.07">
+<div style="position:absolute;right:-140px;top:260px;width:560px;height:560px;border-radius:50%;border:14px solid var(--brand-accent);box-sizing:border-box"></div>
+<div style="position:absolute;right:-120px;top:280px;width:520px;height:520px;border-radius:50%;overflow:hidden;background:var(--blue-900)">
+<img src="{{ fotoSrc }}" alt="Estudiantes del CFP 401" style="width:100%;height:100%;object-fit:cover;object-position:center">
+<div style="position:absolute;inset:0;background:linear-gradient(200deg,rgba(0,40,120,0) 45%,rgba(0,40,120,.45) 100%)"></div>
+</div>
+<img src="img/logo-blanco.png" alt="CFP N° 401 Avellaneda" style="position:absolute;left:80px;top:120px;width:620px;height:auto;display:block">
+<sc-if value="{{ conSello }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:400px;top:560px;width:240px;height:240px;z-index:2;border-radius:50%;background:var(--brand-accent);color:var(--blue-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-10deg);box-shadow:12px 12px 0 var(--blue-900)">
+<div style="font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:.12em">{{ selloArriba }}</div>
+<div style="font-family:var(--font-display);font-weight:800;font-size:100px;line-height:.95;letter-spacing:-.04em">{{ selloNumero }}</div>
+<div style="font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:.12em">{{ selloAbajo }}</div>
+</div>
+</sc-if>
+</div>
+<div style="position:relative;flex:1 1 auto;min-height:0;overflow:hidden;padding:0 80px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start">
+<div style="display:flex;align-items:center;gap:18px;font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:.16em;color:var(--brand-accent)"><span style="flex:none;width:56px;height:8px;background:var(--brand-accent)"></span><span>{{ antetitulo }}</span></div>
+<div style="margin-top:18px;font-family:var(--font-display);font-weight:800;font-size:112px;line-height:.98;letter-spacing:-.04em;color:#fff;max-width:920px;text-wrap:balance">{{ linea1 }}</div>
+<div style="margin-top:16px;background:var(--brand-accent);color:var(--blue-900);font-family:var(--font-display);font-weight:800;font-size:112px;line-height:1;letter-spacing:-.04em;max-width:900px;text-wrap:balance;padding:4px 32px 14px;border-radius:24px;transform:rotate(-2deg);box-shadow:12px 12px 0 var(--blue-900)">{{ linea2 }}</div>
+<div style="margin-top:40px;max-width:900px;font-family:var(--font-display);font-weight:800;font-size:46px;line-height:1.12;letter-spacing:-.01em;text-wrap:balance">{{ bajada }}</div>
+<div style="margin-top:20px;border:3px solid rgba(255,255,255,.8);border-radius:999px;padding:10px 26px;font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:.08em;white-space:nowrap">{{ chip }}</div>
+<sc-if value="{{ conExtranjero }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:36px;width:100%;background:#fff;color:var(--blue-900);border-radius:24px;padding:26px 34px;display:flex;flex-direction:column;gap:6px;box-shadow:0 18px 40px rgba(0,20,70,.3)">
+<div style="font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:.14em;color:var(--brand-primary)">{{ extranjeroLabel }}</div>
+<div style="font-family:var(--font-display);font-weight:800;font-size:40px;line-height:1.1;text-wrap:balance">{{ extranjeroTexto }}</div>
+</div>
+</sc-if>
+</div>
+<div style="position:relative;flex:none;background:#fff;color:var(--blue-900);border-top:14px solid var(--brand-accent);padding:40px 80px 80px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:28px">
+<div style="display:flex;flex-direction:column;gap:8px;min-width:0"><div style="font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:.14em;color:var(--brand-primary)">{{ sedeLabel }}</div><div style="font-family:var(--font-display);font-weight:800;font-size:40px;line-height:1.08;text-wrap:balance">{{ sede }}</div></div>
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px"><div style="font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:.14em;color:var(--brand-primary);white-space:nowrap">WHATSAPP</div><div style="background:var(--blue-900);color:var(--brand-accent);font-family:var(--font-display);font-weight:800;font-size:44px;line-height:1;padding:16px 34px;border-radius:999px;white-space:nowrap">{{ whatsapp }}</div></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1080,&quot;height&quot;:1920},&quot;antetitulo&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ESTUDIOS PRIMARIOS&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;linea1&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;¡NO PIERDAS&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;linea2&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;EL AÑO!&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;bajada&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Completá tus estudios primarios.&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;chip&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;TODOS LOS NIVELES&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Titular&quot;},&quot;mostrarExtranjero&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Extranjeros&quot;},&quot;extranjeroLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;¿SOS EXTRANJERO?&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Extranjeros&quot;},&quot;extranjeroTexto&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Podés validar tus estudios.&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Extranjeros&quot;},&quot;mostrarSello&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sello fecha&quot;},&quot;selloArriba&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;HASTA EL&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sello fecha&quot;},&quot;selloNumero&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;16&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sello fecha&quot;},&quot;selloAbajo&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;OCTUBRE&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sello fecha&quot;},&quot;sedeLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ACERCATE A LA SEDE&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;sede&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;J. P. Angulo 1272&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;whatsapp&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;11 6200-0967&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;foto&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Egresados&quot;,&quot;Fachada&quot;],&quot;default&quot;:&quot;Egresados&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Imagen&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const fotos = { 'Egresados': 'img/egresados.jpg', 'Fachada': 'img/fachada.jpg' };
+    return {
+      fotoSrc: fotos[p.foto] || fotos.Egresados,
+      antetitulo: p.antetitulo ?? 'ESTUDIOS PRIMARIOS',
+      linea1: p.linea1 ?? '¡NO PIERDAS',
+      linea2: p.linea2 ?? 'EL AÑO!',
+      bajada: p.bajada ?? 'Completá tus estudios primarios.',
+      chip: p.chip ?? 'TODOS LOS NIVELES',
+      conExtranjero: p.mostrarExtranjero ?? true,
+      extranjeroLabel: p.extranjeroLabel ?? '¿SOS EXTRANJERO?',
+      extranjeroTexto: p.extranjeroTexto ?? 'Podés validar tus estudios.',
+      conSello: p.mostrarSello ?? true,
+      selloArriba: p.selloArriba ?? 'HASTA EL',
+      selloNumero: p.selloNumero ?? '16',
+      selloAbajo: p.selloAbajo ?? 'OCTUBRE',
+      sedeLabel: p.sedeLabel ?? 'ACERCATE A LA SEDE',
+      sede: p.sede ?? 'J. P. Angulo 1272',
+      whatsapp: p.whatsapp ?? '11 6200-0967'
+    };
+  }
+}
+</script>
+</body>
+</html>

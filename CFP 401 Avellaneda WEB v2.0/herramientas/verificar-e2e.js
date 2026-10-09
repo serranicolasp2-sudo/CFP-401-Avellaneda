@@ -194,6 +194,26 @@ async function main() {
     guardado = await espera;
     const p2 = guardado.promociones.find(p => p.cursoSlug === 'auxiliar-contable');
     ok(p2 && p2.id === aux.id && p2.huellaCurso !== 'fnv1a-00000000', 'Mantiene su id y actualiza la huella', p2 && `${p2.id} · ${p2.huellaCurso}`);
+    // Caso 3: Aviso Primaria (solo Stories, sin curso, con fotos propias)
+    await page.getByRole('button', { name: /Nueva Promoción/ }).click();
+    await page.locator('strong', { hasText: 'Aviso Primaria (Stories)' }).click();
+    ok(await page.locator('.promo-stepper-bar [aria-disabled]').nth(1).getAttribute('aria-disabled') === 'true', 'Aviso Primaria: el paso 2 (curso) queda bloqueado');
+    await page.getByRole('button', { name: /^Continuar/ }).first().click();
+    ok(await page.locator('img[src*="tematicas/primaria/"]').count() >= 2, 'Aviso Primaria: el paso 3 ofrece las fotos propias de la plantilla');
+    await page.getByRole('button', { name: /^Continuar/ }).first().click();
+    const botonesFormato = await page.locator('.promo-preview-col button').allInnerTexts();
+    ok(botonesFormato.join('|') === 'Historia 9:16', 'Aviso Primaria: la vista previa solo ofrece Historia', botonesFormato.join(' | '));
+    const pieModal = page.locator('.promo-footer-descargas');
+    ok(await pieModal.getByRole('button', { name: /Feed/ }).count() === 0 && await pieModal.getByRole('button', { name: /A4/ }).count() === 0 && await pieModal.getByRole('button', { name: /Historia/ }).count() === 1, 'Aviso Primaria: solo ofrece descargar Historia');
+    await campo('Sello: día').fill('20');
+    await page.getByRole('button', { name: /Guardar Promoción/ }).click();
+    const tarjetaPrimaria = page.locator('.promo-card', { hasText: 'Aviso Primaria' });
+    ok(await tarjetaPrimaria.count() === 1 && await tarjetaPrimaria.getByRole('button', { name: /Feed 4:5/ }).count() === 0 && await tarjetaPrimaria.getByRole('button', { name: /Historia 9:16/ }).count() === 1, 'Aviso Primaria: la tarjeta solo descarga Historia');
+    espera = enviado();
+    await page.getByRole('button', { name: /Guardar en Servidor/ }).click();
+    guardado = await espera;
+    const p3 = guardado.promociones.find(p => p.modelo === 'aviso-primaria-v1');
+    ok(p3 && p3.textos && p3.textos.selloNumero === '20' && /tematicas\/primaria\//.test(p3.imagen || '') && !p3.cursoSlug, 'Aviso Primaria: se guarda con su texto editado, su foto y sin curso', p3 && JSON.stringify({ sello: p3.textos.selloNumero, imagen: p3.imagen }));
     ok(errores.length === 0, 'Sin errores de JavaScript en el panel', errores.join(' | '));
 
     // ── Sitio público: la copia guardada carga sin errores

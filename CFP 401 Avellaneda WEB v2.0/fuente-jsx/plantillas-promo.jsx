@@ -119,7 +119,7 @@ function textosPromo(promo) {
 /* Nombre para mostrar en listas, avisos y lectores de pantalla */
 function tituloPromo(promo) {
   const t = textosPromo(promo);
-  if (promo.modelo === 'apertura-inscripciones-v1') return (t.linea1 + ' ' + t.linea2).trim();
+  if (promo.modelo === 'apertura-inscripciones-v1' || promo.modelo === 'aviso-primaria-v1') return (t.linea1 + ' ' + t.linea2).trim();
   if (promo.modelo === 'grilla-cursos-v1') return 'Cursos para empezar en ' + ((promo.periodo || 'marzo') === 'agosto' ? 'agosto' : 'marzo');
   if (t.titulo1 && t.titulo2 && !t.curso) return (t.titulo1.replace(/\s*\n\s*/g, ' ') + ' ' + t.titulo2).trim();
   return t.curso || t.titulo || promo.cursoNombre || 'Promoción';
@@ -1288,7 +1288,7 @@ function LienzoDiseno({ plantilla, formato, customRef, clases, estilo, etiqueta,
   const claseBoard = ['pz-' + plantilla, 'board', CLASE_FORMATO_DISENO[formato] || 'feed', clases].filter(Boolean).join(' ');
   return (
     <div ref={customRef} className={`flyer-canvas flyer-${formato}`} style={estiloLienzo(formato, { background: '#ffffff' })}>
-      <style>{CSS_PLANTILLAS_DISENO[plantilla] || ''}</style>
+      <style>{CSS_PLANTILLAS_DISENO[plantilla] || CSS_PLANTILLAS_PROPIAS[plantilla] || ''}</style>
       <div className={claseBoard} style={Object.assign({ fontSize: 'calc(16 * var(--u))', lineHeight: 'normal', letterSpacing: 'normal', textAlign: 'left' }, estilo)} aria-label={etiqueta}>
         {children}
       </div>
@@ -1469,6 +1469,166 @@ function CaptacionOficiosV1({ promo, formato = 'feed', customRef }) {
           <small>(solo mensajes)</small>
         </div>
       </footer>
+    </LienzoDiseno>
+  );
+}
+
+/* ---------- Aviso Primaria (solo Stories, sin curso) ----------
+   Dirección "Ficha numerada" elegida por el responsable el 09/10/2026, en lugar del diseño de Claude
+   Design (templates/aviso-primaria-stories): la información manda. Arriba el mensaje sobre la foto en
+   duotono azul; el sello de fecha límite a caballo del corte; abajo una ficha 1-2-3 (para quién,
+   extranjeros, sede) y el WhatsApp a lo ancho. Logo y botón dentro de la zona segura de Stories (192 px).
+   Si los textos editados no entran, cada zona achica la letra en proporción. */
+const FORMATOS_SOLO_HISTORIA = [FORMATOS_PROMO.historia];
+
+/* Formatos que admite la plantilla de una promoción; si piden otro, se usa el primero que admite */
+function formatosDePromo(promo) {
+  return (plantillaDePromo(promo).formatos || FORMATOS_PROMO_LISTA).map(f => f.id);
+}
+function formatoParaPromo(promo, formato) {
+  const admitidos = formatosDePromo(promo);
+  return admitidos.includes(formato) ? formato : admitidos[0];
+}
+
+/* Miniatura en una caja de otra proporción (tarjetas, pop-up): si la plantilla no tiene ese formato,
+   muestra el suyo centrado y completo, con bandas a los costados, en vez de recortarlo. */
+function MiniaturaPromo({ promo, formato = 'feed', fondo = '#e8eefb' }) {
+  if (!promo) return null;
+  const real = formatoParaPromo(promo, formato);
+  if (real === formato) return <RenderPromoFlyer promo={promo} formato={formato} />;
+  return (
+    <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', background: fondo }}>
+      <div style={{ height: '100%', aspectRatio: FORMATOS_PROMO[real].ratio, maxWidth: '100%' }}>
+        <RenderPromoFlyer promo={promo} formato={real} />
+      </div>
+    </div>
+  );
+}
+
+const U = n => `calc(${n} * var(--u))`;
+const UF = n => `calc(${n} * var(--u) * var(--fit, 1))`;
+const CSS_PLANTILLAS_PROPIAS = {
+  primaria: `
+.pz-primaria{--u:calc(100cqw / 1080);--azul:var(--brand-primary,#003890);--hondo:var(--blue-900,#002878);--amarillo:var(--brand-accent,#ffd100);--palido:var(--blue-50,#e8eefb)}
+.pz-primaria,.pz-primaria *{box-sizing:border-box}
+.pz-primaria.board{position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;color:var(--hondo);font-family:"Poppins",Arial,sans-serif}
+.pz-primaria .arriba{position:relative;flex:none;height:${U(930)};overflow:hidden;background:var(--hondo);color:#fff}
+.pz-primaria .arriba .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;filter:grayscale(1) contrast(1.15);opacity:.5;mix-blend-mode:luminosity}
+.pz-primaria .arriba .velo{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,40,120,.92) 0%,rgba(0,56,144,.72) 55%,rgba(0,40,120,.95) 100%)}
+.pz-primaria .logo{position:absolute;left:${U(80)};top:${U(192)};width:${U(500)};height:auto;display:block}
+.pz-primaria .texto{position:absolute;left:${U(80)};right:${U(80)};top:${U(336)};bottom:${U(48)}}
+.pz-primaria .contenido{display:flex;flex-direction:column;align-items:flex-start}
+.pz-primaria .ante{display:flex;align-items:center;gap:${UF(16)};font-weight:700;font-size:${UF(32)};letter-spacing:.14em;color:var(--amarillo);text-transform:uppercase}
+.pz-primaria .ante .raya{flex:none;width:${UF(44)};height:${UF(7)};background:var(--amarillo)}
+.pz-primaria .linea1,.pz-primaria .linea2{font-weight:800;font-size:${UF(150)};letter-spacing:-.05em;max-width:100%;text-wrap:balance}
+.pz-primaria .linea1{margin-top:${UF(14)};line-height:.95}
+.pz-primaria .linea2{line-height:1;color:var(--amarillo)}
+.pz-primaria .bajada{margin-top:${UF(26)};max-width:${U(600)};font-weight:700;font-size:${UF(46)};line-height:1.1;color:var(--palido);text-wrap:balance}
+.pz-primaria .sello{position:absolute;right:${U(70)};top:${U(790)};z-index:3;width:${U(300)};height:${U(300)};border-radius:50%;background:var(--amarillo);color:var(--hondo);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-8deg);box-shadow:${U(14)} ${U(14)} 0 var(--hondo)}
+.pz-primaria .sello small{font-weight:700;font-size:${U(28)};letter-spacing:.14em;white-space:nowrap}
+.pz-primaria .sello b{font-weight:800;font-size:${U(140)};line-height:.9;letter-spacing:-.05em;white-space:nowrap}
+.pz-primaria .ficha{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;padding:${U(48)} ${U(80)} ${U(24)};display:flex;flex-direction:column;justify-content:center}
+.pz-primaria .items{display:flex;flex-direction:column}
+.pz-primaria .item{display:grid;grid-template-columns:${UF(96)} minmax(0,1fr);align-items:center;gap:${UF(26)};padding:${UF(28)} 0;border-bottom:${U(3)} solid var(--palido)}
+.pz-primaria .item:last-child{border-bottom:0}
+.pz-primaria.con-sello .item:first-child{padding-right:${U(320)}}
+.pz-primaria .item i{font-style:normal;display:flex;align-items:center;justify-content:center;width:${UF(96)};height:${UF(96)};border-radius:${UF(24)};background:var(--hondo);color:var(--amarillo);font-weight:800;font-size:${UF(46)}}
+.pz-primaria .item .rotulo{font-weight:700;font-size:${UF(24)};letter-spacing:.14em;color:var(--azul);text-transform:uppercase}
+.pz-primaria .item b{display:block;font-weight:800;font-size:${UF(46)};line-height:1.08;margin-top:${UF(4)};text-wrap:balance}
+.pz-primaria .pie{position:relative;flex:none;padding:0 ${U(80)} ${U(192)}}
+.pz-primaria .wa{display:flex;align-items:center;justify-content:center;gap:${U(18)};background:var(--hondo);color:var(--amarillo);font-weight:800;font-size:${U(60)};line-height:1;padding:${U(24)} ${U(40)};border-radius:${U(999)};white-space:nowrap}
+.pz-primaria .wa svg{width:${U(52)};height:${U(52)};flex:none}
+.pz-primaria .franja{position:absolute;left:0;right:0;bottom:0;height:${U(24)};background:var(--amarillo)}
+`
+};
+
+const FOTOS_PRIMARIA = [
+  { id: 'primaria-egresados', familia: 'Primaria', archivo: 'assets/promociones/tematicas/primaria/primaria-egresados.jpg', nombre: 'Egresados', encuadre: '50% 30%' },
+  { id: 'primaria-fachada', familia: 'Primaria', archivo: 'assets/promociones/tematicas/primaria/primaria-fachada.jpg', nombre: 'Fachada', encuadre: 'center' }
+];
+
+/* Achica en proporción (variable --fit, hasta "minimo") una zona cuyo contenido no entra en su caja
+   o tiene algún texto más ancho que su lugar */
+function ajustarZona(zona, contenido, minimo, anchos) {
+  if (!zona || !contenido) return;
+  let fit = 1;
+  zona.style.setProperty('--fit', '1');
+  const desborda = () => contenido.offsetHeight > zona.clientHeight + 1 ||
+    Array.from(zona.querySelectorAll(anchos)).some(el => el.scrollWidth > el.clientWidth + 1);
+  let vueltas = 0;
+  while (fit > minimo && vueltas++ < 40 && desborda()) {
+    fit = Math.max(minimo, fit - 0.025);
+    zona.style.setProperty('--fit', String(fit));
+  }
+}
+
+const ICONO_WHATSAPP = (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z" /></svg>
+);
+
+function AvisoPrimariaV1({ promo, formato = 'historia', customRef }) {
+  const T = promo ? textosPromo(promo) : {};
+  const refTexto = React.useRef(null);
+  const refFicha = React.useRef(null);
+  const refItems = React.useRef(null);
+  const refNumero = React.useRef(null);
+  const conSello = !promo || promo.mostrarSello !== false;
+  const conExtranjero = !promo || promo.mostrarExtranjero !== false;
+  useAjusteDiseno(() => {
+    // Mensaje de arriba: entra entre el logo y el borde de la foto; la bajada no llega al sello
+    const texto = refTexto.current;
+    if (texto) ajustarZona(texto, texto.firstElementChild, 0.55, '.linea1,.linea2,.bajada');
+    // Ficha: los datos entran entre la foto y el botón de WhatsApp
+    ajustarZona(refFicha.current, refItems.current, 0.6, '.item b');
+    // Número del sello: más de dos caracteres ("15/10") se achica para entrar en el círculo
+    const numero = refNumero.current;
+    if (numero) {
+      numero.style.fontSize = '';
+      const ancho = numero.parentElement.clientWidth * ((numero.textContent || '').trim().length > 2 ? 0.62 : 0.84);
+      // Con más de dos caracteres arranca más chico: la barra y los dígitos suben hasta "HASTA EL"
+      let size = parseFloat(getComputedStyle(numero).fontSize) * ((numero.textContent || '').trim().length > 2 ? 0.6 : 1);
+      numero.style.fontSize = size + 'px';
+      let vueltas = 0;
+      while (numero.scrollWidth > ancho && vueltas++ < 60) { size *= 0.94; numero.style.fontSize = size + 'px'; }
+    }
+  }, [T.antetitulo, T.linea1, T.linea2, T.bajada, T.paraQuienLabel, T.chip, T.extranjeroLabel, T.extranjeroTexto, T.sedeLabel, T.sede, T.selloNumero, conExtranjero, formato]);
+  if (!promo) return null;
+  const items = [
+    [T.paraQuienLabel, T.chip],
+    conExtranjero ? [T.extranjeroLabel, T.extranjeroTexto] : null,
+    [T.sedeLabel, T.sede]
+  ].filter(Boolean);
+  return (
+    <LienzoDiseno plantilla="primaria" formato="historia" customRef={customRef} clases={conSello ? 'con-sello' : ''} etiqueta="Aviso de terminalidad primaria">
+      <div className="arriba">
+        <img className="bg" src={fotoDePromo(promo, FOTOS_PRIMARIA[0].archivo)} alt="" style={promo.encuadre ? { objectPosition: promo.encuadre } : undefined} />
+        <div className="velo"></div>
+        <img className="logo" src="assets/promociones/logo-blanco.png" alt="CFP N° 401 Avellaneda" />
+        <div className="texto" ref={refTexto}>
+          <div className="contenido">
+            <div className="ante"><span className="raya"></span><span>{T.antetitulo}</span></div>
+            <div className="linea1">{T.linea1}</div>
+            <div className="linea2">{T.linea2}</div>
+            <div className="bajada">{T.bajada}</div>
+          </div>
+        </div>
+      </div>
+      {conSello && (
+        <div className="sello">
+          <small>{T.selloArriba}</small>
+          <b ref={refNumero}>{T.selloNumero}</b>
+          <small>{T.selloAbajo}</small>
+        </div>
+      )}
+      <div className="ficha" ref={refFicha}>
+        <div className="items" ref={refItems}>
+          {items.map(([rotulo, valor], i) => (
+            <div className="item" key={i}><i>{i + 1}</i><div><div className="rotulo">{rotulo}</div><b>{valor}</b></div></div>
+          ))}
+        </div>
+      </div>
+      <div className="pie"><div className="wa">{ICONO_WHATSAPP}{T.whatsapp}</div></div>
+      <div className="franja"></div>
     </LienzoDiseno>
   );
 }
@@ -1878,6 +2038,38 @@ const CATALOGO_PLANTILLAS = {
       { clave: 'whatsapp', etiqueta: 'WhatsApp', grupo: 'Pie', defecto: () => whatsappPromo() }
     ]
   },
+  'aviso-primaria-v1': {
+    id: 'aviso-primaria-v1',
+    nombre: 'Aviso Primaria (Stories)',
+    tipo: 'aviso',
+    pasoCurso: null,
+    usaFoto: true,
+    badge: 'Nuevo',
+    disponible: true,
+    descripcion: 'Stories de WhatsApp para terminalidad primaria: titular sobre la foto en duotono, sello de fecha límite y ficha numerada (para quién, extranjeros, sede) con el WhatsApp a lo ancho. Solo formato Historia.',
+    formatos: FORMATOS_SOLO_HISTORIA,
+    componente: AvisoPrimariaV1,
+    fotos: FOTOS_PRIMARIA,
+    familiaFotos: 'Primaria',
+    campos: [
+      { clave: 'antetitulo', etiqueta: 'Antetítulo', grupo: 'Titular', defecto: 'ESTUDIOS PRIMARIOS' },
+      { clave: 'linea1', etiqueta: 'Titular (línea blanca)', grupo: 'Titular', defecto: '¡NO PIERDAS' },
+      { clave: 'linea2', etiqueta: 'Titular (línea amarilla)', grupo: 'Titular', defecto: 'EL AÑO!' },
+      { clave: 'bajada', etiqueta: 'Bajada', grupo: 'Titular', defecto: 'Completá tus estudios primarios.' },
+
+      { clave: 'selloArriba', etiqueta: 'Sello: arriba', grupo: 'Sello de fecha', defecto: 'HASTA EL' },
+      { clave: 'selloNumero', etiqueta: 'Sello: día', grupo: 'Sello de fecha', defecto: '16' },
+      { clave: 'selloAbajo', etiqueta: 'Sello: mes', grupo: 'Sello de fecha', defecto: 'OCTUBRE' },
+      { clave: 'paraQuienLabel', etiqueta: 'Dato 1: rótulo', grupo: 'Ficha', defecto: 'Para quién' },
+      { clave: 'chip', etiqueta: 'Dato 1: texto', grupo: 'Ficha', defecto: 'Todos los niveles' },
+      { clave: 'extranjeroLabel', etiqueta: 'Dato 2 (extranjeros): rótulo', grupo: 'Ficha', defecto: '¿Sos extranjero?' },
+      { clave: 'extranjeroTexto', etiqueta: 'Dato 2 (extranjeros): texto', grupo: 'Ficha', defecto: 'Podés validar tus estudios' },
+      { clave: 'sedeLabel', etiqueta: 'Dato 3: rótulo', grupo: 'Ficha', defecto: 'Acercate a la sede' },
+      { clave: 'sede', etiqueta: 'Dato 3: sede', grupo: 'Ficha', defecto: 'J. P. Angulo 1272' },
+      // Contacto propio de primaria (confirmado por el responsable el 09/10/2026), distinto del WhatsApp del CFP
+      { clave: 'whatsapp', etiqueta: 'WhatsApp', grupo: 'Botón', defecto: '11 6200-0967' }
+    ]
+  },
   'ultimos-cupos-v1': {
     id: 'ultimos-cupos-v1',
     nombre: 'Últimos Cupos (Urgencia)',
@@ -1946,5 +2138,6 @@ const CATALOGO_PLANTILLAS = {
 function RenderPromoFlyer({ promo, formato = 'feed', customRef }) {
   if (!promo) return null;
   const Plantilla = plantillaDePromo(promo).componente;
-  return <Plantilla promo={promo} formato={formato} customRef={customRef} />;
+  // Plantillas de un solo formato (Aviso Primaria = solo Stories): nunca se dibujan en otro
+  return <Plantilla promo={promo} formato={formatoParaPromo(promo, formato)} customRef={customRef} />;
 }

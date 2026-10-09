@@ -16,9 +16,18 @@ const OUTPUT = path.join(ROOT, '.local', 'visual-results');
 const BASELINES = path.join(__dirname, 'referencias-visuales');
 const modelos = [
   'flyer-curso-v1', 'flyer-curso-v2', 'apertura-inscripciones-v1',
-  'captacion-oficios-v1', 'ultimos-cupos-v1', 'conmemoraciones-patrias-v1', 'grilla-cursos-v1'
+  'captacion-oficios-v1', 'ultimos-cupos-v1', 'conmemoraciones-patrias-v1', 'grilla-cursos-v1', 'aviso-primaria-v1'
 ];
 const formatos = ['feed', 'historia', 'a4'];
+// Plantillas de un solo formato: solo se prueban en el suyo
+const formatosModelo = { 'aviso-primaria-v1': ['historia'] };
+const formatosDe = model => formatosModelo[model] || formatos;
+// Textos largos propios del Aviso Primaria (titular en dos líneas, extranjeros, sede y sello)
+const copiaLargaPrimaria = {
+  linea1: '¡NO PIERDAS ESTE', linea2: 'AÑO DE ESTUDIO!', chip: 'TODOS LOS NIVELES · TURNO MAÑANA Y NOCHE',
+  extranjeroTexto: 'Podés validar los estudios que hiciste en tu país de origen.',
+  sede: 'Juan Pablo Angulo 1272, Dock Sud, Avellaneda', selloNumero: '15/10'
+};
 const cursoData = require('vm');
 const sandbox = { window: {} };
 cursoData.runInNewContext(fs.readFileSync(path.join(ROOT, 'site', 'data.js'), 'utf8'), sandbox);
@@ -60,6 +69,7 @@ function promoFor(model, courseIndex, count) {
   }
   if (model === 'apertura-inscripciones-v1') return { ...base, tipo: 'inscripciones', familias: (catalogo.familias || []).map(f => f.nombre), textos: {} };
   if (model === 'captacion-oficios-v1') return { ...base, tipo: 'captacion', imagen: 'assets/promociones/tematicas/captacion/captacion-1.jpg' };
+  if (model === 'aviso-primaria-v1') return { ...base, tipo: 'aviso', imagen: 'assets/promociones/tematicas/primaria/primaria-egresados.jpg' };
   if (model === 'conmemoraciones-patrias-v1') return { ...base, tipo: 'efemeride', imagen: 'assets/promociones/tematicas/dias-patrios/dias-patrios-1.jpg' };
   const cursos = catalogo.courses.slice(0, count).map(c => c.slug);
   return { ...base, tipo: 'grilla', periodo: 'marzo', composicion: 'grilla', cursosSeleccionados: cursos, pagina: 0 };
@@ -68,15 +78,17 @@ function promoFor(model, courseIndex, count) {
 function queryCases() {
   const cases = [];
   // Reproduce una suite de 147 piezas: cada modelo/formato con siete variantes de texto.
-  for (const model of modelos) for (const format of formatos) for (let variant = 0; variant < 7; variant++) {
+  for (const model of modelos) for (const format of formatosDe(model)) for (let variant = 0; variant < 7; variant++) {
     const courseIndex = (variant * 3) % catalogo.courses.length;
     const promo = promoFor(model, courseIndex, variant === 0 ? catalogo.courses.length : Math.min(1 + variant * 3, catalogo.courses.length));
-    cases.push({ suite: 'base-147', model, format, promo: variant === 0 ? promo : { ...promo, textos: { ...copiaLarga, ...(variant > 3 ? { titulo: 'ÚLTIMOS CUPOS DISPONIBLES PARA INSCRIBIRTE' } : {}) } } });
+    const extra = model === 'aviso-primaria-v1' && variant > 3 ? copiaLargaPrimaria : {};
+    cases.push({ suite: 'base', model, format, promo: variant === 0 ? promo : { ...promo, textos: { ...copiaLarga, ...(variant > 3 ? { titulo: 'ÚLTIMOS CUPOS DISPONIBLES PARA INSCRIBIRTE' } : {}), ...extra } } });
   }
   // 126 variantes de estrés con mensajes y nombres extensos, distribuidos por todos los modelos.
-  for (const model of modelos) for (const format of formatos) for (let variant = 0; variant < 6; variant++) {
+  for (const model of modelos) for (const format of formatosDe(model)) for (let variant = 0; variant < 6; variant++) {
     const promo = promoFor(model, catalogo.courses.length - 1 - variant, variant % 2 ? catalogo.courses.length : variant * 4);
-    cases.push({ suite: 'stress-126', model, format, promo: { ...promo, textos: { ...copiaLarga, titulo: `${copiaLarga.titulo} ${variant + 1}`, titulo1: `${copiaLarga.titulo1} ${variant + 1}` } } });
+    const extra = model === 'aviso-primaria-v1' ? { ...copiaLargaPrimaria, linea2: `${copiaLargaPrimaria.linea2} ${variant + 1}` } : {};
+    cases.push({ suite: 'estres', model, format, promo: { ...promo, textos: { ...copiaLarga, titulo: `${copiaLarga.titulo} ${variant + 1}`, titulo1: `${copiaLarga.titulo1} ${variant + 1}`, ...extra } } });
   }
   // La grilla se extiende de 0 a 22 cursos por formato para no perder los límites vistos en producción.
   for (let count = 0; count <= catalogo.courses.length; count++) for (const format of formatos) {
@@ -136,7 +148,7 @@ async function main() {
           const board = root.querySelector('.flyer-canvas, .board, article');
           if (!board) return { ok: false, reason: 'No aparece el artboard.' };
           const box = board.getBoundingClientRect();
-          const textSelectors = '.headline,.course-tag,.deck,.proof,.course-details,.period-line,.footer-title,.footer-kicker,.contact-label,.phone,.note,.cta-title,.cta-label,.eyebrow,.subhead';
+          const textSelectors = '.headline,.course-tag,.deck,.proof,.course-details,.period-line,.footer-title,.footer-kicker,.contact-label,.phone,.note,.cta-title,.cta-label,.eyebrow,.subhead,.ante,.linea1,.linea2,.bajada,.item b,.wa,.sello';
           const texts = Array.from(board.querySelectorAll(textSelectors)).filter(el => {
             const r = el.getBoundingClientRect(), cs = getComputedStyle(el);
             return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none';
@@ -206,7 +218,8 @@ async function main() {
     if (errors.length) { failed += errors.length; for (const error of errors) if (failureSamples.length < 20) failureSamples.push(`✗ Error en página: ${error}`); }
     const names = new Set(pixelResults.map(x => x.name));
     const baselineCount = fs.existsSync(BASELINES) ? fs.readdirSync(BASELINES).filter(x => x.endsWith('.png')).length : 0;
-    console.log(`Playwright Chromium ${browser.version()}: ${cases.length} escenarios; 147 base, 126 estrés, ${catalogo.courses.length + 1} tamaños de grilla × 3 formatos.`);
+    const porSuite = cases.reduce((m, c) => (m[c.suite] = (m[c.suite] || 0) + 1, m), {});
+    console.log(`Playwright Chromium ${browser.version()}: ${cases.length} escenarios; ${porSuite.base} base, ${porSuite.estres} estrés, ${catalogo.courses.length + 1} tamaños de grilla × 3 formatos.`);
     for (const sample of failureSamples) console.error(sample);
     if (failed > failureSamples.length) console.error(`… ${failed - failureSamples.length} fallas adicionales omitidas.`);
     console.log(`Verificación de desbordes, imágenes y colisiones: ${failed ? 'con fallas' : 'OK'}.`);

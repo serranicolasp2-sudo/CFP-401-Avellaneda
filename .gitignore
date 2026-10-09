@@ -6,6 +6,8 @@ node_modules/
 .intentos.json
 sesiones/
 backups/
+claves*.txt
+*clave*.txt
 
 # Original uncompressed assets (too large for Git)
 _originales-assets/

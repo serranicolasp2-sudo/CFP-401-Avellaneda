@@ -2168,9 +2168,18 @@ function PromoPopUp({ onNavigate }) {
         </button>
 
         {/* Lienzo del Flyer proporcional */}
-        <div className="cfp-promo-canvas-wrapper">
-          <RenderPromoFlyer promo={promoActual} formato="feed" />
-        </div>
+        {/* Las piezas solo-Stories (Aviso Primaria) van enteras en 9:16, con alto limitado a la pantalla */}
+        {formatoParaPromo(promoActual, 'feed') === 'historia' ? (
+          <div className="cfp-promo-canvas-wrapper" style={{ flex: 'none', display: 'flex', justifyContent: 'center', background: '#002878' }}>
+            <div style={{ height: 'min(calc(100vh - 150px), 680px)', aspectRatio: '1080 / 1920', maxWidth: '100%' }}>
+              <RenderPromoFlyer promo={promoActual} formato="historia" />
+            </div>
+          </div>
+        ) : (
+          <div className="cfp-promo-canvas-wrapper">
+            <RenderPromoFlyer promo={promoActual} formato="feed" />
+          </div>
+        )}
 
         {/* Botones de acción inferiores */}
         <div className="cfp-promo-actions">

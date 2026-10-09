@@ -179,8 +179,10 @@ const { useState, useEffect, useRef } = React;
       };
     }
 
-    /* Fotos disponibles: las institucionales del sitio (hero y fachada) más la biblioteca de promociones */
-    function fotosParaPromo(data) {
+    /* Fotos disponibles: las propias de la plantilla (si trae), las institucionales del sitio (hero y
+       fachada) y la biblioteca de promociones */
+    function fotosParaPromo(data, promo) {
+      const propias = (promo && plantillaDePromo(promo).fotos) || [];
       const institucionales = [...(data.heroFotos || []).map(f => (f.includes('/') ? f : 'assets/' + f)), 'assets/fachada-cfp401.jpg']
         .map(archivo => ({
           id: 'inst-' + archivo,
@@ -189,7 +191,7 @@ const { useState, useEffect, useRef } = React;
           nombre: archivo.split('/').pop().replace(/^hero-|\.\w+$/g, '').replace(/-/g, ' '),
           encuadre: 'center'
         }));
-      return [...institucionales, ...(data.bibliotecaFotosPromo || [])];
+      return [...propias, ...institucionales, ...(data.bibliotecaFotosPromo || [])];
     }
 
     /* Paso 4: formulario con todos los textos de la plantilla, agrupados como en la pieza */
@@ -346,7 +348,8 @@ const { useState, useEffect, useRef } = React;
         'captacion-oficios-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
         'ultimos-cupos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
         'conmemoraciones-patrias-v1': [['mostrarCuadricula', 'Cuadrícula sobre la foto']],
-        'grilla-cursos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']]
+        'grilla-cursos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
+        'aviso-primaria-v1': [['mostrarSello', 'Sello de fecha límite'], ['mostrarExtranjero', 'Recuadro para extranjeros']]
       }[promo.modelo] || [['mostrarSello', 'Círculo (100% gratuito)']];
       return (
         <div>
@@ -406,6 +409,7 @@ const { useState, useEffect, useRef } = React;
         if (showToast) showToast('La biblioteca html-to-image no se encuentra cargada.', 'error');
         return;
       }
+      formato = formatoParaPromo(promo, formato);
       if (showToast) showToast(`Generando PNG ${formato.toUpperCase()}...`, 'info');
 
       let w = 1080;
@@ -587,6 +591,13 @@ const { useState, useEffect, useRef } = React;
         imagen: 'assets/promociones/tematicas/dias-patrios/dias-patrios-1.jpg',
         textos: {}
       },
+      'aviso-primaria-v1': {
+        id: 'muestra-primaria',
+        modelo: 'aviso-primaria-v1',
+        tipo: 'aviso',
+        imagen: 'assets/promociones/tematicas/primaria/primaria-egresados.jpg',
+        textos: {}
+      },
       'grilla-cursos-v1': {
         id: 'muestra-grilla',
         modelo: 'grilla-cursos-v1',
@@ -623,9 +634,15 @@ const { useState, useEffect, useRef } = React;
 
       // Promociones y Flyers
       const [promoModal, setPromoModal] = useState(null); // null o promo object
-      const [promoIndex, setPromoIndex] = useState(-1);
       const [promoStep, setPromoStep] = useState(1); // 1: modelo, 2: curso, 3: foto & encuadre, 4: preview & overrides
       const [promoPreviewFormat, setPromoPreviewFormat] = useState('feed'); // 'feed' | 'historia' | 'a4'
+      // Plantillas de un solo formato (Aviso Primaria = solo Stories): la vista previa pasa a uno que admita
+      useEffect(() => {
+        if (!promoModal) return;
+        const admitido = formatoParaPromo(promoModal, promoPreviewFormat);
+        if (admitido !== promoPreviewFormat) setPromoPreviewFormat(admitido);
+      }, [promoModal && promoModal.modelo, promoPreviewFormat]);
+      const [promoIndex, setPromoIndex] = useState(-1);
       const [filtroPromoBusqueda, setFiltroPromoBusqueda] = useState('');
       const [filtroPromoCursoSelect, setFiltroPromoCursoSelect] = useState('');
       const [filtroFotoFamilia, setFiltroFotoFamilia] = useState('Todas');
@@ -1445,7 +1462,7 @@ const { useState, useEffect, useRef } = React;
                           <div key={p.id || idx} className="promo-card">
                             {/* Miniatura visual del flyer */}
                             <div className="promo-card-preview" style={{ aspectRatio: '1080 / 1350' }}>
-                              <RenderPromoFlyer promo={p} formato="feed" />
+                              <MiniaturaPromo promo={p} formato="feed" />
                             </div>
 
                             {/* Información de la promoción */}
@@ -1559,13 +1576,13 @@ const { useState, useEffect, useRef } = React;
                               {/* Fila 2: Descargas directas en formatos */}
                               <div className="promo-card-actions-row">
                                 <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--neutral-500)', marginRight: 2 }}>Descargar:</span>
-                                <button
+                                {formatosDePromo(p).includes('feed') && <button
                                   className="btn btn-secondary btn-sm"
                                   onClick={() => exportarPromoPNG(p, 'feed', showToast)}
                                   title="Descargar en formato vertical cuadrado/feed (1350x1687)"
                                 >
                                   <i data-lucide="download" style={{ width: 13 }}></i> Feed 4:5
-                                </button>
+                                </button>}
                                 <button
                                   className="btn btn-secondary btn-sm"
                                   onClick={() => exportarPromoPNG(p, 'historia', showToast)}
@@ -1573,13 +1590,13 @@ const { useState, useEffect, useRef } = React;
                                 >
                                   <i data-lucide="smartphone" style={{ width: 13 }}></i> Historia 9:16
                                 </button>
-                                <button
+                                {formatosDePromo(p).includes('a4') && <button
                                   className="btn btn-secondary btn-sm"
                                   onClick={() => exportarPromoPNG(p, 'a4', showToast)}
                                   title="Descargar en formato A4 para imprimir en alta resolución (2480x3508)"
                                 >
                                   <i data-lucide="printer" style={{ width: 13 }}></i> A4
-                                </button>
+                                </button>}
                               </div>
                             </div>
                           </div>
@@ -3406,6 +3423,19 @@ const { useState, useEffect, useRef } = React;
                                     fechaCreacion: new Date().toISOString().split('T')[0]
                                   }));
                                   setFiltroFotoFamilia(esCaptacion ? 'Captación de Oficios' : 'Días Patrios y Conmemoraciones');
+                                } else if (plt.tipo === 'aviso') {
+                                  setPromoModal(prev => ({
+                                    id: 'promo-aviso-' + Date.now().toString(36),
+                                    modelo: plt.id,
+                                    tipo: 'aviso',
+                                    cursoSlug: '',
+                                    imagen: ((plt.fotos || [])[0] || {}).archivo || 'assets/hero-egresados.jpg',
+                                    encuadre: 'center',
+                                    textos: {},
+                                    popupActivo: prev.popupActivo === true,
+                                    fechaCreacion: new Date().toISOString().split('T')[0]
+                                  }));
+                                  setFiltroFotoFamilia(plt.familiaFotos || 'Institucional');
                                 } else if (plt.tipo === 'grilla') {
                                   setPromoModal(prev => ({
                                     id: 'promo-grilla-' + Date.now().toString(36),
@@ -3449,7 +3479,7 @@ const { useState, useEffect, useRef } = React;
                                 alignItems: 'stretch'
                               }}>
                                 {muestra && (
-                                  <RenderPromoFlyer promo={muestra} formato="feed" />
+                                  <MiniaturaPromo promo={muestra} formato="feed" />
                                 )}
                               </div>
 
@@ -3670,6 +3700,9 @@ const { useState, useEffect, useRef } = React;
                             style={{ padding: '6px 12px', fontSize: 13, minWidth: 260 }}
                           >
                             <option value="Todas">📸 Todas las fotos (institucionales, talleres y temáticas)</option>
+                            {plantillaDePromo(promoModal).familiaFotos && (
+                              <option value={plantillaDePromo(promoModal).familiaFotos}>⭐ Fotos de esta plantilla ({plantillaDePromo(promoModal).familiaFotos})</option>
+                            )}
                             <optgroup label="🌟 Campañas y Temáticas Curadas">
                               <option value="Temáticas">Todas las fotos de Campañas</option>
                               <option value="Captación de Oficios">Captación de Oficios</option>
@@ -3701,7 +3734,7 @@ const { useState, useEffect, useRef } = React;
 
                       {/* Grilla de fotos */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10, maxHeight: 220, overflowY: 'auto', padding: 4 }}>
-                        {fotosParaPromo(data)
+                        {fotosParaPromo(data, promoModal)
                           .filter(f => {
                             if (filtroFotoFamilia === 'Todas') return true;
                             if (filtroFotoFamilia === 'Temáticas') {
@@ -3835,7 +3868,7 @@ const { useState, useEffect, useRef } = React;
                             { id: 'feed', label: 'Feed 4:5' },
                             { id: 'historia', label: 'Historia 9:16' },
                             { id: 'a4', label: 'Afiche A4' }
-                          ].map(fmt => (
+                          ].filter(fmt => formatosDePromo(promoModal).includes(fmt.id)).map(fmt => (
                             <button
                               key={fmt.id}
                               type="button"
@@ -3983,14 +4016,14 @@ const { useState, useEffect, useRef } = React;
                       >
                         <i data-lucide="cloud-upload" style={{ width: 14 }}></i> Guardar PNG en servidor ({promoPreviewFormat.toUpperCase()})
                       </button>
-                      <button
+                      {formatosDePromo(promoModal).includes('feed') && <button
                         type="button"
                         className="btn btn-secondary btn-sm"
                         onClick={() => exportarPromoPNG(promoModal, 'feed', showToast)}
                         title="Descargar este flyer en PNG Feed 1080x1350"
                       >
                         <i data-lucide="download" style={{ width: 14 }}></i> Descargar Feed
-                      </button>
+                      </button>}
                       <button
                         type="button"
                         className="btn btn-secondary btn-sm"
@@ -3999,14 +4032,14 @@ const { useState, useEffect, useRef } = React;
                       >
                         <i data-lucide="smartphone" style={{ width: 14 }}></i> Historia
                       </button>
-                      <button
+                      {formatosDePromo(promoModal).includes('a4') && <button
                         type="button"
                         className="btn btn-secondary btn-sm"
                         onClick={() => exportarPromoPNG(promoModal, 'a4', showToast)}
                         title="Descargar este flyer en PNG A4 2480x3508 para imprimir"
                       >
                         <i data-lucide="printer" style={{ width: 14 }}></i> A4
-                      </button>
+                      </button>}
                     </div>
 
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
