@@ -1524,6 +1524,7 @@ const CSS_PLANTILLAS_PROPIAS = {
 .pz-primaria .linea1{margin-top:${UF(14)};line-height:.95}
 .pz-primaria .linea2{line-height:1;color:var(--amarillo)}
 .pz-primaria .bajada{margin-top:${UF(26)};max-width:${U(600)};font-weight:700;font-size:${UF(46)};line-height:1.1;color:var(--palido);text-wrap:balance}
+.pz-primaria .bajada .destacada{color:var(--amarillo);font-weight:800;font-size:${UF(56)};letter-spacing:-.02em;text-decoration:underline;text-decoration-color:var(--amarillo);text-decoration-thickness:${UF(5)};text-underline-offset:${UF(8)};text-decoration-skip-ink:none}
 .pz-primaria .sello{position:absolute;right:${U(70)};top:${U(790)};z-index:3;width:${U(300)};height:${U(300)};border-radius:50%;background:var(--amarillo);color:var(--hondo);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-8deg);box-shadow:${U(14)} ${U(14)} 0 var(--hondo)}
 .pz-primaria .sello small{font-weight:700;font-size:${U(28)};letter-spacing:.14em;white-space:nowrap}
 .pz-primaria .sello b{font-weight:800;font-size:${U(140)};line-height:.9;letter-spacing:-.05em;white-space:nowrap}
@@ -1591,7 +1592,7 @@ function AvisoPrimariaV1({ promo, formato = 'historia', customRef }) {
       let vueltas = 0;
       while (numero.scrollWidth > ancho && vueltas++ < 60) { size *= 0.94; numero.style.fontSize = size + 'px'; }
     }
-  }, [T.antetitulo, T.linea1, T.linea2, T.bajada, T.paraQuienLabel, T.chip, T.extranjeroLabel, T.extranjeroTexto, T.sedeLabel, T.sede, T.selloNumero, conExtranjero, formato]);
+  }, [T.antetitulo, T.linea1, T.linea2, T.bajada, T.bajadaDestacada, T.paraQuienLabel, T.chip, T.extranjeroLabel, T.extranjeroTexto, T.sedeLabel, T.sede, T.selloNumero, conExtranjero, formato]);
   if (!promo) return null;
   const items = [
     [T.paraQuienLabel, T.chip],
@@ -1609,7 +1610,7 @@ function AvisoPrimariaV1({ promo, formato = 'historia', customRef }) {
             <div className="ante"><span className="raya"></span><span>{T.antetitulo}</span></div>
             <div className="linea1">{T.linea1}</div>
             <div className="linea2">{T.linea2}</div>
-            <div className="bajada">{T.bajada}</div>
+            <div className="bajada">{T.bajada}{T.bajadaDestacada ? <> <span className="destacada">{T.bajadaDestacada}</span></> : null}</div>
           </div>
         </div>
       </div>
@@ -2055,7 +2056,9 @@ const CATALOGO_PLANTILLAS = {
       { clave: 'antetitulo', etiqueta: 'Antetítulo', grupo: 'Titular', defecto: 'ESTUDIOS PRIMARIOS' },
       { clave: 'linea1', etiqueta: 'Titular (línea blanca)', grupo: 'Titular', defecto: '¡NO PIERDAS' },
       { clave: 'linea2', etiqueta: 'Titular (línea amarilla)', grupo: 'Titular', defecto: 'EL AÑO!' },
-      { clave: 'bajada', etiqueta: 'Bajada', grupo: 'Titular', defecto: 'Completá tus estudios primarios.' },
+      // Pedido de la directora (09/10/2026): "primarios." en la misma línea, algo más grande, amarillo y subrayado
+      { clave: 'bajada', etiqueta: 'Bajada', grupo: 'Titular', defecto: 'Completá tus estudios' },
+      { clave: 'bajadaDestacada', etiqueta: 'Bajada: final destacado (amarillo, subrayado)', grupo: 'Titular', defecto: 'primarios.' },
 
       { clave: 'selloArriba', etiqueta: 'Sello: arriba', grupo: 'Sello de fecha', defecto: 'HASTA EL' },
       { clave: 'selloNumero', etiqueta: 'Sello: día', grupo: 'Sello de fecha', defecto: '16' },

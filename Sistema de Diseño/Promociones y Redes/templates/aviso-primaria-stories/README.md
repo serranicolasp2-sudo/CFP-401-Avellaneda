@@ -8,6 +8,7 @@ En el generador del panel es el modelo `aviso-primaria-v1` ("Aviso Primaria (Sto
 ![Referencia](referencia-ficha-numerada.png)
 
 - **Arriba:** logo, antetítulo, titular en dos líneas (blanca y amarilla) y bajada sobre la foto en duotono azul.
+- **Bajada en dos partes:** a pedido de la directora (09/10/2026), "Completá tus estudios" va en blanco y "primarios." en la misma línea, en amarillo, subrayado y apenas más grande (56 px contra 46). En el panel son dos campos: "Bajada" y "Bajada: final destacado (amarillo, subrayado)". La referencia de arriba usa el antetítulo "CFP N° 401", como en la versión aprobada.
 - **Sello de fecha límite:** amarillo, a caballo del corte entre la foto y la ficha. Se puede ocultar.
 - **Ficha 1-2-3:** para quién, extranjeros (se puede ocultar y la numeración se reacomoda) y sede.
 - **WhatsApp a lo ancho:** 11 6200-0967. Es el contacto propio de primaria, confirmado por el responsable, y distinto del WhatsApp del CFP.
