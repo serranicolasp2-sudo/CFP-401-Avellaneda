@@ -51,11 +51,31 @@ const getFamiliaImagen = (f) => {
   return 'assets/area-metalmecanica.jpg';
 };
 
+function parseTextoConNegritas(texto) {
+  if (!texto || typeof texto !== 'string') return texto;
+  const lineas = texto.split('\n');
+  return lineas.map((linea, lineIdx) => {
+    const partes = linea.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+    const contenido = partes.map((parte, pIdx) => {
+      if (parte.startsWith('**') && parte.endsWith('**')) {
+        return <strong key={pIdx} style={{ fontWeight: 800, color: 'inherit' }}>{parte.slice(2, -2)}</strong>;
+      }
+      return parte;
+    });
+    return (
+      <React.Fragment key={lineIdx}>
+        {lineIdx > 0 && <br />}
+        {contenido}
+      </React.Fragment>
+    );
+  });
+}
+
 /* Las tarjetas de áreas del inicio se derivan de data.js: nunca se
    desincronizan con el listado de cursos. */
 const AREAS_CAPACITACION = (window.CFP_DATA.familias || [])
   .map(f => ({
-    title: 'ÁREA DE ' + f.nombre.toUpperCase(),
+    title: f.nombre.toUpperCase(),
     familia: f.nombre,
     icon: f.icono || 'book-open',
     imagen: getFamiliaImagen(f),
@@ -729,8 +749,8 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
   const prop = homeData.propuesta || {};
   const tarjetasPropuesta = prop.tarjetas || [
     { icono: 'graduation-cap', titulo: 'Títulos oficiales', descripcion: 'Certificación oficial de la Provincia de Buenos Aires.' },
-    { icono: 'wallet', titulo: '100% gratuito', descripcion: 'Sin costo de inscripción ni de cursada: solo necesitás la documentación pedida.' },
-    { icono: 'wrench', titulo: 'Talleres equipados', descripcion: 'Prácticas en herrería, soldadura, electricidad, sanitarios y gas.' }
+    { icono: 'wallet', titulo: 'Cursos Gratuitos', descripcion: 'Sin costo de inscripción ni de cursada: solo necesitás la documentación requerida.' },
+    { icono: 'wrench', titulo: 'Talleres equipados', descripcion: 'Para prácticas en todos los oficios' }
   ];
 
   const scrollToOferta = () => {
@@ -746,13 +766,14 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
   const cintaDetalle = cinta.detalle || `${insc.horarioAtencion || 'Lunes a viernes de 9 a 22 hs'} · Juan Pablo Angulo 1272, Dock Sud`;
   const cintaUrlMapa = cinta.urlMapa || MAPS_URL;
 
-  // Formato para que en celular nunca se rompa "A PARTIR DE NOVIEMBRE" ni "Dock Sud"
+  // Formato para que en celular nunca se rompa "A PARTIR DE..." ni "Dock Sud"
   let titlePart1 = cintaTitulo;
   let titlePart2 = '';
-  if (cintaTitulo.includes('A PARTIR DE')) {
-    const parts = cintaTitulo.split('A PARTIR DE');
-    titlePart1 = parts[0].trim();
-    titlePart2 = 'A PARTIR DE ' + parts.slice(1).join('A PARTIR DE').trim();
+  const matchApt = cintaTitulo.match(/a partir de/i);
+  if (matchApt) {
+    const idxApt = matchApt.index;
+    titlePart1 = cintaTitulo.substring(0, idxApt).trim();
+    titlePart2 = cintaTitulo.substring(idxApt).trim();
   }
 
   let atencionPart = cintaDetalle;
@@ -779,48 +800,97 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
       plane={false}
     />
     <VueloAvion assetBase="assets"/>
-    <section style={{background:'var(--surface-accent)'}}>
-      <div style={{
-        maxWidth:'var(--container-max)',
-        margin:'0 auto',
-        padding:'16px var(--gutter)',
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'space-between',
-        gap:'var(--space-4)',
-        flexWrap:'wrap'
+    {/* Cinta de Avisos / Inscripciones (Intercambiable desde panel: amarilla o blanca) */}
+    {cinta.estilo === 'blanca' ? (
+      <section style={{
+        background: '#ffffff',
+        borderTop: '4px solid var(--brand-accent)',
+        borderBottom: '4px solid var(--brand-accent)',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
       }}>
-        <div style={{display:'flex',flexDirection:'column',gap:4}}>
-          <strong style={{fontFamily:'var(--font-display)',fontWeight:800,fontSize:18,color:'var(--text-on-accent)',lineHeight:1.3}}>
-            {titlePart2 ? (
-              <>
-                <span style={{marginRight:6}}>{titlePart1}</span>
-                <span style={{whiteSpace:'nowrap',display:'inline-block'}}>{titlePart2}</span>
-              </>
-            ) : (
-              cintaTitulo
-            )}
-          </strong>
-          <div style={{fontSize:15,color:'var(--blue-900)'}}>
-            {direccionPart ? (
-              <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{color:'var(--blue-900)',textDecoration:'none',lineHeight:1.4,display:'inline-block'}}>
-                <span style={{display:'inline-block',marginRight:8}}>{atencionPart}</span>
-                <span style={{marginRight:8}}>·</span>
-                <span style={{display:'inline-block',fontWeight:600,textDecoration:'underline'}}>
-                  {direccionPart.replace(/Dock\s+Sud/g, '').trim() + ' '}
-                  <span style={{whiteSpace:'nowrap'}}>Dock Sud</span>
-                </span>
-              </a>
-            ) : (
-              <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{color:'var(--blue-900)',textDecoration:'underline'}}>{cintaDetalle}</a>
-            )}
+        <div style={{
+          maxWidth: 'var(--container-max)',
+          margin: '0 auto',
+          padding: '12px var(--gutter)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 'var(--space-4)',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <strong style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: 'var(--blue-900)', lineHeight: 1.3 }}>
+              {titlePart2 ? (
+                <>
+                  <span style={{ marginRight: 6 }}>{titlePart1}</span>
+                  <span style={{ whiteSpace: 'nowrap', display: 'inline-block', color: 'var(--blue-900)' }}>{titlePart2}</span>
+                </>
+              ) : (
+                cintaTitulo
+              )}
+            </strong>
+            <div style={{ fontSize: 15, color: 'var(--neutral-700)' }}>
+              {direccionPart ? (
+                <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{ color: 'var(--neutral-700)', textDecoration: 'none', lineHeight: 1.4, display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span>{atencionPart}</span>
+                  <span style={{ color: 'var(--brand-accent)', fontWeight: 800 }}>|</span>
+                  <span style={{ fontWeight: 600, color: 'var(--blue-900)', textDecoration: 'underline' }}>
+                    {direccionPart.replace(/Dock\s+Sud/g, '').trim() + ' '}
+                    <span style={{ whiteSpace: 'nowrap' }}>Dock Sud</span>
+                  </span>
+                </a>
+              ) : (
+                <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{ color: 'var(--blue-900)', textDecoration: 'underline' }}>{cintaDetalle}</a>
+              )}
+            </div>
           </div>
+          <Button size="sm" variant="accent" style={{ marginLeft: 'auto' }} onClick={onInscripcion}>Quiero inscribirme</Button>
         </div>
-        <Button size="sm" variant="primary" style={{marginLeft:'auto'}} onClick={onInscripcion}>Quiero inscribirme</Button>
-      </div>
-    </section>
+      </section>
+    ) : (
+      <section style={{background:'var(--surface-accent)'}}>
+        <div style={{
+          maxWidth:'var(--container-max)',
+          margin:'0 auto',
+          padding:'16px var(--gutter)',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'space-between',
+          gap:'var(--space-4)',
+          flexWrap:'wrap'
+        }}>
+          <div style={{display:'flex',flexDirection:'column',gap:4}}>
+            <strong style={{fontFamily:'var(--font-display)',fontWeight:800,fontSize:18,color:'var(--text-on-accent)',lineHeight:1.3}}>
+              {titlePart2 ? (
+                <>
+                  <span style={{marginRight:6}}>{titlePart1}</span>
+                  <span style={{whiteSpace:'nowrap',display:'inline-block'}}>{titlePart2}</span>
+                </>
+              ) : (
+                cintaTitulo
+              )}
+            </strong>
+            <div style={{fontSize:15,color:'var(--blue-900)'}}>
+              {direccionPart ? (
+                <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{color:'var(--blue-900)',textDecoration:'none',lineHeight:1.4,display:'inline-block'}}>
+                  <span style={{display:'inline-block',marginRight:8}}>{atencionPart}</span>
+                  <span style={{marginRight:8}}>·</span>
+                  <span style={{display:'inline-block',fontWeight:600,textDecoration:'underline'}}>
+                    {direccionPart.replace(/Dock\s+Sud/g, '').trim() + ' '}
+                    <span style={{whiteSpace:'nowrap'}}>Dock Sud</span>
+                  </span>
+                </a>
+              ) : (
+                <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{color:'var(--blue-900)',textDecoration:'underline'}}>{cintaDetalle}</a>
+              )}
+            </div>
+          </div>
+          <Button size="sm" variant="primary" style={{marginLeft:'auto'}} onClick={onInscripcion}>Quiero inscribirme</Button>
+        </div>
+      </section>
+    )}
     <section style={{maxWidth:'var(--container-max)',margin:'0 auto',padding:'var(--section-y) var(--gutter)'}}>
-      <SectionHeading overline={prop.subtitulo || "Nuestra propuesta"} title={prop.titulo || "Aprendizajes que transforman"} subtitle={prop.descripcion || "Porque aprender también es construir futuro. Nuestros talleres funcionan con equipamiento real y docentes de oficio."} align="center"/>
+      <SectionHeading overline={prop.subtitulo || "Nuestra propuesta"} title={prop.titulo || "Aprendizajes que transforman"} subtitle={parseTextoConNegritas(prop.descripcion || '"FORMARSE ES APOSTAR AL FUTURO"\nPrácticas auténticas en talleres equipados y con docentes profesionales del oficio.\n"ACOMPAÑAMOS CADA PASO DE TU CRECIMIENTO"')} align="center"/>
       <div style={{...GRID_AUTO(260),marginTop:'var(--space-10)'}}>
         {tarjetasPropuesta.map((item, idx) =>
           <Card key={idx} accentBar>
@@ -872,7 +942,7 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
                               if (match) onNavigate('CursoDetalle', match);
                               else onNavigate('Cursos', area.familia);
                             }}
-                            style={{fontWeight:500,cursor:'pointer',transition:'color 0.15s ease'}}
+                            style={{fontWeight:700,cursor:'pointer',transition:'color 0.15s ease'}}
                             onMouseEnter={e => e.currentTarget.style.color = 'var(--brand-primary)'}
                             onMouseLeave={e => e.currentTarget.style.color = 'inherit'}
                             title="Ver programa completo del curso"
@@ -897,21 +967,39 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
       <div style={{maxWidth:'var(--container-max)',margin:'0 auto',padding:'var(--section-y) var(--gutter)',display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,320px),1fr))',gap:'var(--space-10)',alignItems:'center'}}>
         <div>
           <SectionHeading invert overline="Cómo inscribirte" title="Acercate a la sede con tu documentación"/>
-          <InfoList invert style={{marginTop:'var(--space-6)'}} items={[{label:'4 fotocopias del DNI',value:''},{label:'Constancia de estudios',value:'según el curso elegido'},{label:'Horario de atención',value:insc.horarioAtencion || 'Lunes a viernes de 9 a 22 hs'},{label:'Consultas por WhatsApp',value:'11 6105-6018 (solo mensajes)'}]}/>
+          <InfoList invert style={{marginTop:'var(--space-6)'}} items={[
+            {label:'Fotocopia del DNI', value:''},
+            {label:'Constancia de estudios', value:'(según requisitos del curso elegido).'},
+            {label:'Horario de atención', value:insc.horarioAtencion || 'Lunes a viernes de 9 a 20 hs.'},
+            {label:'Consultas por WhatsApp', value:'11 6105-6018 (solo mensajes)'}
+          ]}/>
           <div style={{marginTop:'var(--space-8)',paddingTop:'var(--space-6)',borderTop:'1px solid rgba(255,255,255,.18)'}}>
             <h3 style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:13,letterSpacing:'.14em',textTransform:'uppercase',color:'var(--brand-accent)',margin:0}}>Cuándo abren las inscripciones</h3>
             <p style={{margin:'var(--space-3) 0 0',fontSize:17,lineHeight:1.6,color:'var(--blue-100)',maxWidth:520}}>{insc.periodos}</p>
           </div>
           <div style={{marginTop:'var(--space-8)',display:'flex',gap:'var(--space-4)',flexWrap:'wrap'}}>
             <Button variant="accent" size="lg" href={WHATSAPP_URL} target="_blank" rel="noopener" iconLeft={<Icon name="message-circle" size={20}/>}>Pre-Inscripción</Button>
-            <Button variant="ghost" size="lg" style={{color:'#fff',borderColor:'rgba(255,255,255,.5)'}} onClick={abrirCampus}>Ir al Campus</Button>
+            <Button variant="ghost" size="lg" style={{color:'#fff',borderColor:'rgba(255,255,255,.5)'}} onClick={abrirCampus}>Campus Virtual</Button>
           </div>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:'var(--space-8)',alignContent:'center'}}>
-          <StatBlock invert value={courses.length} label="Cursos gratuitos con certificación oficial"/>
-          <StatBlock invert value="+45" label="Años formando oficios en Dock Sud"/>
-          <StatBlock invert value="1979" label="Año de creación del Centro"/>
-          <StatBlock invert value={AREAS_CAPACITACION.length} label="Familias profesionales"/>
+        <div>
+          <h3 style={{
+            fontFamily: 'var(--font-display)',
+            fontWeight: 800,
+            fontSize: 'clamp(22px, 2.8vw, 30px)',
+            lineHeight: 1.22,
+            color: 'var(--brand-accent)',
+            margin: '0 0 var(--space-6)'
+          }}>
+            Desde 1979,<br />
+            +45 años formando en oficios
+          </h3>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:'var(--space-8)',alignContent:'center'}}>
+            <StatBlock invert value="+3600" label="cursos dictados"/>
+            <StatBlock invert value="+1800" label="egresados en FI. formando en oficios en Dock Sud"/>
+            <StatBlock invert value={AREAS_CAPACITACION.length} label="familias profesionales"/>
+            <StatBlock invert value={courses.length} label="Cursos gratuitos"/>
+          </div>
         </div>
       </div>
     </section>
@@ -1260,7 +1348,7 @@ function NosotrosScreen({onInscripcion}){
               {header.subtitulo || "Nosotros"}
             </div>
             <h1 style={{margin:0,fontSize:'clamp(28px,3.4vw,46px)',lineHeight:1.1,fontWeight:800,letterSpacing:'-.02em',color:'#fff'}}>
-              {header.titulo || "Más de cuatro décadas formando trabajadores"}
+              {header.titulo || "Más de cuatro décadas formando en oficios"}
             </h1>
           </div>
         </div>
@@ -1269,8 +1357,8 @@ function NosotrosScreen({onInscripcion}){
     <div style={{maxWidth:'var(--container-max)',margin:'0 auto',padding:'var(--space-12) var(--gutter) var(--section-y)'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,200px),1fr))',gap:'var(--space-6)',marginBottom:'var(--space-16)'}}>
         <StatBlock value="1979" label="Año de creación"/>
-        <StatBlock value="+2.300" label="Cursos dictados"/>
-        <StatBlock value="+24.000" label="Egresados con certificado"/>
+        <StatBlock value="+3600" label="Cursos dictados"/>
+        <StatBlock value="+ de 24 mil" label="Egresados con certificado"/>
       </div>
       <SectionHeading
         overline={historia.subtitulo || "Historia institucional"}
@@ -1357,32 +1445,34 @@ function ContactScreen(){
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,360px),1fr))',gap:'var(--space-8)',alignItems:'stretch'}}>
         {/* SEDE CENTRAL */}
         <Card accentBar padding="var(--space-6)" style={{display:'flex',flexDirection:'column',height:'100%'}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,marginBottom:'var(--space-3)'}}>
-            <div>
-              <span style={{display:'inline-block',fontSize:12,fontWeight:700,color:'var(--brand-primary)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Sede Central</span>
-              <h3 style={{fontSize:20,fontWeight:700,margin:0,color:'var(--text-title)'}}>Dock Sud (Sede Principal)</h3>
+          <div style={{minHeight:150,display:'flex',flexDirection:'column',justifyContent:'flex-start',marginBottom:'var(--space-4)'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,marginBottom:'var(--space-3)'}}>
+              <div>
+                <span style={{display:'inline-block',fontSize:12,fontWeight:700,color:'var(--brand-primary)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Sede Central</span>
+                <h3 style={{fontSize:20,fontWeight:700,margin:0,color:'var(--text-title)'}}>Dock Sud (Sede Principal)</h3>
+              </div>
+              <Badge tone="brand">Atención al Público</Badge>
             </div>
-            <Badge tone="brand">Atención al Público</Badge>
+
+            <div style={{display:'flex',flexDirection:'column',gap:8,fontSize:14,color:'var(--text-body)'}}>
+              <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
+                <Icon name="map-pin" size={17} color="var(--brand-primary)" style={{flexShrink:0,marginTop:2}}/>
+                <span style={{fontWeight:600}}>{CT.direccion || 'Juan Pablo Angulo 1272, Dock Sud, Avellaneda'}</span>
+              </div>
+              <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
+                <Icon name="clock" size={17} color="var(--brand-primary)" style={{flexShrink:0,marginTop:2}}/>
+                <span>Atención: <strong>{CT.atencion || 'Lunes a viernes de 9 a 20 hs'}</strong></span>
+              </div>
+            </div>
           </div>
 
-          <div style={{display:'flex',flexDirection:'column',gap:8,fontSize:14,color:'var(--text-body)',marginBottom:'var(--space-4)'}}>
-            <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
-              <Icon name="map-pin" size={17} color="var(--brand-primary)" style={{flexShrink:0,marginTop:2}}/>
-              <span style={{fontWeight:600}}>{CT.direccion || 'Juan Pablo Angulo 1272, Dock Sud, Avellaneda'}</span>
-            </div>
-            <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
-              <Icon name="clock" size={17} color="var(--brand-primary)" style={{flexShrink:0,marginTop:2}}/>
-              <span>Atención: <strong>{CT.atencion || 'Lunes a viernes de 9 a 22 hs'}</strong></span>
-            </div>
-          </div>
-
-          <div style={{borderRadius:'var(--radius-md)',overflow:'hidden',border:'1px solid var(--border-subtle)',flex:1,minHeight:220,background:'var(--neutral-100)'}}>
+          <div style={{borderRadius:'var(--radius-md)',overflow:'hidden',border:'1px solid var(--border-subtle)',height:260,minHeight:260,background:'var(--neutral-100)'}}>
             <iframe
               title="Mapa Sede Central"
               src="https://maps.google.com/maps?q=Juan+Pablo+Angulo+1272,+Dock+Sud&t=&z=15&ie=UTF8&iwloc=&output=embed"
               width="100%"
               height="100%"
-              style={{border:0,minHeight:220,display:'block'}}
+              style={{border:0,height:260,display:'block'}}
               loading="lazy"
               allowFullScreen>
             </iframe>
@@ -1397,31 +1487,32 @@ function ContactScreen(){
 
         {/* ANEXO POLIDEPORTIVO */}
         <Card accentBar padding="var(--space-6)" style={{display:'flex',flexDirection:'column',height:'100%'}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,marginBottom:'var(--space-3)'}}>
-            <div>
-              <span style={{display:'inline-block',fontSize:12,fontWeight:700,color:'var(--neutral-600)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Anexo Formativo</span>
-              <h3 style={{fontSize:20,fontWeight:700,margin:0,color:'var(--text-title)'}}>Plaza Renunciamiento</h3>
+          <div style={{minHeight:150,display:'flex',flexDirection:'column',justifyContent:'flex-start',marginBottom:'var(--space-4)'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,marginBottom:'var(--space-3)'}}>
+              <div>
+                <span style={{display:'inline-block',fontSize:12,fontWeight:700,color:'var(--neutral-600)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Anexo</span>
+                <h3 style={{fontSize:20,fontWeight:700,margin:0,color:'var(--text-title)'}}>Plaza Renunciamiento</h3>
+              </div>
             </div>
-            <Badge tone="neutral">Talleres Prácticos</Badge>
+
+            <div style={{display:'flex',flexDirection:'column',gap:8,fontSize:14,color:'var(--text-body)'}}>
+              <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
+                <Icon name="map-pin" size={17} color="var(--brand-primary)" style={{flexShrink:0,marginTop:2}}/>
+                <span style={{fontWeight:600}}>{CT.anexo || 'Polideportivo Plaza Renunciamiento — Irala y Argentino Valle'}</span>
+              </div>
+              <div style={{padding:'6px 10px',background:'#fffbeb',border:'1px solid #fef08a',borderRadius:8,fontSize:12.5,color:'#854d0e',lineHeight:1.35}}>
+                ℹ️ <strong>Sin atención al público:</strong> Clases prácticas. Trámites en Sede Central.
+              </div>
+            </div>
           </div>
 
-          <div style={{display:'flex',flexDirection:'column',gap:8,fontSize:14,color:'var(--text-body)',marginBottom:'var(--space-4)'}}>
-            <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
-              <Icon name="map-pin" size={17} color="var(--brand-primary)" style={{flexShrink:0,marginTop:2}}/>
-              <span style={{fontWeight:600}}>{CT.anexo || 'Polideportivo Plaza Renunciamiento — Irala y Argentino Valle'}</span>
-            </div>
-            <div style={{padding:'8px 12px',background:'#fffbeb',border:'1px solid #fef08a',borderRadius:8,fontSize:13,color:'#854d0e',lineHeight:1.4}}>
-              ℹ️ <strong>Sin atención al público:</strong> En el anexo se dictan clases prácticas. Para consultas, trámites e inscripciones por favor acercate a la Sede Central.
-            </div>
-          </div>
-
-          <div style={{borderRadius:'var(--radius-md)',overflow:'hidden',border:'1px solid var(--border-subtle)',flex:1,minHeight:220,background:'var(--neutral-100)'}}>
+          <div style={{borderRadius:'var(--radius-md)',overflow:'hidden',border:'1px solid var(--border-subtle)',height:260,minHeight:260,background:'var(--neutral-100)'}}>
             <iframe
               title="Mapa Anexo Plaza Renunciamiento"
               src="https://maps.google.com/maps?q=Club+Social+y+Deportivo+Plaza+del+Renunciamiento,+Dock+Sud&t=&z=15&ie=UTF8&iwloc=&output=embed"
               width="100%"
               height="100%"
-              style={{border:0,minHeight:220,display:'block'}}
+              style={{border:0,height:260,display:'block'}}
               loading="lazy"
               allowFullScreen>
             </iframe>
@@ -1431,6 +1522,40 @@ function ContactScreen(){
             <Button variant="secondary" fullWidth href={anexoMapUrl} target="_blank" rel="noopener" iconLeft={<Icon name="external-link" size={16}/>}>
               Abrir Anexo en Google Maps
             </Button>
+          </div>
+        </Card>
+      </div>
+
+      {/* Listado de colectivos que llegan a la institución */}
+      <div style={{marginTop:'var(--space-8)'}}>
+        <Card padding="var(--space-6)" style={{background:'var(--surface-brand-soft, #e8eefb)',border:'1px solid var(--border-subtle)'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+            <Icon name="bus" size={22} color="var(--brand-primary)"/>
+            <h4 style={{margin:0,fontFamily:'var(--font-display)',fontSize:17,fontWeight:700,color:'var(--blue-900)'}}>
+              Líneas de colectivo que llegan a la institución
+            </h4>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:'10px 24px'}}>
+            <div style={{display:'flex',alignItems:'baseline',gap:8,fontSize:14,color:'var(--text-body)'}}>
+              <strong style={{color:'var(--brand-primary)',fontSize:15,whiteSpace:'nowrap'}}>• Línea 33</strong>
+              <span>(desde Ciudad Universitaria, Retiro, Plaza de Mayo y Lanús)</span>
+            </div>
+            <div style={{display:'flex',alignItems:'baseline',gap:8,fontSize:14,color:'var(--text-body)'}}>
+              <strong style={{color:'var(--brand-primary)',fontSize:15,whiteSpace:'nowrap'}}>• Línea 134</strong>
+              <span>(desde Villa Devoto, Flores y Barracas)</span>
+            </div>
+            <div style={{display:'flex',alignItems:'baseline',gap:8,fontSize:14,color:'var(--text-body)'}}>
+              <strong style={{color:'var(--brand-primary)',fontSize:15,whiteSpace:'nowrap'}}>• Línea 159</strong>
+              <span>(desde Correo Central, Quilmes y Berazategui)</span>
+            </div>
+            <div style={{display:'flex',alignItems:'baseline',gap:8,fontSize:14,color:'var(--text-body)'}}>
+              <strong style={{color:'var(--brand-primary)',fontSize:15,whiteSpace:'nowrap'}}>• Línea 373</strong>
+              <span>(desde Lanús e Isla Maciel)</span>
+            </div>
+            <div style={{display:'flex',alignItems:'baseline',gap:8,fontSize:14,color:'var(--text-body)'}}>
+              <strong style={{color:'var(--brand-primary)',fontSize:15,whiteSpace:'nowrap'}}>• Línea 570</strong>
+              <span>(recorrido local de Avellaneda)</span>
+            </div>
           </div>
         </Card>
       </div>
@@ -2333,7 +2458,7 @@ function App(){
     {page==='CursoDetalle'&&<CourseDetailScreen course={selectedCourse} onNavigate={go} onInscripcion={goInscripcion}/>}
     {page==='Nosotros'&&<NosotrosScreen onInscripcion={goInscripcion}/>}
     {page==='Contacto'&&<ContactScreen/>}
-    <Footer assetBase="assets" address={<><a href={MAPS_URL} target="_blank" rel="noopener" style={{color:'var(--blue-100)',textDecoration:'underline'}}>Juan Pablo Angulo 1272, Dock Sud, Avellaneda</a><br/>Lunes a viernes de 9 a 22 hs<br/>WhatsApp 11 6105-6018</>} columns={[
+    <Footer assetBase="assets" address={<><a href={MAPS_URL} target="_blank" rel="noopener" style={{color:'var(--blue-100)',textDecoration:'underline'}}>Juan Pablo Angulo 1272, Dock Sud, Avellaneda</a><br/>Lunes a viernes de 9 a 20 hs<br/>WhatsApp 11 6105-6018</>} columns={[
       {title:'Cursos',links:[{label:'Oferta formativa',onClick:()=>go('Cursos')},{label:'Cómo inscribirme',onClick:goInscripcion}]},
       {title:'Institucional',links:instLinks}
     ]}/>

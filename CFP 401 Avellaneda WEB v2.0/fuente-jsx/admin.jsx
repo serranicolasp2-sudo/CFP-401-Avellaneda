@@ -609,8 +609,10 @@ const { useState, useEffect, useRef } = React;
     };
 
     function AdminApp() {
-      // Autenticación
+      // Autenticación y registro de operador (§Auditoría)
       const [autenticado, setAutenticado] = useState(false);
+      const [usuarioInput, setUsuarioInput] = useState(() => sessionStorage.getItem('cfp401_admin_user') || '');
+      const [usuarioActual, setUsuarioActual] = useState(() => sessionStorage.getItem('cfp401_admin_user') || 'Administrador');
       const [passwordInput, setPasswordInput] = useState('');
       const [errorLogin, setErrorLogin] = useState('');
 
@@ -804,14 +806,21 @@ const { useState, useEffect, useRef } = React;
             return;
           }
           // Login exitoso: desde acá autentica la cookie de sesión, no la contraseña
+          const op = usuarioInput.trim() || 'Administrador';
+          setUsuarioActual(op);
+          sessionStorage.setItem('cfp401_admin_user', op);
           setPasswordInput('');
           setAutenticado(true);
-          showToast('Sesión iniciada correctamente');
+          showToast('Sesión iniciada como ' + op);
         } catch (err) {
           // Si estamos probando sin servidor web PHP activo localmente, permitir login con fallback
           if (passwordInput.length >= 6) {
+            const op = usuarioInput.trim() || 'Administrador';
+            setUsuarioActual(op);
+            sessionStorage.setItem('cfp401_admin_user', op);
+            setPasswordInput('');
             setAutenticado(true);
-            showToast('Ingreso local habilitado');
+            showToast('Ingreso local habilitado (' + op + ')');
           } else {
             setErrorLogin('Contraseña inválida o servidor no disponible.');
           }
@@ -822,6 +831,8 @@ const { useState, useEffect, useRef } = React;
         try {
           await fetch('api/logout.php', { method: 'POST', credentials: 'include' });
         } catch (e) {}
+        sessionStorage.removeItem('cfp401_admin_user');
+        setUsuarioActual('Administrador');
         setAutenticado(false);
         showToast('Sesión cerrada');
       };
@@ -852,7 +863,7 @@ const { useState, useEffect, useRef } = React;
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ data: data })
+            body: JSON.stringify({ data: data, usuario: usuarioActual })
           });
           if (sesionVencida(res)) return;
           const json = await res.json();
@@ -1111,6 +1122,20 @@ const { useState, useEffect, useRef } = React;
               )}
 
               <form onSubmit={handleLogin}>
+                <div className="form-group" style={{ marginBottom: 14 }}>
+                  <label className="form-label">Operador / Nombre de usuario</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Ej: Directora, Secretaría, Regente..."
+                    value={usuarioInput}
+                    onChange={e => setUsuarioInput(e.target.value)}
+                    autoFocus
+                    required
+                  />
+                  <div className="form-hint">Quedará registrado en la bitácora de auditoría de cada modificación.</div>
+                </div>
+
                 <div className="form-group">
                   <label className="form-label">Contraseña de acceso</label>
                   <input
@@ -1119,7 +1144,6 @@ const { useState, useEffect, useRef } = React;
                     placeholder="Ingresá la contraseña"
                     value={passwordInput}
                     onChange={e => setPasswordInput(e.target.value)}
-                    autoFocus
                     required
                   />
                   <div className="form-hint">¿Olvidaste la contraseña? Pedile al responsable del sitio que la restablezca.</div>
@@ -1156,6 +1180,19 @@ const { useState, useEffect, useRef } = React;
           <header className="admin-header">
             <img src="assets/logo-cfp401-horizontal-blanco.png" alt="CFP 401" className="admin-logo" />
             <span className="admin-badge">Admin 2.0</span>
+            <span style={{
+              background: 'rgba(255,255,255,0.18)',
+              color: '#ffffff',
+              padding: '3px 10px',
+              borderRadius: '999px',
+              fontSize: '12px',
+              fontWeight: 600,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5
+            }}>
+              👤 {usuarioActual}
+            </span>
             <div className="admin-header-actions">
               <a href="index.html" target="_blank" className="btn-header-site" title="Abrir sitio web institucional en nueva pestaña">
                 <i data-lucide="external-link" style={{ width: 14 }}></i>
@@ -1695,11 +1732,50 @@ const { useState, useEffect, useRef } = React;
                     </div>
                   </div>
 
-                  {/* Bloque 2: Cinta Amarilla */}
+                  {/* Bloque 2: Cinta Destacada de Avisos */}
                   <div style={{ padding: 20, background: '#fffbeb', borderRadius: 'var(--radius-lg)', border: '1px solid #fde68a', marginBottom: 24 }}>
                     <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#854d0e', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <i data-lucide="bookmark" style={{ width: 18 }}></i> Cinta Amarilla Destacada (Home)
+                      <i data-lucide="bookmark" style={{ width: 18 }}></i> Cinta Destacada de Avisos (Home)
                     </h3>
+
+                    <div className="form-group" style={{ marginBottom: 14 }}>
+                      <label className="form-label">Versión visual de la cinta</label>
+                      <div style={{ display: 'flex', gap: 16, marginTop: 4, flexWrap: 'wrap' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13.5, cursor: 'pointer', fontWeight: (!data.home?.cintaAmarilla?.estilo || data.home?.cintaAmarilla?.estilo === 'amarilla') ? 700 : 400 }}>
+                          <input
+                            type="radio"
+                            name="cintaEstilo"
+                            value="amarilla"
+                            checked={!data.home?.cintaAmarilla?.estilo || data.home?.cintaAmarilla?.estilo === 'amarilla'}
+                            onChange={() => updateData(prev => ({
+                              ...prev,
+                              home: {
+                                ...prev.home,
+                                cintaAmarilla: { ...(prev.home?.cintaAmarilla || {}), estilo: 'amarilla' }
+                              }
+                            }))}
+                          />
+                          Amarilla tradicional (fondo amarillo)
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13.5, cursor: 'pointer', fontWeight: data.home?.cintaAmarilla?.estilo === 'blanca' ? 700 : 400 }}>
+                          <input
+                            type="radio"
+                            name="cintaEstilo"
+                            value="blanca"
+                            checked={data.home?.cintaAmarilla?.estilo === 'blanca'}
+                            onChange={() => updateData(prev => ({
+                              ...prev,
+                              home: {
+                                ...prev.home,
+                                cintaAmarilla: { ...(prev.home?.cintaAmarilla || {}), estilo: 'blanca' }
+                              }
+                            }))}
+                          />
+                          Blanca institucional (fondo blanco con líneas amarillas)
+                        </label>
+                      </div>
+                    </div>
+
                     <div className="form-group">
                       <label className="form-label">Texto Principal del Aviso (Destacado en Negrita)</label>
                       <input
@@ -1796,7 +1872,9 @@ const { useState, useEffect, useRef } = React;
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Descripción General</label>
+                      <label className="form-label">
+                        Descripción General <span style={{ fontWeight: 'normal', fontSize: 12, color: 'var(--neutral-500)' }}>(usá <strong>**texto**</strong> para negritas y saltos de línea)</span>
+                      </label>
                       <textarea
                         className="form-textarea"
                         rows={2}

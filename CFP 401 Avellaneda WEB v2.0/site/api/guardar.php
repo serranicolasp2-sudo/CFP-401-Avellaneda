@@ -31,6 +31,10 @@ if (!$input || !isset($input['data'])) {
 }
 
 $data = $input['data'];
+$usuario = isset($input['usuario']) && is_string($input['usuario']) ? trim(strip_tags($input['usuario'])) : 'Administrador';
+if (empty($usuario)) {
+    $usuario = 'Administrador';
+}
 
 // Validación de catálogo de cursos (§B3)
 if (!isset($data['courses']) || !is_array($data['courses']) || empty($data['courses'])) {
@@ -126,9 +130,11 @@ if (isset($data['promociones'])) {
 
 // Convertir a estructura JavaScript limpia y legible
 $jsonString = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$usuarioSeguro = addcslashes($usuario, "\0..\37\\\"");
 $jsContent = "/* ===========================================================================\n"
            . "   CFP N° 401 AVELLANEDA — CONTENIDOS EDITABLES DEL SITIO (v2.0)\n"
            . "   Generado desde el Panel de Administración: " . date('Y-m-d H:i:s') . "\n"
+           . "   Operador / Usuario: " . $usuarioSeguro . "\n"
            . "   =========================================================================== */\n\n"
            . "window.CFP_DATA = " . $jsonString . ";\n";
 
@@ -167,6 +173,11 @@ if (file_exists(DATA_FILE)) {
     
     // Copia rápida legacy
     @copy(DATA_FILE, BACKUP_FILE);
+
+    // Registro de auditoría por operador (§Logueo Ficticio)
+    $ipRemota = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    $logEntry = "[" . date('Y-m-d H:i:s') . "] Operador: " . $usuario . " | IP: " . $ipRemota . " | Cursos: " . count($data['courses']) . "\n";
+    @file_put_contents($backupDir . '/registro-cambios.log', $logEntry, FILE_APPEND | LOCK_EX);
 
     // Conservar únicamente los últimos 20 respaldos (eliminar los más antiguos)
     $backups = glob($backupDir . '/data-*.js');

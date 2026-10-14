@@ -858,8 +858,10 @@ const MUESTRAS_PLANTILLAS = {
   }
 };
 function AdminApp() {
-  // Autenticación
+  // Autenticación y registro de operador (§Auditoría)
   const [autenticado, setAutenticado] = useState(false);
+  const [usuarioInput, setUsuarioInput] = useState(() => sessionStorage.getItem('cfp401_admin_user') || '');
+  const [usuarioActual, setUsuarioActual] = useState(() => sessionStorage.getItem('cfp401_admin_user') || 'Administrador');
   const [passwordInput, setPasswordInput] = useState('');
   const [errorLogin, setErrorLogin] = useState('');
 
@@ -1073,14 +1075,21 @@ function AdminApp() {
         return;
       }
       // Login exitoso: desde acá autentica la cookie de sesión, no la contraseña
+      const op = usuarioInput.trim() || 'Administrador';
+      setUsuarioActual(op);
+      sessionStorage.setItem('cfp401_admin_user', op);
       setPasswordInput('');
       setAutenticado(true);
-      showToast('Sesión iniciada correctamente');
+      showToast('Sesión iniciada como ' + op);
     } catch (err) {
       // Si estamos probando sin servidor web PHP activo localmente, permitir login con fallback
       if (passwordInput.length >= 6) {
+        const op = usuarioInput.trim() || 'Administrador';
+        setUsuarioActual(op);
+        sessionStorage.setItem('cfp401_admin_user', op);
+        setPasswordInput('');
         setAutenticado(true);
-        showToast('Ingreso local habilitado');
+        showToast('Ingreso local habilitado (' + op + ')');
       } else {
         setErrorLogin('Contraseña inválida o servidor no disponible.');
       }
@@ -1093,6 +1102,8 @@ function AdminApp() {
         credentials: 'include'
       });
     } catch (e) {}
+    sessionStorage.removeItem('cfp401_admin_user');
+    setUsuarioActual('Administrador');
     setAutenticado(false);
     showToast('Sesión cerrada');
   };
@@ -1129,7 +1140,8 @@ function AdminApp() {
         },
         credentials: 'include',
         body: JSON.stringify({
-          data: data
+          data: data,
+          usuario: usuarioActual
         })
       });
       if (sesionVencida(res)) return;
@@ -1439,6 +1451,23 @@ function AdminApp() {
     }, errorLogin), /*#__PURE__*/React.createElement("form", {
       onSubmit: handleLogin
     }, /*#__PURE__*/React.createElement("div", {
+      className: "form-group",
+      style: {
+        marginBottom: 14
+      }
+    }, /*#__PURE__*/React.createElement("label", {
+      className: "form-label"
+    }, "Operador / Nombre de usuario"), /*#__PURE__*/React.createElement("input", {
+      type: "text",
+      className: "form-input",
+      placeholder: "Ej: Directora, Secretaría, Regente...",
+      value: usuarioInput,
+      onChange: e => setUsuarioInput(e.target.value),
+      autoFocus: true,
+      required: true
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "form-hint"
+    }, "Quedará registrado en la bitácora de auditoría de cada modificación.")), /*#__PURE__*/React.createElement("div", {
       className: "form-group"
     }, /*#__PURE__*/React.createElement("label", {
       className: "form-label"
@@ -1448,7 +1477,6 @@ function AdminApp() {
       placeholder: "Ingresá la contraseña",
       value: passwordInput,
       onChange: e => setPasswordInput(e.target.value),
-      autoFocus: true,
       required: true
     }), /*#__PURE__*/React.createElement("div", {
       className: "form-hint"
@@ -1495,7 +1523,19 @@ function AdminApp() {
     className: "admin-logo"
   }), /*#__PURE__*/React.createElement("span", {
     className: "admin-badge"
-  }, "Admin 2.0"), /*#__PURE__*/React.createElement("div", {
+  }, "Admin 2.0"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      background: 'rgba(255,255,255,0.18)',
+      color: '#ffffff',
+      padding: '3px 10px',
+      borderRadius: '999px',
+      fontSize: '12px',
+      fontWeight: 600,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 5
+    }
+  }, "👤 ", usuarioActual), /*#__PURE__*/React.createElement("div", {
     className: "admin-header-actions"
   }, /*#__PURE__*/React.createElement("a", {
     href: "index.html",
@@ -2317,7 +2357,69 @@ function AdminApp() {
     style: {
       width: 18
     }
-  }), " Cinta Amarilla Destacada (Home)"), /*#__PURE__*/React.createElement("div", {
+  }), " Cinta Destacada de Avisos (Home)"), /*#__PURE__*/React.createElement("div", {
+    className: "form-group",
+    style: {
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "form-label"
+  }, "Versión visual de la cinta"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 16,
+      marginTop: 4,
+      flexWrap: 'wrap'
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      fontSize: 13.5,
+      cursor: 'pointer',
+      fontWeight: !data.home?.cintaAmarilla?.estilo || data.home?.cintaAmarilla?.estilo === 'amarilla' ? 700 : 400
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "radio",
+    name: "cintaEstilo",
+    value: "amarilla",
+    checked: !data.home?.cintaAmarilla?.estilo || data.home?.cintaAmarilla?.estilo === 'amarilla',
+    onChange: () => updateData(prev => ({
+      ...prev,
+      home: {
+        ...prev.home,
+        cintaAmarilla: {
+          ...(prev.home?.cintaAmarilla || {}),
+          estilo: 'amarilla'
+        }
+      }
+    }))
+  }), "Amarilla tradicional (fondo amarillo)"), /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      fontSize: 13.5,
+      cursor: 'pointer',
+      fontWeight: data.home?.cintaAmarilla?.estilo === 'blanca' ? 700 : 400
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "radio",
+    name: "cintaEstilo",
+    value: "blanca",
+    checked: data.home?.cintaAmarilla?.estilo === 'blanca',
+    onChange: () => updateData(prev => ({
+      ...prev,
+      home: {
+        ...prev.home,
+        cintaAmarilla: {
+          ...(prev.home?.cintaAmarilla || {}),
+          estilo: 'blanca'
+        }
+      }
+    }))
+  }), "Blanca institucional (fondo blanco con líneas amarillas)"))), /*#__PURE__*/React.createElement("div", {
     className: "form-group"
   }, /*#__PURE__*/React.createElement("label", {
     className: "form-label"
@@ -2457,7 +2559,13 @@ function AdminApp() {
     className: "form-group"
   }, /*#__PURE__*/React.createElement("label", {
     className: "form-label"
-  }, "Descripción General"), /*#__PURE__*/React.createElement("textarea", {
+  }, "Descripción General ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: 'normal',
+      fontSize: 12,
+      color: 'var(--neutral-500)'
+    }
+  }, "(usá ", /*#__PURE__*/React.createElement("strong", null, "**texto**"), " para negritas y saltos de línea)")), /*#__PURE__*/React.createElement("textarea", {
     className: "form-textarea",
     rows: 2,
     value: data.home?.propuesta?.descripcion || '',

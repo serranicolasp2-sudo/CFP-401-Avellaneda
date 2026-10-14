@@ -11,14 +11,15 @@ window.CFP_DATA = {
             "texto": "Cursos presenciales sin costo de inscripción ni de cursada, con certificado de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires."
         },
         "cintaAmarilla": {
-            "titulo": "Nuevas inscripciones A PARTIR DE NOVIEMBRE",
-            "detalle": "Lunes a viernes de 9 a 22 hs · Juan Pablo Angulo 1272, Dock Sud",
+            "titulo": "Inscripciones abiertas a partir del 15 de noviembre",
+            "detalle": "Lunes a viernes de 9 a 20 hs · Juan Pablo Angulo 1272, Dock Sud",
+            "estilo": "amarilla",
             "urlMapa": "https://www.google.com/maps/place/Cfp+401/@-34.6516833,-58.347049,15z/data=!4m5!3m4!1s0x0:0x117f33b4198391f2!8m2!3d-34.6516831!4d-58.347049?shorturl=1"
         },
         "propuesta": {
             "subtitulo": "Nuestra propuesta",
             "titulo": "Aprendizajes que transforman",
-            "descripcion": "Porque aprender también es construir futuro. Nuestros talleres funcionan con equipamiento real y docentes de oficio.",
+            "descripcion": "**\"FORMARSE ES APOSTAR AL FUTURO\"**\nPrácticas auténticas en talleres equipados y con docentes profesionales del oficio.\n**\"ACOMPAÑAMOS CADA PASO DE TU CRECIMIENTO\"**",
             "tarjetas": [
                 {
                     "icono": "graduation-cap",
@@ -27,24 +28,24 @@ window.CFP_DATA = {
                 },
                 {
                     "icono": "wallet",
-                    "titulo": "100% gratuito",
-                    "descripcion": "Sin costo de inscripción ni de cursada: solo necesitás la documentación pedida."
+                    "titulo": "Cursos Gratuitos",
+                    "descripcion": "Sin costo de inscripción ni de cursada: solo necesitás la documentación requerida."
                 },
                 {
                     "icono": "wrench",
                     "titulo": "Talleres equipados",
-                    "descripcion": "Prácticas en herrería, soldadura, electricidad, sanitarios y gas."
+                    "descripcion": "Para prácticas en todos los oficios"
                 }
             ]
         },
         "opacidadTarjetas": 12
     },
     "inscripciones": {
-        "bannerInicio": "Nuevas inscripciones A PARTIR DE NOVIEMBRE",
+        "bannerInicio": "Inscripciones abiertas a partir del 15 de noviembre",
         "estado": "Inscripciones cerradas por el momento",
         "periodos": "Hay dos períodos de inscripción por año: de noviembre a febrero para los cursos que comienzan en marzo, y durante junio y julio para los que comienzan en agosto.",
         "requisitoGeneral": "Presentar 4 fotocopias del DNI y la constancia de estudios requerida por el curso.",
-        "horarioAtencion": "Lunes a viernes de 9 a 22 hs",
+        "horarioAtencion": "Lunes a viernes de 9 a 20 hs",
         "cintaCursos": {
             "visible": true,
             "tipo": "cerradas",
@@ -98,7 +99,7 @@ window.CFP_DATA = {
         "direccion": "Juan Pablo Angulo 1272, Dock Sud, Avellaneda",
         "anexo": "Polideportivo Plaza Renunciamiento — Irala y Argentino Valle",
         "anexoUrl": "https://share.google/jpjdJqgyEQzbXONJT",
-        "atencion": "Lunes a viernes de 9 a 22 hs",
+        "atencion": "Lunes a viernes de 9 a 20 hs",
         "whatsapp": "11 6105-6018 (solo mensajes)",
         "telefonos": [
             "4222-5418",
@@ -115,12 +116,12 @@ window.CFP_DATA = {
     "nosotros": {
         "header": {
             "subtitulo": "Nosotros",
-            "titulo": "Más de cuatro décadas formando trabajadores"
+            "titulo": "Más de cuatro décadas formando en oficios"
         },
         "historia": {
             "subtitulo": "Historia Institucional",
             "titulo": "De la Unidad de Formación Profesional N° 13 al CFP N° 401",
-            "cuerpo": "El Establecimiento fue creado como Unidad de Formación Profesional Nº 13 el 10 de agosto de 1979. Su radicación en el distrito de Avellaneda se produjo por disposición de la Dirección de Educación Media, Técnica y Formación Profesional el 22 de agosto de 1979.\n\nEn abril de 1985 cambió su denominación a Centro de Formación Profesional Nº 13.\n\nLuego de estar dictando cursos en la Escuela Primaria Nº 11 en la Av. Roca y Manuel Estévez, y de intensas gestiones efectuadas por parte de los directivos, se le otorga en el año 1986 el espacio que ocupa actualmente, ya estando a cargo del servicio educativo el Prof. Tranquillo Roberto como Director.\n\nCabe consignar que este nuevo edificio está ubicado en la calle J. P. Angulo 1272 de la localidad de Dock Sud, siendo propiedad de la D.G.C. y E. En él funcionó un servicio de Escuela Primaria hasta el año 1979, a partir del cual fue dado de baja al ser considerado inhabitable por el estado de deterioro total de su infraestructura.\n\nConvencidos de nuestra labor y de la importancia que la misma tiene al servicio de la comunidad, inmediatamente se iniciaron las tareas de reacondicionamiento, colaborando en dicha empresa todo el personal del establecimiento. Así, en poco tiempo se pudieron habilitar los servicios sanitarios y las aulas existentes, a los que se les sumó la reconstrucción de aulas. Con enorme trabajo y esfuerzo se consiguió este cometido ya en julio de 1987.\n\nEn 1994 la Provincia de Buenos Aires reenumeró los servicios educativos por distrito y el Centro pasó a denominarse C.F.P. Nº 401 de Avellaneda.\n\nDesde su creación y hasta la fecha se aprecia que, con el esfuerzo realizado, los logros obtenidos en los ámbitos educativos, sociales y edilicios fueron determinantes. Se destaca que desde su creación hasta el año próximo pasado se han dictado más de 2.300 cursos, que han logrado una cantidad de certificados en más de 24.000 egresados, cursando una extensa lista de especialidades."
+            "cuerpo": "El Establecimiento fue creado como Unidad de Formación Profesional Nº 13 el 10 de agosto de 1979. Su radicación en el distrito de Avellaneda se produjo por disposición de la Dirección de Educación Media, Técnica y Formación Profesional el 22 de agosto de 1979.\n\nEn abril de 1985 cambió su denominación a Centro de Formación Profesional Nº 13.\n\nLuego de estar dictando cursos en la Escuela Primaria Nº 11 en la Av. Roca y Manuel Estévez, y de intensas gestiones efectuadas por parte de los directivos, se le otorga en el año 1986 el espacio que ocupa actualmente, ya estando a cargo del servicio educativo el Prof. Tranquillo Roberto como Director.\n\nCabe consignar que este nuevo edificio está ubicado en la calle J. P. Angulo 1272 de la localidad de Dock Sud, siendo propiedad de la D.G.C. y E. En él funcionó un servicio de Escuela Primaria hasta el año 1979, a partir del cual fue dado de baja al ser considerado inhabitable por el estado de deterioro total de su infraestructura.\n\nConvencidos de nuestra labor y de la importancia que la misma tiene al servicio de la comunidad, inmediatamente se iniciaron las tareas de reacondicionamiento, colaborando en dicha empresa todo el personal del establecimiento. Así, en poco tiempo se pudieron habilitar los servicios sanitarios y las aulas existentes, a los que se les sumó la reconstrucción de aulas. Con enorme trabajo y esfuerzo se consiguió este cometido ya en julio de 1987.\n\nEn 1994 la Provincia de Buenos Aires reenumeró los servicios educativos por distrito y el Centro pasó a denominarse C.F.P. Nº 401 de Avellaneda.\n\nDesde su creación y hasta la fecha se aprecia que, con el esfuerzo realizado, los logros obtenidos en los ámbitos educativos, sociales y edilicios fueron determinantes. Se destaca que desde su creación hasta el año próximo pasado se han dictado más de 3.600 cursos, que han logrado una cantidad de certificados en más de 24.000 egresados, cursando una extensa lista de especialidades."
         },
         "objetivos": {
             "subtitulo": "Objetivos generales del Centro",

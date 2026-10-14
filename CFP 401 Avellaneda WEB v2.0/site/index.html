@@ -47,7 +47,7 @@
   },
   "geo": { "@type": "GeoCoordinates", "latitude": -34.6516831, "longitude": -58.347049 },
   "telephone": "+5491161056018",
-  "openingHours": "Mo-Fr 09:00-22:00"
+  "openingHours": "Mo-Fr 09:00-20:00"
 }
 </script>
 
@@ -61,6 +61,16 @@ img{max-width:100%}
    no la altura y el arco institucional queda aplastado (se ve a 0,74:1 cuando
    su proporción real es 1,34:1). Sólo se nota en pantallas angostas. */
 .cfp-arc-stage img, .cfp-vuelo img{max-width:none}
+
+/* Superposición de fotos sobre el isotipo del hero (§Pedido Directora) */
+.cfp-lens{z-index:2!important}
+.cfp-arc-stage{z-index:1!important}
+
+/* Tipografía de footer ligeramente más grande en PC (§Pedido Directora) */
+@media (min-width: 900px){
+  footer p, footer li a, footer a, footer div{font-size:15px!important;line-height:1.55!important}
+  footer h4{font-size:16.5px!important}
+}
 /* El header debe reflowar aunque el bundle compilado del NavBar traiga nowrap en estilos inline. */
 header>div:last-of-type{flex-wrap:wrap!important;column-gap:20px!important;row-gap:10px!important}
 header>div:last-of-type>img{min-width:0!important;max-width:100%!important;height:auto!important;max-height:38px!important}
@@ -479,10 +489,10 @@ div[style*="z-index: 60"][style*="position: fixed"] div[style*="max-height: 420p
     <h1>CFP N° 401 de Avellaneda</h1>
     <p>Cursos presenciales gratuitos con certificación oficial de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires.</p>
     <p><strong>Sede:</strong> Juan Pablo Angulo 1272, Dock Sud, Avellaneda.<br>
-       <strong>Atención:</strong> lunes a viernes de 9 a 22 hs.<br>
+       <strong>Atención:</strong> lunes a viernes de 9 a 20 hs.<br>
        <strong>WhatsApp:</strong> 11 6105-6018 (solo mensajes).</p>
     <p>Para ver la oferta completa de cursos necesitás activar JavaScript en tu navegador.</p>
   </div>
 </noscript>
 
-<script src="plantillas-promo.js?v=a02eedca177f"></script><script src="app.js?v=5489922cc923"></script></body></html>
+<script src="plantillas-promo.js?v=a02eedca177f"></script><script src="app.js?v=6f305a46af22"></script></body></html>

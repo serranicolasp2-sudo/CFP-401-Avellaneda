@@ -67,11 +67,33 @@ const getFamiliaImagen = f => {
   if (n.includes('inform')) return 'assets/area-informatica.jpg';
   return 'assets/area-metalmecanica.jpg';
 };
+function parseTextoConNegritas(texto) {
+  if (!texto || typeof texto !== 'string') return texto;
+  const lineas = texto.split('\n');
+  return lineas.map((linea, lineIdx) => {
+    const partes = linea.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+    const contenido = partes.map((parte, pIdx) => {
+      if (parte.startsWith('**') && parte.endsWith('**')) {
+        return /*#__PURE__*/React.createElement("strong", {
+          key: pIdx,
+          style: {
+            fontWeight: 800,
+            color: 'inherit'
+          }
+        }, parte.slice(2, -2));
+      }
+      return parte;
+    });
+    return /*#__PURE__*/React.createElement(React.Fragment, {
+      key: lineIdx
+    }, lineIdx > 0 && /*#__PURE__*/React.createElement("br", null), contenido);
+  });
+}
 
 /* Las tarjetas de áreas del inicio se derivan de data.js: nunca se
    desincronizan con el listado de cursos. */
 const AREAS_CAPACITACION = (window.CFP_DATA.familias || []).map(f => ({
-  title: 'ÁREA DE ' + f.nombre.toUpperCase(),
+  title: f.nombre.toUpperCase(),
   familia: f.nombre,
   icon: f.icono || 'book-open',
   imagen: getFamiliaImagen(f),
@@ -870,12 +892,12 @@ function HomeScreen({
     descripcion: 'Certificación oficial de la Provincia de Buenos Aires.'
   }, {
     icono: 'wallet',
-    titulo: '100% gratuito',
-    descripcion: 'Sin costo de inscripción ni de cursada: solo necesitás la documentación pedida.'
+    titulo: 'Cursos Gratuitos',
+    descripcion: 'Sin costo de inscripción ni de cursada: solo necesitás la documentación requerida.'
   }, {
     icono: 'wrench',
     titulo: 'Talleres equipados',
-    descripcion: 'Prácticas en herrería, soldadura, electricidad, sanitarios y gas.'
+    descripcion: 'Para prácticas en todos los oficios'
   }];
   const scrollToOferta = () => {
     const el = document.getElementById('oferta-formativa');
@@ -891,13 +913,14 @@ function HomeScreen({
   const cintaDetalle = cinta.detalle || `${insc.horarioAtencion || 'Lunes a viernes de 9 a 22 hs'} · Juan Pablo Angulo 1272, Dock Sud`;
   const cintaUrlMapa = cinta.urlMapa || MAPS_URL;
 
-  // Formato para que en celular nunca se rompa "A PARTIR DE NOVIEMBRE" ni "Dock Sud"
+  // Formato para que en celular nunca se rompa "A PARTIR DE..." ni "Dock Sud"
   let titlePart1 = cintaTitulo;
   let titlePart2 = '';
-  if (cintaTitulo.includes('A PARTIR DE')) {
-    const parts = cintaTitulo.split('A PARTIR DE');
-    titlePart1 = parts[0].trim();
-    titlePart2 = 'A PARTIR DE ' + parts.slice(1).join('A PARTIR DE').trim();
+  const matchApt = cintaTitulo.match(/a partir de/i);
+  if (matchApt) {
+    const idxApt = matchApt.index;
+    titlePart1 = cintaTitulo.substring(0, idxApt).trim();
+    titlePart2 = cintaTitulo.substring(idxApt).trim();
   }
   let atencionPart = cintaDetalle;
   let direccionPart = '';
@@ -924,7 +947,97 @@ function HomeScreen({
     plane: false
   }), /*#__PURE__*/React.createElement(VueloAvion, {
     assetBase: "assets"
-  }), /*#__PURE__*/React.createElement("section", {
+  }), cinta.estilo === 'blanca' ? /*#__PURE__*/React.createElement("section", {
+    style: {
+      background: '#ffffff',
+      borderTop: '4px solid var(--brand-accent)',
+      borderBottom: '4px solid var(--brand-accent)',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 'var(--container-max)',
+      margin: '0 auto',
+      padding: '12px var(--gutter)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 'var(--space-4)',
+      flexWrap: 'wrap'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 3
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 800,
+      fontSize: 18,
+      color: 'var(--blue-900)',
+      lineHeight: 1.3
+    }
+  }, titlePart2 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginRight: 6
+    }
+  }, titlePart1), /*#__PURE__*/React.createElement("span", {
+    style: {
+      whiteSpace: 'nowrap',
+      display: 'inline-block',
+      color: 'var(--blue-900)'
+    }
+  }, titlePart2)) : cintaTitulo), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 15,
+      color: 'var(--neutral-700)'
+    }
+  }, direccionPart ? /*#__PURE__*/React.createElement("a", {
+    href: cintaUrlMapa,
+    target: "_blank",
+    rel: "noopener",
+    style: {
+      color: 'var(--neutral-700)',
+      textDecoration: 'none',
+      lineHeight: 1.4,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 8,
+      flexWrap: 'wrap'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, atencionPart), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--brand-accent)',
+      fontWeight: 800
+    }
+  }, "|"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: 600,
+      color: 'var(--blue-900)',
+      textDecoration: 'underline'
+    }
+  }, direccionPart.replace(/Dock\s+Sud/g, '').trim() + ' ', /*#__PURE__*/React.createElement("span", {
+    style: {
+      whiteSpace: 'nowrap'
+    }
+  }, "Dock Sud"))) : /*#__PURE__*/React.createElement("a", {
+    href: cintaUrlMapa,
+    target: "_blank",
+    rel: "noopener",
+    style: {
+      color: 'var(--blue-900)',
+      textDecoration: 'underline'
+    }
+  }, cintaDetalle))), /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    variant: "accent",
+    style: {
+      marginLeft: 'auto'
+    },
+    onClick: onInscripcion
+  }, "Quiero inscribirme"))) : /*#__PURE__*/React.createElement("section", {
     style: {
       background: 'var(--surface-accent)'
     }
@@ -1020,7 +1133,7 @@ function HomeScreen({
   }, /*#__PURE__*/React.createElement(SectionHeading, {
     overline: prop.subtitulo || "Nuestra propuesta",
     title: prop.titulo || "Aprendizajes que transforman",
-    subtitle: prop.descripcion || "Porque aprender también es construir futuro. Nuestros talleres funcionan con equipamiento real y docentes de oficio.",
+    subtitle: parseTextoConNegritas(prop.descripcion || '"FORMARSE ES APOSTAR AL FUTURO"\nPrácticas auténticas en talleres equipados y con docentes profesionales del oficio.\n"ACOMPAÑAMOS CADA PASO DE TU CRECIMIENTO"'),
     align: "center"
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1191,7 +1304,7 @@ function HomeScreen({
         if (match) onNavigate('CursoDetalle', match);else onNavigate('Cursos', area.familia);
       },
       style: {
-        fontWeight: 500,
+        fontWeight: 700,
         cursor: 'pointer',
         transition: 'color 0.15s ease'
       },
@@ -1241,14 +1354,14 @@ function HomeScreen({
       marginTop: 'var(--space-6)'
     },
     items: [{
-      label: '4 fotocopias del DNI',
+      label: 'Fotocopia del DNI',
       value: ''
     }, {
       label: 'Constancia de estudios',
-      value: 'según el curso elegido'
+      value: '(según requisitos del curso elegido).'
     }, {
       label: 'Horario de atención',
-      value: insc.horarioAtencion || 'Lunes a viernes de 9 a 22 hs'
+      value: insc.horarioAtencion || 'Lunes a viernes de 9 a 20 hs.'
     }, {
       label: 'Consultas por WhatsApp',
       value: '11 6105-6018 (solo mensajes)'
@@ -1302,7 +1415,16 @@ function HomeScreen({
       borderColor: 'rgba(255,255,255,.5)'
     },
     onClick: abrirCampus
-  }, "Ir al Campus"))), /*#__PURE__*/React.createElement("div", {
+  }, "Campus Virtual"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 800,
+      fontSize: 'clamp(22px, 2.8vw, 30px)',
+      lineHeight: 1.22,
+      color: 'var(--brand-accent)',
+      margin: '0 0 var(--space-6)'
+    }
+  }, "Desde 1979,", /*#__PURE__*/React.createElement("br", null), "+45 años formando en oficios"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))',
@@ -1311,21 +1433,21 @@ function HomeScreen({
     }
   }, /*#__PURE__*/React.createElement(StatBlock, {
     invert: true,
-    value: courses.length,
-    label: "Cursos gratuitos con certificación oficial"
+    value: "+3600",
+    label: "cursos dictados"
   }), /*#__PURE__*/React.createElement(StatBlock, {
     invert: true,
-    value: "+45",
-    label: "Años formando oficios en Dock Sud"
-  }), /*#__PURE__*/React.createElement(StatBlock, {
-    invert: true,
-    value: "1979",
-    label: "Año de creación del Centro"
+    value: "+1800",
+    label: "egresados en FI. formando en oficios en Dock Sud"
   }), /*#__PURE__*/React.createElement(StatBlock, {
     invert: true,
     value: AREAS_CAPACITACION.length,
-    label: "Familias profesionales"
-  })))));
+    label: "familias profesionales"
+  }), /*#__PURE__*/React.createElement(StatBlock, {
+    invert: true,
+    value: courses.length,
+    label: "Cursos gratuitos"
+  }))))));
 }
 
 /* ------------------------------------------------------------------ */
@@ -1974,7 +2096,7 @@ function NosotrosScreen({
       letterSpacing: '-.02em',
       color: '#fff'
     }
-  }, header.titulo || "Más de cuatro décadas formando trabajadores"))))), /*#__PURE__*/React.createElement("div", {
+  }, header.titulo || "Más de cuatro décadas formando en oficios"))))), /*#__PURE__*/React.createElement("div", {
     style: {
       maxWidth: 'var(--container-max)',
       margin: '0 auto',
@@ -1991,10 +2113,10 @@ function NosotrosScreen({
     value: "1979",
     label: "Año de creación"
   }), /*#__PURE__*/React.createElement(StatBlock, {
-    value: "+2.300",
+    value: "+3600",
     label: "Cursos dictados"
   }), /*#__PURE__*/React.createElement(StatBlock, {
-    value: "+24.000",
+    value: "+ de 24 mil",
     label: "Egresados con certificado"
   })), /*#__PURE__*/React.createElement(SectionHeading, {
     overline: historia.subtitulo || "Historia institucional",
@@ -2241,6 +2363,14 @@ function ContactScreen() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
+      minHeight: 150,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      marginBottom: 'var(--space-4)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
@@ -2272,8 +2402,7 @@ function ContactScreen() {
       flexDirection: 'column',
       gap: 8,
       fontSize: 14,
-      color: 'var(--text-body)',
-      marginBottom: 'var(--space-4)'
+      color: 'var(--text-body)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2307,13 +2436,13 @@ function ContactScreen() {
       flexShrink: 0,
       marginTop: 2
     }
-  }), /*#__PURE__*/React.createElement("span", null, "Atención: ", /*#__PURE__*/React.createElement("strong", null, CT.atencion || 'Lunes a viernes de 9 a 22 hs')))), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", null, "Atención: ", /*#__PURE__*/React.createElement("strong", null, CT.atencion || 'Lunes a viernes de 9 a 20 hs'))))), /*#__PURE__*/React.createElement("div", {
     style: {
       borderRadius: 'var(--radius-md)',
       overflow: 'hidden',
       border: '1px solid var(--border-subtle)',
-      flex: 1,
-      minHeight: 220,
+      height: 260,
+      minHeight: 260,
       background: 'var(--neutral-100)'
     }
   }, /*#__PURE__*/React.createElement("iframe", {
@@ -2323,7 +2452,7 @@ function ContactScreen() {
     height: "100%",
     style: {
       border: 0,
-      minHeight: 220,
+      height: 260,
       display: 'block'
     },
     loading: "lazy",
@@ -2352,6 +2481,14 @@ function ContactScreen() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
+      minHeight: 150,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      marginBottom: 'var(--space-4)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
@@ -2368,23 +2505,20 @@ function ContactScreen() {
       letterSpacing: '0.06em',
       marginBottom: 4
     }
-  }, "Anexo Formativo"), /*#__PURE__*/React.createElement("h3", {
+  }, "Anexo"), /*#__PURE__*/React.createElement("h3", {
     style: {
       fontSize: 20,
       fontWeight: 700,
       margin: 0,
       color: 'var(--text-title)'
     }
-  }, "Plaza Renunciamiento")), /*#__PURE__*/React.createElement(Badge, {
-    tone: "neutral"
-  }, "Talleres Prácticos")), /*#__PURE__*/React.createElement("div", {
+  }, "Plaza Renunciamiento"))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
       gap: 8,
       fontSize: 14,
-      color: 'var(--text-body)',
-      marginBottom: 'var(--space-4)'
+      color: 'var(--text-body)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2406,21 +2540,21 @@ function ContactScreen() {
     }
   }, CT.anexo || 'Polideportivo Plaza Renunciamiento — Irala y Argentino Valle')), /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: '8px 12px',
+      padding: '6px 10px',
       background: '#fffbeb',
       border: '1px solid #fef08a',
       borderRadius: 8,
-      fontSize: 13,
+      fontSize: 12.5,
       color: '#854d0e',
-      lineHeight: 1.4
+      lineHeight: 1.35
     }
-  }, "ℹ️ ", /*#__PURE__*/React.createElement("strong", null, "Sin atención al público:"), " En el anexo se dictan clases prácticas. Para consultas, trámites e inscripciones por favor acercate a la Sede Central.")), /*#__PURE__*/React.createElement("div", {
+  }, "ℹ️ ", /*#__PURE__*/React.createElement("strong", null, "Sin atención al público:"), " Clases prácticas. Trámites en Sede Central."))), /*#__PURE__*/React.createElement("div", {
     style: {
       borderRadius: 'var(--radius-md)',
       overflow: 'hidden',
       border: '1px solid var(--border-subtle)',
-      flex: 1,
-      minHeight: 220,
+      height: 260,
+      minHeight: 260,
       background: 'var(--neutral-100)'
     }
   }, /*#__PURE__*/React.createElement("iframe", {
@@ -2430,7 +2564,7 @@ function ContactScreen() {
     height: "100%",
     style: {
       border: 0,
-      minHeight: 220,
+      height: 260,
       display: 'block'
     },
     loading: "lazy",
@@ -2449,7 +2583,112 @@ function ContactScreen() {
       name: "external-link",
       size: 16
     })
-  }, "Abrir Anexo en Google Maps"))))), /*#__PURE__*/React.createElement("figure", {
+  }, "Abrir Anexo en Google Maps")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 'var(--space-8)'
+    }
+  }, /*#__PURE__*/React.createElement(Card, {
+    padding: "var(--space-6)",
+    style: {
+      background: 'var(--surface-brand-soft, #e8eefb)',
+      border: '1px solid var(--border-subtle)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "bus",
+    size: 22,
+    color: "var(--brand-primary)"
+  }), /*#__PURE__*/React.createElement("h4", {
+    style: {
+      margin: 0,
+      fontFamily: 'var(--font-display)',
+      fontSize: 17,
+      fontWeight: 700,
+      color: 'var(--blue-900)'
+    }
+  }, "Líneas de colectivo que llegan a la institución")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))',
+      gap: '10px 24px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: 8,
+      fontSize: 14,
+      color: 'var(--text-body)'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--brand-primary)',
+      fontSize: 15,
+      whiteSpace: 'nowrap'
+    }
+  }, "• Línea 33"), /*#__PURE__*/React.createElement("span", null, "(desde Ciudad Universitaria, Retiro, Plaza de Mayo y Lanús)")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: 8,
+      fontSize: 14,
+      color: 'var(--text-body)'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--brand-primary)',
+      fontSize: 15,
+      whiteSpace: 'nowrap'
+    }
+  }, "• Línea 134"), /*#__PURE__*/React.createElement("span", null, "(desde Villa Devoto, Flores y Barracas)")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: 8,
+      fontSize: 14,
+      color: 'var(--text-body)'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--brand-primary)',
+      fontSize: 15,
+      whiteSpace: 'nowrap'
+    }
+  }, "• Línea 159"), /*#__PURE__*/React.createElement("span", null, "(desde Correo Central, Quilmes y Berazategui)")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: 8,
+      fontSize: 14,
+      color: 'var(--text-body)'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--brand-primary)',
+      fontSize: 15,
+      whiteSpace: 'nowrap'
+    }
+  }, "• Línea 373"), /*#__PURE__*/React.createElement("span", null, "(desde Lanús e Isla Maciel)")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: 8,
+      fontSize: 14,
+      color: 'var(--text-body)'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--brand-primary)',
+      fontSize: 15,
+      whiteSpace: 'nowrap'
+    }
+  }, "• Línea 570"), /*#__PURE__*/React.createElement("span", null, "(recorrido local de Avellaneda)")))))), /*#__PURE__*/React.createElement("figure", {
     style: {
       margin: 'var(--space-12) 0 0'
     }
@@ -3573,7 +3812,7 @@ function App() {
         color: 'var(--blue-100)',
         textDecoration: 'underline'
       }
-    }, "Juan Pablo Angulo 1272, Dock Sud, Avellaneda"), /*#__PURE__*/React.createElement("br", null), "Lunes a viernes de 9 a 22 hs", /*#__PURE__*/React.createElement("br", null), "WhatsApp 11 6105-6018"),
+    }, "Juan Pablo Angulo 1272, Dock Sud, Avellaneda"), /*#__PURE__*/React.createElement("br", null), "Lunes a viernes de 9 a 20 hs", /*#__PURE__*/React.createElement("br", null), "WhatsApp 11 6105-6018"),
     columns: [{
       title: 'Cursos',
       links: [{
