@@ -136,7 +136,7 @@ window.CFP_DATA = {
         }
     },
     "campusVirtual": {
-        "activo": true,
+        "activo": false,
         "modoInactivo": "ocultar",
         "url": "https://campuscfp401avellaneda.com.ar/login/index.php",
         "mensajeModal": "El Campus Virtual se encuentra en proceso de actualización y puesta a punto. Muy pronto estará disponible para todos los estudiantes."

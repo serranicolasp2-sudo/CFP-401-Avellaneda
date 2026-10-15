@@ -34,6 +34,35 @@ const MAPS_URL     = 'https://www.google.com/maps/place/Cfp+401/@-34.6516833,-58
 const SEMI_URL     = 'https://campuscfp401avellaneda.com.ar/semi/';
 // Todos los accesos "Campus Virtual" abren el selector (secundario o cursos del CFP); lo escucha <App/>.
 const abrirCampus = () => window.dispatchEvent(new CustomEvent('cfp:selector-campus'));
+const abrirModalCampus = () => window.dispatchEvent(new CustomEvent('cfp:modal-campus'));
+
+function getCampusBtnConfig(cvConfig) {
+  const cv = cvConfig || window.CFP_DATA?.campusVirtual || {};
+  const activo = cv.activo !== false;
+  const modo = cv.modoInactivo || 'modal';
+
+  if (!activo) {
+    if (modo === 'ocultar' || modo === 'oculto') {
+      return null;
+    }
+    if (modo === 'deshabilitado') {
+      return {
+        label: 'Campus (Próximamente)',
+        onClick: abrirModalCampus
+      };
+    }
+    // modo 'modal' (default cuando inactivo)
+    return {
+      label: 'Campus Virtual',
+      onClick: abrirModalCampus
+    };
+  }
+
+  return {
+    label: 'Campus Virtual',
+    onClick: abrirCampus
+  };
+}
 
 /* Un curso pertenece a una familia si es su familia principal o si figura en
    su lista "tambien" (cursos que cruzan dos especialidades). */
@@ -877,6 +906,7 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
   const cintaUrlMapa = cinta.urlMapa || MAPS_URL;
 
   const est = estadisticasSitio();
+  const campusBtn = getCampusBtnConfig(cvConfig);
 
   const opacidadConfig = (window.CFP_DATA.home?.opacidadTarjetas !== undefined)
     ? (window.CFP_DATA.home.opacidadTarjetas / 100)
@@ -986,7 +1016,9 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
           </div>
           <div style={{marginTop:'var(--space-8)',display:'flex',gap:'var(--space-4)',flexWrap:'wrap'}}>
             <Button variant="accent" size="lg" href={WHATSAPP_URL} target="_blank" rel="noopener" iconLeft={<Icon name="message-circle" size={20}/>}>Pre-Inscripción</Button>
-            <Button variant="ghost" size="lg" style={{color:'#fff',borderColor:'rgba(255,255,255,.5)'}} onClick={abrirCampus}>Campus Virtual</Button>
+            {campusBtn && (
+              <Button variant="ghost" size="lg" style={{color:'#fff',borderColor:'rgba(255,255,255,.5)'}} onClick={campusBtn.onClick}>{campusBtn.label}</Button>
+            )}
           </div>
         </div>
         <div>
@@ -1408,6 +1440,8 @@ function NosotrosScreen({onInscripcion}){
 
 function ContactScreen(){
   const anexoMapUrl = CT.anexoUrl || 'https://share.google/jpjdJqgyEQzbXONJT';
+  const cvConfig = window.CFP_DATA?.campusVirtual || {};
+  const campusBtn = getCampusBtnConfig(cvConfig);
   return <div style={{maxWidth:'var(--container-max)',margin:'0 auto',padding:'var(--space-12) var(--gutter) var(--section-y)'}}>
     <SectionHeading overline="Contacto" title="Estamos en Dock Sud, Avellaneda" subtitle="Podés escribirnos por WhatsApp o acercarte a la Sede Central en nuestro horario de atención al público."/>
 
@@ -1421,7 +1455,7 @@ function ContactScreen(){
               {label:'Atención al público:',value:<span>{CT.atencion || 'Lunes a viernes de 9 a 20 hs'} <strong style={{color:'var(--brand-primary)',fontSize:13}}>(Exclusivo Sede Central)</strong></span>},
               {label:'Teléfonos:',value:(CT.telefonos||['4222-5418','4222-4217']).map((t,i)=><React.Fragment key={t}>{i>0&&' / '}<a href={'tel:+5411'+t.replace(/\D/g,'')}>{t}</a></React.Fragment>)},
               {label:'WhatsApp:',value:<a href={WHATSAPP_URL} target="_blank" rel="noopener">{CT.whatsapp || '11 6105-6018 (solo mensajes)'}</a>},
-              {label:'Campus Virtual:',value:<span><a href={SEMI_URL} target="_blank" rel="noopener">Secundario (CENS N° 453)</a>{' / '}<a href={CAMPUS_URL} target="_blank" rel="noopener">Cursos del CFP</a></span>}
+              ...(campusBtn ? [{label:'Campus Virtual:',value:<span><a href={SEMI_URL} target="_blank" rel="noopener">Secundario (CENS N° 453)</a>{' / '}<a href={cvConfig.url || CAMPUS_URL} target="_blank" rel="noopener">Cursos del CFP</a></span>}] : [])
             ]}/>
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:'var(--space-4)',justifyContent:'center',alignItems:'flex-start',paddingLeft:'clamp(0px, 2vw, var(--space-6))',borderLeft:'1px solid var(--border-subtle)'}}>
@@ -1430,7 +1464,9 @@ function ContactScreen(){
             </p>
             <div style={{display:'flex',gap:'var(--space-3)',flexWrap:'wrap'}}>
               <Button variant="accent" href={WHATSAPP_URL} target="_blank" rel="noopener" iconLeft={<Icon name="message-circle" size={18}/>}>Escribir por WhatsApp</Button>
-              <Button variant="secondary" onClick={abrirCampus} iconLeft={<Icon name="graduation-cap" size={18}/>}>Campus Virtual</Button>
+              {campusBtn && (
+                <Button variant="secondary" onClick={campusBtn.onClick} iconLeft={<Icon name="graduation-cap" size={18}/>}>{campusBtn.label}</Button>
+              )}
             </div>
           </div>
         </div>
@@ -1697,6 +1733,9 @@ function mbResponder(q, ir) {
     const cv = window.CFP_DATA.campusVirtual || {};
     const semi = { label: 'Campus del Secundario (CENS N° 453)', href: SEMI_URL };
     if (cv.activo === false) {
+      if (cv.modoInactivo === 'ocultar' || cv.modoInactivo === 'oculto') {
+        return { texto: 'El acceso al Campus Virtual de los cursos del CFP se encuentra momentáneamente pausado. Si sos estudiante del Secundario para Adultos podés ingresar a su aula:', acciones: [semi] };
+      }
       return { texto: 'El campus del Secundario para Adultos está disponible. ' + (cv.mensajeModal || 'El campus de los cursos del CFP se encuentra en mantenimiento.'), acciones: [semi] };
     }
     return { texto: '¿Sos alumno del Secundario para Adultos o de un curso del CFP? Te dejo los dos accesos:', acciones: [semi, { label: 'Campus de los cursos del CFP', href: cv.url || CAMPUS_URL }] };
@@ -2334,9 +2373,23 @@ function App(){
   const [campusModalAbierto, setCampusModalAbierto] = React.useState(false);
   const [selectorCampusAbierto, setSelectorCampusAbierto] = React.useState(false);
   React.useEffect(() => {
-    const abrir = () => setSelectorCampusAbierto(true);
-    window.addEventListener('cfp:selector-campus', abrir);
-    return () => window.removeEventListener('cfp:selector-campus', abrir);
+    const abrirSelector = () => {
+      const cv = window.CFP_DATA?.campusVirtual || {};
+      if (cv.activo === false) {
+        if (cv.modoInactivo !== 'ocultar' && cv.modoInactivo !== 'oculto') {
+          setCampusModalAbierto(true);
+        }
+      } else {
+        setSelectorCampusAbierto(true);
+      }
+    };
+    const abrirModal = () => setCampusModalAbierto(true);
+    window.addEventListener('cfp:selector-campus', abrirSelector);
+    window.addEventListener('cfp:modal-campus', abrirModal);
+    return () => {
+      window.removeEventListener('cfp:selector-campus', abrirSelector);
+      window.removeEventListener('cfp:modal-campus', abrirModal);
+    };
   }, []);
   const [modalAgendaAbierto, setModalAgendaAbierto] = React.useState(false);
   const [cintaCerrada, setCintaCerrada] = React.useState(
@@ -2422,10 +2475,10 @@ function App(){
     setTimeout(()=>{const el=document.getElementById('como-inscribirte');if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-64,behavior:'smooth'});},80);
   };
 
-  /* Botón del Campus Virtual: siempre abre el selector. Si el campus de los cursos del CFP está inactivo
-     (panel: campusVirtual.activo = false), el selector lo avisa en su opción; el del secundario sigue disponible. */
-  const navCta = { label: 'Campus Virtual', onClick: abrirCampus };
-  const campusFooterLink = { label: 'Campus Virtual', onClick: abrirCampus };
+  /* Configuración dinámica del botón del Campus Virtual según el Panel de Administración */
+  const campusBtn = getCampusBtnConfig(cvConfig);
+  const navCta = campusBtn ? { label: campusBtn.label, onClick: campusBtn.onClick } : undefined;
+  const campusFooterLink = campusBtn ? { label: campusBtn.label, onClick: campusBtn.onClick } : null;
   const abrirCampusCFP = () => {
     setSelectorCampusAbierto(false);
     if (cvConfig.activo === false) {
