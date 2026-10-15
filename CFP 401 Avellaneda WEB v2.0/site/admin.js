@@ -572,7 +572,8 @@ function OpcionesPromo({
     'ultimos-cupos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
     'conmemoraciones-patrias-v1': [['mostrarCuadricula', 'Cuadrícula sobre la foto']],
     'grilla-cursos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
-    'aviso-primaria-v1': [['mostrarSello', 'Sello de fecha límite'], ['mostrarExtranjero', 'Recuadro para extranjeros']]
+    'aviso-primaria-v1': [['mostrarSello', 'Sello de fecha límite'], ['mostrarExtranjero', 'Recuadro para extranjeros']],
+    'actividad-institucional-v1': [['mostrarArco', 'Arco de fondo (marca de agua)']]
   }[promo.modelo] || [['mostrarSello', 'Círculo (100% gratuito)']];
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
     className: "form-label",
@@ -847,6 +848,18 @@ const MUESTRAS_PLANTILLAS = {
     tipo: 'aviso',
     imagen: 'assets/promociones/tematicas/primaria/primaria-egresados.jpg',
     textos: {}
+  },
+  // La pieza de la que nació la plantilla (visita de SIMMA, 15/10/2026)
+  'actividad-institucional-v1': {
+    id: 'muestra-actividad',
+    modelo: 'actividad-institucional-v1',
+    tipo: 'aviso',
+    imagen: 'assets/promociones/tematicas/actividades/visita-simma-capacitacion.jpg',
+    textos: {
+      placa: 'CAPACITACIÓN',
+      titulo: 'MÁQUINAS Y HERRAMIENTAS',
+      bajada: 'SIMMA Grupo Empresas brindó una capacitación a nuestros estudiantes.'
+    }
   },
   'grilla-cursos-v1': {
     id: 'muestra-grilla',

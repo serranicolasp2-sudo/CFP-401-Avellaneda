@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actividades institucionales · Stories · CFP 401</title>
+  <link rel="stylesheet" href="actividades.css">
+</head>
+<body>
+  <nav class="editor" aria-label="Herramientas del template">
+    <strong>ACTIVIDADES · STORIES 9:16</strong>
+    <span class="hint">Editá los textos y reemplazá la foto desde “Cambiar foto”.</span>
+    <a class="secondary" href="feed.html">Feed</a><a href="stories.html" aria-current="page">Stories</a><a class="secondary" href="a4.html">A4</a>
+    <button class="photo-button" type="button" data-photo-button>Cambiar foto</button>
+    <input type="file" accept="image/*" data-photo-input aria-label="Elegir una foto" hidden>
+    <button class="secondary" type="button" data-arco-toggle aria-label="Alternar arco de fondo" aria-pressed="true">Quitar arco</button>
+    <button class="secondary" type="button" data-reset>Restablecer</button>
+  </nav>
+  <main class="stage" id="stage">
+    <article class="board stories" id="artboard" aria-label="Actividad institucional">
+      <div class="photo">
+        <img src="assets/visita-simma-capacitacion.jpg" alt="Estudiantes del CFP 401 durante la capacitación de SIMMA Grupo Empresas" data-photo-target>
+        <div class="shade"></div>
+      </div>
+      <div class="stripe"></div>
+      <img class="watermark" src="assets/isotipo-arco-blanco.png" alt="" aria-hidden="true">
+      <img class="logo" src="assets/logo-cfp401-horizontal-blanco.png" alt="Centro de Formación Profesional N° 401 Avellaneda">
+      <div class="tag" contenteditable="true" spellcheck="false" data-fit-width data-min-font="30">CAPACITACIÓN</div>
+      <section class="text" data-fit-zone>
+        <div class="text-inner">
+          <h1 class="headline" contenteditable="true" spellcheck="false">MÁQUINAS Y HERRAMIENTAS</h1>
+          <p class="deck" contenteditable="true" spellcheck="false">SIMMA Grupo Empresas brindó una capacitación a nuestros estudiantes.</p>
+        </div>
+      </section>
+    </article>
+  </main>
+  <script src="actividades.js"></script>
+</body>
+</html>

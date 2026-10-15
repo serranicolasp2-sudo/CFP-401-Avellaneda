@@ -1,0 +1,70 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Source+Sans+3:wght@400;600;700&display=swap");
+
+/* Actividades institucionales (capacitaciones, visitas, charlas, jornadas).
+   Diseño aprobado por el responsable el 15/10/2026 a partir de la pieza de SIMMA Grupo Empresas:
+   foto arriba con corte en diagonal (−4,87°), franja amarilla en el corte, placa amarilla montada
+   sobre el corte con sombra dura, tema en Poppins 800 blanco y bajada en Source Sans 3.
+   --fit lo ajusta actividades.js (y el panel, con ajustarZona) cuando titular y bajada no entran. */
+:root { --blue:#003890; --deep:#002878; --yellow:#ffd100; --soft:#f4f7fc; --display:"Poppins",Arial,sans-serif; --body:"Source Sans 3",Arial,sans-serif; }
+* { box-sizing:border-box; }
+html,body { margin:0; min-height:100%; background:var(--soft); color:var(--deep); }
+body { font-family:var(--body); }
+.editor { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; min-height:68px; padding:10px 18px; background:var(--deep); color:#fff; box-shadow:0 4px 16px rgba(0,40,120,.18); font-size:16px; }
+.editor strong { font:700 14px var(--display); letter-spacing:.04em; }
+.editor .hint { margin-right:auto; color:#dbe6fb; }
+.editor a,.editor button { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:8px 16px; border:2px solid var(--yellow); border-radius:999px; background:var(--yellow); color:var(--deep); font:700 15px var(--body); cursor:pointer; text-decoration:none; white-space:nowrap; }
+.editor a.secondary,.editor button.secondary { border-color:rgba(255,255,255,.45); background:transparent; color:#fff; }
+.editor a[aria-current="page"] { border-color:#fff; }
+.stage { width:calc(var(--board-width)*var(--scale,1)); height:calc(var(--board-height)*var(--scale,1)); margin:34px auto 56px; }
+.board { position:relative; width:var(--board-width); height:var(--board-height); overflow:hidden; isolation:isolate; transform:scale(var(--scale,1)); transform-origin:top left; background:linear-gradient(135deg,var(--blue) 0%,var(--deep) 100%); color:#fff; font-family:var(--body); }
+
+.photo { position:absolute; left:0; top:0; width:100%; overflow:hidden; background:var(--deep); }
+.photo img { position:absolute; left:0; top:0; display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
+/* Protege el logo blanco sobre techos y fondos claros */
+.photo .shade { position:absolute; inset:0; }
+.stripe { position:absolute; inset:0; background:var(--yellow); pointer-events:none; }
+.watermark { position:absolute; display:block; height:auto; opacity:.07; pointer-events:none; }
+.board.sin-arco .watermark { display:none; }
+.logo { position:absolute; display:block; height:auto; }
+.tag { position:absolute; z-index:2; overflow:hidden; white-space:nowrap; transform:rotate(-4.87deg); transform-origin:left center; background:var(--yellow); color:var(--deep); font-family:var(--display); font-weight:800; line-height:1.04; letter-spacing:.02em; text-transform:uppercase; }
+.text { position:absolute; z-index:1; }
+.headline { margin:0; color:#fff; font-family:var(--display); font-weight:800; line-height:1.04; letter-spacing:-.02em; text-transform:uppercase; text-wrap:balance; overflow-wrap:normal; }
+.deck { margin:0; color:#fff; font-family:var(--body); font-weight:600; line-height:1.28; text-wrap:pretty; }
+[contenteditable="true"] { outline:none; cursor:text; }
+[contenteditable="true"]:focus { outline:3px dashed rgba(255,209,0,.95); outline-offset:5px; }
+
+/* Feed 4:5: medidas de la pieza aprobada */
+.feed { --board-width:1080px; --board-height:1350px; }
+.feed .photo { height:780px; clip-path:polygon(0 0,100% 0,100% 688px,0 780px); }
+.feed .photo .shade { background:radial-gradient(670px 343px at 0 0,rgba(0,40,120,.94) 0px,rgba(0,40,120,.9) 50%,rgba(0,40,120,0) 100%),linear-gradient(180deg,rgba(0,40,120,.96) 0px,rgba(0,40,120,.86) 94px,rgba(0,40,120,.4) 172px,rgba(0,40,120,0) 257px); }
+.feed .stripe { clip-path:polygon(0 780px,100% 688px,100% 704px,0 796px); }
+.feed .logo { left:64px; top:58px; width:470px; }
+.feed .watermark { left:591px; top:904px; width:640px; }
+.feed .tag { left:58px; top:733px; max-width:900px; padding:16px 30px 14px; font-size:46px; box-shadow:10px 10px 0 var(--deep); }
+.feed .text { left:64px; right:64px; top:850px; bottom:60px; }
+.feed .headline { font-size:calc(120px * var(--fit,1)); }
+.feed .deck { margin-top:calc(28px * var(--fit,1)); max-width:900px; font-size:calc(40px * var(--fit,1)); }
+
+/* Stories 9:16: foto más alta; logo, textos y placa fuera de los 192 px de arriba y de abajo */
+.stories { --board-width:1080px; --board-height:1920px; }
+.stories .photo { height:1100px; clip-path:polygon(0 0,100% 0,100% 1008px,0 1100px); }
+.stories .photo .shade { background:radial-gradient(720px 470px at 0 0,rgba(0,40,120,.94) 0px,rgba(0,40,120,.9) 50%,rgba(0,40,120,0) 100%),linear-gradient(180deg,rgba(0,40,120,.96) 0px,rgba(0,40,120,.88) 280px,rgba(0,40,120,.4) 380px,rgba(0,40,120,0) 490px); }
+.stories .stripe { clip-path:polygon(0 1100px,100% 1008px,100% 1024px,0 1116px); }
+.stories .logo { left:64px; top:200px; width:600px; }
+.stories .watermark { left:560px; top:1420px; width:720px; }
+.stories .tag { left:58px; top:1049px; max-width:900px; padding:17px 32px 15px; font-size:50px; box-shadow:10px 10px 0 var(--deep); }
+.stories .text { left:64px; right:64px; top:1182px; bottom:192px; }
+.stories .headline { font-size:calc(120px * var(--fit,1)); }
+.stories .deck { margin-top:calc(32px * var(--fit,1)); max-width:920px; font-size:calc(46px * var(--fit,1)); }
+
+/* A4 (1240 × 1754, se exporta al doble): márgenes de 88 px (≈15 mm) */
+.a4 { --board-width:1240px; --board-height:1754px; }
+.a4 .photo { height:1040px; clip-path:polygon(0 0,100% 0,100% 934px,0 1040px); }
+.a4 .photo .shade { background:radial-gradient(780px 420px at 0 0,rgba(0,40,120,.94) 0px,rgba(0,40,120,.9) 50%,rgba(0,40,120,0) 100%),linear-gradient(180deg,rgba(0,40,120,.96) 0px,rgba(0,40,120,.86) 150px,rgba(0,40,120,.4) 250px,rgba(0,40,120,0) 350px); }
+.a4 .stripe { clip-path:polygon(0 1040px,100% 934px,100% 952px,0 1058px); }
+.a4 .logo { left:88px; top:88px; width:600px; }
+.a4 .watermark { left:680px; top:1280px; width:760px; }
+.a4 .tag { left:82px; top:986px; max-width:1020px; padding:18px 34px 16px; font-size:54px; box-shadow:12px 12px 0 var(--deep); }
+.a4 .text { left:88px; right:88px; top:1135px; bottom:88px; }
+.a4 .headline { font-size:calc(136px * var(--fit,1)); }
+.a4 .deck { margin-top:calc(32px * var(--fit,1)); max-width:1020px; font-size:calc(46px * var(--fit,1)); }

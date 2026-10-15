@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1080">
+  <title>Visita SIMMA · Feed CFP 401</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Source+Sans+3:wght@400;600;700&display=block" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1080px; height: 1350px; overflow: hidden; background: #002878; }
+
+    .artboard {
+      position: relative; width: 1080px; height: 1350px; overflow: hidden; color: #fff;
+      background: linear-gradient(135deg, #003890 0%, #002878 100%);
+      font-family: 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Foto con borde inferior en diagonal (sube hacia la derecha, 92 px en 1080) */
+    .photo {
+      position: absolute; inset: 0 0 auto 0; height: 780px; overflow: hidden;
+      clip-path: polygon(0 0, 100% 0, 100% 688px, 0 780px);
+    }
+    .photo img { position: absolute; top: 0; left: -162px; width: 1387px; height: 780px; display: block; }
+    /* Protege el logo sobre el techo claro */
+    .photo-shade {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(62% 44% at 0% 0%, rgba(0,40,120,.94) 0%, rgba(0,40,120,.9) 50%, rgba(0,40,120,0) 100%),
+        linear-gradient(180deg, rgba(0,40,120,.96) 0%, rgba(0,40,120,.86) 12%, rgba(0,40,120,.4) 22%, rgba(0,40,120,0) 33%);
+    }
+    .stripe {
+      position: absolute; inset: 0; background: #ffd100;
+      clip-path: polygon(0 780px, 1080px 688px, 1080px 704px, 0 796px);
+    }
+
+    .logo { position: absolute; left: 64px; top: 58px; width: 470px; height: auto; display: block; }
+
+    .watermark {
+      position: absolute; right: -210px; bottom: -150px; width: 640px; height: auto; opacity: .07; display: block;
+    }
+
+    /* Placa amarilla montada sobre el corte, misma pendiente */
+    .badge {
+      position: absolute; left: 64px; top: 716px;
+      transform: rotate(-4.87deg); transform-origin: left center;
+      background: #ffd100; color: #002878;
+      font: 800 46px/1.04 'Poppins', 'Helvetica Neue', Arial, sans-serif; letter-spacing: .02em;
+      padding: 16px 30px 14px; box-shadow: 10px 10px 0 #002878;
+    }
+
+    .content { position: absolute; left: 64px; right: 64px; top: 850px; }
+    h1 { margin: 0; font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif; font-weight: 800; text-transform: uppercase; }
+    h1 .name { display: block; font-size: 188px; line-height: 1.04; letter-spacing: -.02em; }
+    h1 .group { display: block; margin-top: 4px; font-size: 63px; line-height: 1.08; letter-spacing: .1em; font-weight: 700; }
+    .deck { margin: 34px 0 0; max-width: 900px; font: 600 40px/1.28 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif; text-wrap: pretty; }
+    .deck strong { color: #ffd100; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main class="artboard" aria-label="Publicación: nos visitó SIMMA Grupo Empresas">
+    <div class="photo">
+      <img src="../Imágenes%20fuente/WhatsApp%20Image%202026-10-15%20at%207.21.07%20PM.jpeg" alt="Estudiantes del CFP 401 en el aula durante la capacitación de SIMMA Grupo Empresas">
+      <div class="photo-shade"></div>
+    </div>
+    <div class="stripe"></div>
+    <img class="watermark" src="../../assets/Logos/isotipo-arco-blanco.png" alt="" aria-hidden="true">
+    <img class="logo" src="../../assets/Logos/logo-cfp401-horizontal-blanco.png" alt="Centro de Formación Profesional N° 401 Avellaneda">
+    <div class="badge">NOS VISITÓ</div>
+    <section class="content">
+      <h1><span class="name">SIMMA</span><span class="group">Grupo Empresas</span></h1>
+      <p class="deck">Brindaron una capacitación a nuestros estudiantes sobre <strong>máquinas y herramientas.</strong></p>
+    </section>
+  </main>
+</body>
+</html>

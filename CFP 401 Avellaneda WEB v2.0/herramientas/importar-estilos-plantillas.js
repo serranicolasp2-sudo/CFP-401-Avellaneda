@@ -1,7 +1,7 @@
 /* =============================================================================
    Importa al generador de promociones los estilos de los diseños de referencia de
    "Sistema de Diseño/Promociones y Redes/templates/" (captación, últimos cupos,
-   conmemoraciones patrias y grilla de cursos), para que las piezas del panel salgan
+   conmemoraciones patrias, grilla de cursos y actividades institucionales), para que las piezas del panel salgan
    iguales a esos diseños.
 
    Qué hace con cada CSS:
@@ -28,7 +28,8 @@ const PLANTILLAS = [
   { id: 'captacion', css: 'captacion-oficios/captacion.css' },
   { id: 'cupos', css: 'ultimos-cupos/ultimos-cupos.css' },
   { id: 'patrias', css: 'conmemoraciones-patrias/conmemoraciones.css' },
-  { id: 'grilla', css: 'grilla-cursos-inicio/grilla-cursos.css' }
+  { id: 'grilla', css: 'grilla-cursos-inicio/grilla-cursos.css' },
+  { id: 'actividad', css: 'actividades-institucionales/actividades.css' }
 ];
 
 // Selectores del visor y de la edición en el navegador, que no forman parte de la pieza

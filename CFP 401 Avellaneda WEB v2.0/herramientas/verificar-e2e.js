@@ -220,6 +220,41 @@ async function main() {
     guardado = await espera;
     const p3 = guardado.promociones.find(p => p.modelo === 'aviso-primaria-v1');
     ok(p3 && p3.textos && p3.textos.selloNumero === '20' && /tematicas\/primaria\//.test(p3.imagen || '') && !p3.cursoSlug, 'Aviso Primaria: se guarda con su texto editado, su foto y sin curso', p3 && JSON.stringify({ sello: p3.textos.selloNumero, imagen: p3.imagen }));
+    // Caso 3b: Actividades institucionales (sin curso, tres formatos, fotos propias y arco opcional)
+    await page.getByRole('button', { name: /Nueva Promoción/ }).click();
+    await page.locator('strong', { hasText: 'Actividades Institucionales' }).click();
+    ok(await page.locator('.promo-stepper-bar [aria-disabled]').nth(1).getAttribute('aria-disabled') === 'true', 'Actividades: el paso 2 (curso) queda bloqueado');
+    await page.getByRole('button', { name: /^Continuar/ }).first().click();
+    ok(await page.locator('img[src*="tematicas/actividades/"]').count() >= 1, 'Actividades: el paso 3 ofrece la foto propia de la plantilla');
+    await page.getByRole('button', { name: /^Continuar/ }).first().click();
+    const formatosActividad = await page.locator('.promo-preview-col button').allInnerTexts();
+    ok(formatosActividad.length === 3, 'Actividades: la vista previa ofrece Feed, Historia y A4', formatosActividad.join(' | '));
+    const pieActividad = page.locator('.promo-footer-descargas');
+    ok(await pieActividad.getByRole('button', { name: /Feed/ }).count() === 1 && await pieActividad.getByRole('button', { name: /Historia/ }).count() === 1 && await pieActividad.getByRole('button', { name: /A4/ }).count() === 1, 'Actividades: ofrece descargar los tres formatos');
+    await page.locator('.form-group:has(> label:text-is("Titular (tema)")) textarea').first().fill('Charla de prueba');
+    await page.locator('label', { hasText: 'Arco de fondo (marca de agua)' }).locator('input[type="checkbox"]').uncheck();
+    const titularVista = await page.locator('.pz-actividad .headline').first().innerText().catch(() => '');
+    ok(/charla de prueba/i.test(titularVista), 'Actividades: la vista previa muestra el titular editado', titularVista);
+    ok(await page.locator('.pz-actividad.sin-arco').count() >= 1, 'Actividades: al destildar el arco, la vista previa lo oculta');
+    // Descarga real (html-to-image) de cada formato: proporción del lienzo y franja amarilla del corte en diagonal.
+    // Las piezas quedan en .local/visual-results/ para mirarlas.
+    for (const [formato, boton, ancho, alto, yFranja] of [['feed', /Feed/, 1080, 1350, 787], ['historia', /Historia/, 1080, 1920, 1107], ['a4', /A4/, 1240, 1754, 1048]]) {
+      const [descarga] = await Promise.all([page.waitForEvent('download', { timeout: 60000 }), pieActividad.getByRole('button', { name: boton }).click()]);
+      const destino = path.join(V2, '.local', 'visual-results', `actividad-${formato}.png`);
+      fs.mkdirSync(path.dirname(destino), { recursive: true });
+      await descarga.saveAs(destino);
+      const png = PNG.sync.read(fs.readFileSync(destino));
+      const s = png.width / ancho;
+      const i = (Math.round(yFranja * s) * png.width + Math.round(10 * s)) * 4;
+      const amarilla = png.data[i] > 230 && png.data[i + 1] > 190 && png.data[i + 2] < 90;
+      ok(Math.abs(png.height / png.width - alto / ancho) < 0.01 && amarilla, `Actividades: descarga ${formato} con la proporción y el corte del diseño`, `${png.width}×${png.height}`);
+    }
+    await page.getByRole('button', { name: /Guardar Promoción/ }).click();
+    espera = enviado();
+    await page.getByRole('button', { name: /Guardar en Servidor/ }).click();
+    guardado = await espera;
+    const p3b = guardado.promociones.find(p => p.modelo === 'actividad-institucional-v1');
+    ok(p3b && p3b.textos && p3b.textos.titulo === 'Charla de prueba' && /tematicas\/actividades\//.test(p3b.imagen || '') && p3b.mostrarArco === false && !p3b.cursoSlug, 'Actividades: se guarda con su titular, su foto, sin arco y sin curso', p3b && JSON.stringify({ titulo: p3b.textos && p3b.textos.titulo, imagen: p3b.imagen, arco: p3b.mostrarArco }));
     // Caso 4: logo propio para la cinta amarilla (PNG transparente subido desde el panel)
     {
       const logo = new PNG({ width: 300, height: 48 });

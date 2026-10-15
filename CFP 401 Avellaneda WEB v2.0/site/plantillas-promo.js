@@ -2423,6 +2423,52 @@ const CSS_PLANTILLAS_DISENO = {
 .pz-grilla.a4 .contact-label{font-size:calc(18 * var(--u))}
 .pz-grilla.a4 .phone{min-width:calc(270 * var(--u));font-size:calc(30 * var(--u))}
 .pz-grilla.a4 .note{width:calc(270 * var(--u))}
+`,
+  actividad: `
+.pz-actividad.feed,.pz-actividad.stories{--u:calc(100cqw / 1080)}
+.pz-actividad.a4{--u:calc(100cqw / 1240)}
+.pz-actividad figure{margin:calc(16 * var(--u)) calc(40 * var(--u))}
+.pz-actividad{--blue:#003890;--deep:#002878;--yellow:#ffd100;--soft:#f4f7fc;--display:"Poppins",Arial,sans-serif;--body:"Source Sans 3",Arial,sans-serif}
+.pz-actividad,.pz-actividad *{box-sizing:border-box}
+.pz-actividad.board{position:absolute;inset:0;overflow:hidden;isolation:isolate;background:linear-gradient(135deg,var(--blue) 0%,var(--deep) 100%);color:#fff;font-family:var(--body)}
+.pz-actividad .photo{position:absolute;left:0;top:0;width:100%;overflow:hidden;background:var(--deep)}
+.pz-actividad .photo img{position:absolute;left:0;top:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.pz-actividad .photo .shade{position:absolute;inset:0}
+.pz-actividad .stripe{position:absolute;inset:0;background:var(--yellow);pointer-events:none}
+.pz-actividad .watermark{position:absolute;display:block;height:auto;opacity:.07;pointer-events:none}
+.pz-actividad.board.sin-arco .watermark{display:none}
+.pz-actividad .logo{position:absolute;display:block;height:auto}
+.pz-actividad .tag{position:absolute;z-index:2;overflow:hidden;white-space:nowrap;transform:rotate(-4.87deg);transform-origin:left center;background:var(--yellow);color:var(--deep);font-family:var(--display);font-weight:800;line-height:1.04;letter-spacing:.02em;text-transform:uppercase}
+.pz-actividad .text{position:absolute;z-index:1}
+.pz-actividad .headline{margin:0;color:#fff;font-family:var(--display);font-weight:800;line-height:1.04;letter-spacing:-.02em;text-transform:uppercase;text-wrap:balance;overflow-wrap:normal}
+.pz-actividad .deck{margin:0;color:#fff;font-family:var(--body);font-weight:600;line-height:1.28;text-wrap:pretty}
+.pz-actividad.feed .photo{height:calc(780 * var(--u));clip-path:polygon(0 0,100% 0,100% calc(688 * var(--u)),0 calc(780 * var(--u)))}
+.pz-actividad.feed .photo .shade{background:radial-gradient(calc(670 * var(--u)) calc(343 * var(--u)) at 0 0,rgba(0,40,120,.94) calc(0 * var(--u)),rgba(0,40,120,.9) 50%,rgba(0,40,120,0) 100%),linear-gradient(180deg,rgba(0,40,120,.96) calc(0 * var(--u)),rgba(0,40,120,.86) calc(94 * var(--u)),rgba(0,40,120,.4) calc(172 * var(--u)),rgba(0,40,120,0) calc(257 * var(--u)))}
+.pz-actividad.feed .stripe{clip-path:polygon(0 calc(780 * var(--u)),100% calc(688 * var(--u)),100% calc(704 * var(--u)),0 calc(796 * var(--u)))}
+.pz-actividad.feed .logo{left:calc(64 * var(--u));top:calc(58 * var(--u));width:calc(470 * var(--u))}
+.pz-actividad.feed .watermark{left:calc(591 * var(--u));top:calc(904 * var(--u));width:calc(640 * var(--u))}
+.pz-actividad.feed .tag{left:calc(58 * var(--u));top:calc(733 * var(--u));max-width:calc(900 * var(--u));padding:calc(16 * var(--u)) calc(30 * var(--u)) calc(14 * var(--u));font-size:calc(46 * var(--u));box-shadow:calc(10 * var(--u)) calc(10 * var(--u)) 0 var(--deep)}
+.pz-actividad.feed .text{left:calc(64 * var(--u));right:calc(64 * var(--u));top:calc(850 * var(--u));bottom:calc(60 * var(--u))}
+.pz-actividad.feed .headline{font-size:calc(calc(120 * var(--u)) * var(--fit,1))}
+.pz-actividad.feed .deck{margin-top:calc(calc(28 * var(--u)) * var(--fit,1));max-width:calc(900 * var(--u));font-size:calc(calc(40 * var(--u)) * var(--fit,1))}
+.pz-actividad.stories .photo{height:calc(1100 * var(--u));clip-path:polygon(0 0,100% 0,100% calc(1008 * var(--u)),0 calc(1100 * var(--u)))}
+.pz-actividad.stories .photo .shade{background:radial-gradient(calc(720 * var(--u)) calc(470 * var(--u)) at 0 0,rgba(0,40,120,.94) calc(0 * var(--u)),rgba(0,40,120,.9) 50%,rgba(0,40,120,0) 100%),linear-gradient(180deg,rgba(0,40,120,.96) calc(0 * var(--u)),rgba(0,40,120,.88) calc(280 * var(--u)),rgba(0,40,120,.4) calc(380 * var(--u)),rgba(0,40,120,0) calc(490 * var(--u)))}
+.pz-actividad.stories .stripe{clip-path:polygon(0 calc(1100 * var(--u)),100% calc(1008 * var(--u)),100% calc(1024 * var(--u)),0 calc(1116 * var(--u)))}
+.pz-actividad.stories .logo{left:calc(64 * var(--u));top:calc(200 * var(--u));width:calc(600 * var(--u))}
+.pz-actividad.stories .watermark{left:calc(560 * var(--u));top:calc(1420 * var(--u));width:calc(720 * var(--u))}
+.pz-actividad.stories .tag{left:calc(58 * var(--u));top:calc(1049 * var(--u));max-width:calc(900 * var(--u));padding:calc(17 * var(--u)) calc(32 * var(--u)) calc(15 * var(--u));font-size:calc(50 * var(--u));box-shadow:calc(10 * var(--u)) calc(10 * var(--u)) 0 var(--deep)}
+.pz-actividad.stories .text{left:calc(64 * var(--u));right:calc(64 * var(--u));top:calc(1182 * var(--u));bottom:calc(192 * var(--u))}
+.pz-actividad.stories .headline{font-size:calc(calc(120 * var(--u)) * var(--fit,1))}
+.pz-actividad.stories .deck{margin-top:calc(calc(32 * var(--u)) * var(--fit,1));max-width:calc(920 * var(--u));font-size:calc(calc(46 * var(--u)) * var(--fit,1))}
+.pz-actividad.a4 .photo{height:calc(1040 * var(--u));clip-path:polygon(0 0,100% 0,100% calc(934 * var(--u)),0 calc(1040 * var(--u)))}
+.pz-actividad.a4 .photo .shade{background:radial-gradient(calc(780 * var(--u)) calc(420 * var(--u)) at 0 0,rgba(0,40,120,.94) calc(0 * var(--u)),rgba(0,40,120,.9) 50%,rgba(0,40,120,0) 100%),linear-gradient(180deg,rgba(0,40,120,.96) calc(0 * var(--u)),rgba(0,40,120,.86) calc(150 * var(--u)),rgba(0,40,120,.4) calc(250 * var(--u)),rgba(0,40,120,0) calc(350 * var(--u)))}
+.pz-actividad.a4 .stripe{clip-path:polygon(0 calc(1040 * var(--u)),100% calc(934 * var(--u)),100% calc(952 * var(--u)),0 calc(1058 * var(--u)))}
+.pz-actividad.a4 .logo{left:calc(88 * var(--u));top:calc(88 * var(--u));width:calc(600 * var(--u))}
+.pz-actividad.a4 .watermark{left:calc(680 * var(--u));top:calc(1280 * var(--u));width:calc(760 * var(--u))}
+.pz-actividad.a4 .tag{left:calc(82 * var(--u));top:calc(986 * var(--u));max-width:calc(1020 * var(--u));padding:calc(18 * var(--u)) calc(34 * var(--u)) calc(16 * var(--u));font-size:calc(54 * var(--u));box-shadow:calc(12 * var(--u)) calc(12 * var(--u)) 0 var(--deep)}
+.pz-actividad.a4 .text{left:calc(88 * var(--u));right:calc(88 * var(--u));top:calc(1135 * var(--u));bottom:calc(88 * var(--u))}
+.pz-actividad.a4 .headline{font-size:calc(calc(136 * var(--u)) * var(--fit,1))}
+.pz-actividad.a4 .deck{margin-top:calc(calc(32 * var(--u)) * var(--fit,1));max-width:calc(1020 * var(--u));font-size:calc(calc(46 * var(--u)) * var(--fit,1))}
 `
 };
 /* ESTILOS-DISENO:FIN */
@@ -3072,6 +3118,78 @@ function ConmemoracionesPatriasV1({
   }, T.pieEtiqueta), /*#__PURE__*/React.createElement("p", {
     className: "footer-title"
   }, T.pieTitulo)));
+}
+
+/* ---------- Actividades institucionales (capacitaciones, visitas, charlas; sin curso) ----------
+   Diseño aprobado por el responsable el 15/10/2026 a partir de la pieza de SIMMA Grupo Empresas
+   (templates/actividades-institucionales). Foto con corte en diagonal, placa amarilla, tema y bajada.
+   La placa achica la letra si no entra en un renglón; titular y bajada se achican juntos (--fit). */
+const FOTOS_ACTIVIDAD = [{
+  id: 'actividad-simma',
+  familia: 'Actividades',
+  archivo: 'assets/promociones/tematicas/actividades/visita-simma-capacitacion.jpg',
+  nombre: 'Capacitación SIMMA',
+  encuadre: 'center'
+}];
+const MINIMO_PLACA_ACTIVIDAD = {
+  feed: 28,
+  historia: 30,
+  a4: 32
+};
+function ActividadInstitucionalV1({
+  promo,
+  formato = 'feed',
+  customRef
+}) {
+  const T = promo ? textosPromo(promo) : {};
+  const refPlaca = React.useRef(null);
+  const refTexto = React.useRef(null);
+  useAjusteDiseno(() => {
+    ajustarLetraACaja(refPlaca.current, MINIMO_PLACA_ACTIVIDAD[formato] || 28, 2);
+    const texto = refTexto.current;
+    if (texto) ajustarZona(texto, texto.firstElementChild, 0.5, '.headline');
+  }, [T.placa, T.titulo, T.bajada, formato]);
+  if (!promo) return null;
+  return /*#__PURE__*/React.createElement(LienzoDiseno, {
+    plantilla: "actividad",
+    formato: formato,
+    customRef: customRef,
+    clases: promo.mostrarArco === false ? 'sin-arco' : '',
+    etiqueta: "Actividad institucional"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "photo"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: fotoDePromo(promo, FOTOS_ACTIVIDAD[0].archivo),
+    alt: "Actividad en el CFP N° 401",
+    style: promo.encuadre ? {
+      objectPosition: promo.encuadre
+    } : undefined
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "shade"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "stripe"
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "watermark",
+    src: "assets/isotipo-arco-blanco.png",
+    alt: "",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "logo",
+    src: "assets/logo-cfp401-horizontal-blanco.png",
+    alt: "Centro de Formación Profesional N° 401 Avellaneda"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "tag",
+    ref: refPlaca
+  }, T.placa), /*#__PURE__*/React.createElement("div", {
+    className: "text",
+    ref: refTexto
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-inner"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "headline"
+  }, conSaltos(T.titulo)), /*#__PURE__*/React.createElement("p", {
+    className: "deck"
+  }, conSaltos(T.bajada)))));
 }
 
 /* ---------- Grilla de cursos (listado por período, sin textos editables) ---------- */
@@ -3924,6 +4042,39 @@ const CATALOGO_PLANTILLAS = {
       etiqueta: 'Lema del pie',
       grupo: 'Pie',
       defecto: 'HISTORIA · IDENTIDAD · FUTURO'
+    }]
+  },
+  'actividad-institucional-v1': {
+    id: 'actividad-institucional-v1',
+    nombre: 'Actividades Institucionales (Novedades)',
+    tipo: 'aviso',
+    pasoCurso: null,
+    usaFoto: true,
+    badge: 'Nuevo',
+    disponible: true,
+    descripcion: 'Capacitaciones, visitas de empresas, charlas y jornadas: foto de la actividad con corte en diagonal, placa amarilla con el tipo de actividad, el tema en grande y una bajada. Sin curso ni WhatsApp.',
+    formatos: FORMATOS_PROMO_LISTA,
+    componente: ActividadInstitucionalV1,
+    fotos: FOTOS_ACTIVIDAD,
+    familiaFotos: 'Actividades',
+    // Sin datos de ejemplo de una empresa: un campo que quede vacío muestra el marcador entre corchetes
+    campos: [{
+      clave: 'placa',
+      etiqueta: 'Placa amarilla (tipo de actividad)',
+      grupo: 'Titular',
+      defecto: 'CAPACITACIÓN'
+    }, {
+      clave: 'titulo',
+      etiqueta: 'Titular (tema)',
+      grupo: 'Titular',
+      multilinea: true,
+      defecto: '[TEMA DE LA ACTIVIDAD]'
+    }, {
+      clave: 'bajada',
+      etiqueta: 'Bajada (quién vino y qué hizo)',
+      grupo: 'Titular',
+      multilinea: true,
+      defecto: '[EMPRESA O INSTITUCIÓN] brindó una capacitación a nuestros estudiantes.'
     }]
   },
   'grilla-cursos-v1': {

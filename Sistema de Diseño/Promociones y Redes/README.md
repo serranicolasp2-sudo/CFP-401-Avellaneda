@@ -15,6 +15,7 @@ Para ver y probar todas las piezas en vivo con un solo clic:
 * El template de conmemoraciones patrias está en `templates/conmemoraciones-patrias/`, con un archivo por formato y Día de la Bandera como ejemplo editable.
 * El template de últimos cupos está en `templates/ultimos-cupos/`, con CTA a WhatsApp, foto reemplazable y campos editables por curso.
 * La grilla de cursos por inicio está en `templates/grilla-cursos-inicio/`; permite filtrar marzo/agosto, elegir cursos desde `data.js` y alternar entre tarjetas y fichas por fila con días/horarios y requisitos.
+* El template de actividades institucionales (capacitaciones, visitas, charlas, jornadas) está en `templates/actividades-institucionales/`, con foto reemplazable, placa, tema y bajada editables y el arco de fondo opcional.
 
 ---
 
@@ -95,7 +96,7 @@ Ambas tipografías están disponibles en Google Fonts:
 * **Formatos separados:** Feed 1080×1350, Stories 1080×1920 (150 px libres arriba y abajo) y A4 1240×1754 con exportación al doble.
 * **Editor:** los textos se cambian al hacer clic y la foto desde el selector superior. Los previews se abren individualmente; todavía no forman parte del visor interactivo de los tres modelos del generador.
 
-Los modelos D, E, F y G son templates editoriales autónomos con previews separados; no están integrados al visor interactivo ni al generador de promociones.
+Los modelos D, E, F, G y H son templates editoriales autónomos con previews separados; no están integrados al visor interactivo ni al generador de promociones.
 
 ### Modelo E: Conmemoraciones Patrias (`templates/conmemoraciones-patrias/`)
 * **Uso:** fechas patrias argentinas y conmemoraciones institucionales. Ejemplo: Día de la Bandera (20 de junio); efeméride, fecha y mensaje son editables.
@@ -115,7 +116,13 @@ Los modelos D, E, F y G son templates editoriales autónomos con previews separa
 * **Editor:** carga cursos de `site/data.js` (automático cuando el navegador lo permite o mediante botón de selección del archivo), permite elegir período y cursos, y ajusta cantidad de columnas, filas y tipografía de acuerdo con la selección. Cada curso debe incluir días y horarios y requisitos; si no cabe con legibilidad, la selección se recorre por páginas sin truncar datos. Los períodos no explícitos quedan marcados para confirmación.
 * **Formatos y fondo:** Feed, Stories y A4 tienen versiones en grilla y por fila, cuadrícula opcional y CTA con WhatsApp institucional. `data.js` no contiene cantidad de vacantes: verificar disponibilidad antes de publicar “Últimos cupos”.
 
-### Cómo llegan estos diseños al generador del panel (modelos D a G)
+### Modelo H: Actividades institucionales (`templates/actividades-institucionales/`)
+* **Uso:** novedades de la escuela: capacitaciones, visitas de empresas o instituciones, charlas y jornadas. Nació de la pieza de la visita de SIMMA Grupo Empresas (15/10/2026); la composición del Feed la ajustó el responsable en el lienzo de diseño y es la referencia aprobada.
+* **Composición:** foto real de la actividad arriba con corte en diagonal (−4,87°) y franja amarilla; placa amarilla con sombra dura montada sobre el corte (tipo de actividad); tema en Poppins 800 blanco en mayúsculas y bajada en Source Sans 3 (quién vino y qué hizo). Logo blanco arriba a la izquierda, protegido por un degradé azul. Sin WhatsApp ni llamado a la acción.
+* **Formatos y fondo:** Feed, Stories (fuera de los 192 px de arriba y de abajo) y A4 (márgenes de 88 px) compuestos por separado. Isotipo del arco al 7% como marca de agua, opcional.
+* **Editor:** textos editables al hacer clic, **Cambiar foto** y **Quitar arco**. La placa achica la letra si no entra en un renglón; titular y bajada se achican juntos si no entran en su zona. Está en el generador del panel como «Actividades Institucionales (Novedades)».
+
+### Cómo llegan estos diseños al generador del panel (modelos D a H)
 El generador de promociones del sitio (`admin.html` → Promociones y Flyers) usa **estos mismos archivos**: el CSS de cada template se importa con `CFP 401 Avellaneda WEB v2.0/herramientas/importar-estilos-plantillas.js` y los componentes repiten el mismo HTML, así las piezas del panel salen iguales a las de esta carpeta (verificado por píxeles el 27/09). Si se cambia un diseño acá (medidas, colores, tipografía), hay que volver a correr ese script y compilar `plantillas-promo.jsx` (ver `skill/cfp401-estudio/references/web.md`, sección 7); si se cambia el HTML (se agregan o quitan elementos), también hay que actualizar el componente. En el panel, la grilla de cursos no tiene textos editables: solo se eligen los cursos, el período y la composición.
 
 ---
