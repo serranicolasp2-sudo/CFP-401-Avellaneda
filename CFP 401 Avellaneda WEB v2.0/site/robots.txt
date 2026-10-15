@@ -1,5 +1,5 @@
 # robots.txt para CFP N° 401 de Avellaneda
-# https://campuscfp401avellaneda.com.ar/cfp/
+# https://cfp401avellaneda.com.ar/
 
 User-agent: *
 Allow: /

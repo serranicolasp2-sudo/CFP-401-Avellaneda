@@ -33,7 +33,10 @@ if (file_exists($dataPath)) {
     }
 }
 
-$siteUrl = 'https://campuscfp401avellaneda.com.ar/cfp';
+$protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443 ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'] ?? 'cfp401avellaneda.com.ar';
+$baseDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/\\');
+$siteUrl = $protocolo . '://' . $host . $baseDir;
 
 if ($cursoEncontrado) {
     $titulo = htmlspecialchars($cursoEncontrado['curso'], ENT_QUOTES, 'UTF-8') . ' — CFP N° 401 Avellaneda';

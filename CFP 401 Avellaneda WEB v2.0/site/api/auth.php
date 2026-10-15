@@ -20,6 +20,8 @@ function configurarCors() {
             $host === $serverHost ||
             $host === 'campuscfp401avellaneda.com.ar' ||
             $host === 'www.campuscfp401avellaneda.com.ar' ||
+            $host === 'cfp401avellaneda.com.ar' ||
+            $host === 'www.cfp401avellaneda.com.ar' ||
             $host === 'localhost' ||
             $host === '127.0.0.1'
         );

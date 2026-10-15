@@ -1,6 +1,6 @@
 /* ===========================================================================
    CFP N° 401 AVELLANEDA — CONTENIDOS EDITABLES DEL SITIO (v2.0)
-   Generado desde el Panel de Administración: 2026-10-14 23:06:39
+   Generado desde el Panel de Administración: 2026-10-15 19:16:51
    Operador / Usuario: Nico
    =========================================================================== */
 
@@ -39,7 +39,7 @@ window.CFP_DATA = {
                 }
             ]
         },
-        "opacidadTarjetas": 12
+        "opacidadTarjetas": 25
     },
     "inscripciones": {
         "bannerInicio": "Inscripciones abiertas a partir del 15 de noviembre",
@@ -131,11 +131,12 @@ window.CFP_DATA = {
         },
         "redUocra": {
             "titulo": "Red de CFP de Trabajadores de la Construcción",
-            "cuerpo": "El CFP 401 de Avellaneda forma parte de la Red de Centros de Formación Profesional de Trabajadores de la Construcción, con convenio con la Fundación de Educación y Capacitación de Trabajadores de la Construcción — Centro de Formación Continua, que asiste con los adelantos tecnológicos en equipamiento y actualización docente en forma activa."
+            "cuerpo": "El CFP 401 de Avellaneda forma parte de la Red de Centros de Formación Profesional de Trabajadores de la Construcción, con convenio con la Fundación de Educación y Capacitación de Trabajadores de la Construcción — Centro de Formación Continua, que asiste con los adelantos tecnológicos en equipamiento y actualización docente en forma activa.",
+            "visible": false
         }
     },
     "campusVirtual": {
-        "activo": false,
+        "activo": true,
         "modoInactivo": "ocultar",
         "url": "https://campuscfp401avellaneda.com.ar/login/index.php",
         "mensajeModal": "El Campus Virtual se encuentra en proceso de actualización y puesta a punto. Muy pronto estará disponible para todos los estudiantes."
@@ -1501,5 +1502,28 @@ window.CFP_DATA = {
             "nombre": "Últimos Cupos - Torno Mecánico con Viruta en Rotación",
             "encuadre": "center"
         }
-    ]
+    ],
+    "estadisticas": {
+        "antetitulo": "Desde 1979",
+        "titulo": "+45 años formando en oficios",
+        "anioCreacion": "1979",
+        "items": [
+            {
+                "valor": "+3.600",
+                "etiqueta": "Cursos dictados"
+            },
+            {
+                "valor": "+36.000",
+                "etiqueta": "Egresados en FI"
+            },
+            {
+                "valor": "{familias}",
+                "etiqueta": "Familias profesionales"
+            },
+            {
+                "valor": "{cursos}",
+                "etiqueta": "Cursos gratuitos"
+            }
+        ]
+    }
 };
