@@ -875,6 +875,148 @@ function SiteNavBar({
 
 /* ------------------------------------------------------------------ */
 
+/* Cifras institucionales: las mismas en Inicio y en Nosotros y editables desde el panel (data.js →
+   estadisticas). En el valor, {cursos} y {familias} se reemplazan por la cantidad que hay hoy en el sitio. */
+const ESTADISTICAS_POR_DEFECTO = {
+  antetitulo: 'Desde 1979',
+  titulo: '+45 años formando en oficios',
+  anioCreacion: '1979',
+  items: [{
+    valor: '+3.600',
+    etiqueta: 'Cursos dictados'
+  }, {
+    valor: '+36.000',
+    etiqueta: 'Egresados en FI'
+  }, {
+    valor: '{familias}',
+    etiqueta: 'Familias profesionales'
+  }, {
+    valor: '{cursos}',
+    etiqueta: 'Cursos gratuitos'
+  }]
+};
+function estadisticasSitio() {
+  const d = window.CFP_DATA || {};
+  const e = d.estadisticas || {};
+  const items = (Array.isArray(e.items) && e.items.length ? e.items : ESTADISTICAS_POR_DEFECTO.items).map(it => ({
+    etiqueta: it && it.etiqueta || '',
+    valor: String(it && it.valor || '').replace(/\{cursos\}/g, String((d.courses || []).length)).replace(/\{familias\}/g, String((d.familias || []).length))
+  }));
+  return {
+    antetitulo: e.antetitulo || ESTADISTICAS_POR_DEFECTO.antetitulo,
+    titulo: e.titulo || ESTADISTICAS_POR_DEFECTO.titulo,
+    anioCreacion: e.anioCreacion || ESTADISTICAS_POR_DEFECTO.anioCreacion,
+    items
+  };
+}
+
+/* Cifra con el "+" en amarillo, para que el número blanco mande */
+function ValorCifra({
+  valor
+}) {
+  return valor.startsWith('+') ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--brand-accent)'
+    }
+  }, "+"), valor.slice(1)) : /*#__PURE__*/React.createElement(React.Fragment, null, valor);
+}
+
+/* Cinta de avisos del inicio: amarilla o blanca (se elige en el panel). Texto a la izquierda, logo de la
+   Provincia al centro y botón a la derecha; en tablet el logo baja junto al botón y en celular todo se apila.
+   El fondo va por clase (no en línea) para que no le apliquen las reglas viejas de index.html. */
+function CintaAvisos({
+  cinta,
+  titulo,
+  detalle,
+  urlMapa,
+  onInscripcion
+}) {
+  const blanca = cinta.estilo === 'blanca';
+  const conLogo = cinta.mostrarLogoProvincia !== false;
+  // Cada versión de la cinta puede tener su propio logo, subido desde el panel; si no, va el original
+  const logoPropio = blanca ? cinta.logoBlanca : cinta.logoAmarilla;
+  const logo = logoPropio || 'assets/logo-provincia-ba.png';
+  // "A PARTIR DE…" y "Dock Sud" nunca se cortan en dos renglones
+  const corte = titulo.search(/a partir de/i);
+  const titulo1 = corte > 0 ? titulo.slice(0, corte).trim() : titulo;
+  const titulo2 = corte > 0 ? titulo.slice(corte).trim() : '';
+  const partes = detalle.split(' · ');
+  const atencion = partes[0].trim();
+  const direccion = partes.slice(1).join(' · ').trim();
+  return /*#__PURE__*/React.createElement("section", {
+    className: 'cfp-cinta ' + (blanca ? 'cfp-cinta-blanca' : 'cfp-cinta-amarilla'),
+    "aria-label": "Aviso de inscripciones"
+  }, /*#__PURE__*/React.createElement("style", null, `
+.cfp-cinta-amarilla{background:var(--brand-accent)}
+.cfp-cinta-blanca{background:#fff;border-top:4px solid var(--brand-accent);border-bottom:4px solid var(--brand-accent)}
+.cfp-cinta-grid{max-width:var(--container-max);margin:0 auto;padding:14px var(--gutter);display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;grid-template-areas:"texto logo boton";align-items:center;column-gap:var(--space-6);row-gap:12px}
+.cfp-cinta-texto{grid-area:texto;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cfp-cinta-titulo{font-family:var(--font-display);font-weight:800;font-size:18px;line-height:1.3;color:var(--blue-900)}
+.cfp-cinta-detalle{font-size:15px;line-height:1.4;color:var(--blue-900)}
+.cfp-cinta-blanca .cfp-cinta-detalle{color:var(--neutral-700)}
+.cfp-cinta-detalle a{color:inherit;text-decoration:none}
+.cfp-cinta-dir{font-weight:600;color:var(--blue-900);text-decoration:underline;text-underline-offset:3px}
+.cfp-cinta-sep{margin:0 8px;font-weight:800;color:var(--blue-900)}
+.cfp-cinta-blanca .cfp-cinta-sep{color:var(--brand-accent)}
+.cfp-cinta-logo{grid-area:logo;justify-self:center;display:flex;align-items:center}
+.cfp-cinta-logo img{display:block;height:56px;width:auto;max-width:100%}
+.cfp-cinta-boton{grid-area:boton;justify-self:end}
+.cfp-cinta-grid.sin-logo{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"texto boton"}
+@media (max-width:1100px){
+  .cfp-cinta-grid,.cfp-cinta-grid.sin-logo{grid-template-columns:1fr;grid-template-areas:"texto" "logo" "boton";justify-items:center;text-align:center;padding-top:18px;padding-bottom:18px}
+  .cfp-cinta-texto{align-items:center}
+  .cfp-cinta-logo,.cfp-cinta-boton{justify-self:center}
+  .cfp-cinta-logo img{height:50px}
+}
+@media (max-width:560px){
+  .cfp-cinta-sep{display:none}
+  .cfp-cinta-atencion,.cfp-cinta-dir{display:block}
+  .cfp-cinta-logo img{height:auto;width:100%;max-width:320px}
+  .cfp-cinta-boton > *{min-width:240px}
+}`), /*#__PURE__*/React.createElement("div", {
+    className: 'cfp-cinta-grid' + (conLogo ? '' : ' sin-logo')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cfp-cinta-texto"
+  }, /*#__PURE__*/React.createElement("strong", {
+    className: "cfp-cinta-titulo"
+  }, titulo2 ? /*#__PURE__*/React.createElement(React.Fragment, null, titulo1, " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      whiteSpace: 'nowrap'
+    }
+  }, titulo2)) : titulo), /*#__PURE__*/React.createElement("div", {
+    className: "cfp-cinta-detalle"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: urlMapa,
+    target: "_blank",
+    rel: "noopener"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cfp-cinta-atencion"
+  }, atencion), direccion && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    className: "cfp-cinta-sep",
+    "aria-hidden": "true"
+  }, blanca ? '|' : '·'), /*#__PURE__*/React.createElement("span", {
+    className: "cfp-cinta-dir"
+  }, direccion.replace(/Dock\s+Sud/g, '').trim(), " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      whiteSpace: 'nowrap'
+    }
+  }, "Dock Sud")))))), conLogo && /*#__PURE__*/React.createElement("div", {
+    className: "cfp-cinta-logo"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: logo,
+    alt: "Dirección General de Cultura y Educación · Gobierno de la Provincia de Buenos Aires",
+    ...(logoPropio ? {} : {
+      width: 753,
+      height: 121
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "cfp-cinta-boton"
+  }, /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    variant: blanca ? 'accent' : 'primary',
+    onClick: onInscripcion
+  }, "Quiero inscribirme"))));
+}
 function HomeScreen({
   onNavigate,
   onInscripcion,
@@ -909,26 +1051,10 @@ function HomeScreen({
       onNavigate('Cursos');
     }
   };
-  const cintaTitulo = cinta.titulo || insc.bannerInicio || 'Nuevas inscripciones A PARTIR DE NOVIEMBRE';
-  const cintaDetalle = cinta.detalle || `${insc.horarioAtencion || 'Lunes a viernes de 9 a 22 hs'} · Juan Pablo Angulo 1272, Dock Sud`;
+  const cintaTitulo = cinta.titulo || insc.bannerInicio || 'Inscripciones abiertas a partir del 15 de noviembre';
+  const cintaDetalle = cinta.detalle || `${insc.horarioAtencion || 'Lunes a viernes de 9 a 20 hs'} · Juan Pablo Angulo 1272, Dock Sud`;
   const cintaUrlMapa = cinta.urlMapa || MAPS_URL;
-
-  // Formato para que en celular nunca se rompa "A PARTIR DE..." ni "Dock Sud"
-  let titlePart1 = cintaTitulo;
-  let titlePart2 = '';
-  const matchApt = cintaTitulo.match(/a partir de/i);
-  if (matchApt) {
-    const idxApt = matchApt.index;
-    titlePart1 = cintaTitulo.substring(0, idxApt).trim();
-    titlePart2 = cintaTitulo.substring(idxApt).trim();
-  }
-  let atencionPart = cintaDetalle;
-  let direccionPart = '';
-  if (cintaDetalle.includes(' · ')) {
-    const parts = cintaDetalle.split(' · ');
-    atencionPart = parts[0].trim();
-    direccionPart = parts.slice(1).join(' · ').trim();
-  }
+  const est = estadisticasSitio();
   const opacidadConfig = window.CFP_DATA.home?.opacidadTarjetas !== undefined ? window.CFP_DATA.home.opacidadTarjetas / 100 : 0.12;
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Hero, {
     overline: heroData.subtitulo || "Es tu tiempo de aprender",
@@ -947,184 +1073,13 @@ function HomeScreen({
     plane: false
   }), /*#__PURE__*/React.createElement(VueloAvion, {
     assetBase: "assets"
-  }), cinta.estilo === 'blanca' ? /*#__PURE__*/React.createElement("section", {
-    style: {
-      background: '#ffffff',
-      borderTop: '4px solid var(--brand-accent)',
-      borderBottom: '4px solid var(--brand-accent)',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      maxWidth: 'var(--container-max)',
-      margin: '0 auto',
-      padding: '12px var(--gutter)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 'var(--space-4)',
-      flexWrap: 'wrap'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 3
-    }
-  }, /*#__PURE__*/React.createElement("strong", {
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 800,
-      fontSize: 18,
-      color: 'var(--blue-900)',
-      lineHeight: 1.3
-    }
-  }, titlePart2 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
-    style: {
-      marginRight: 6
-    }
-  }, titlePart1), /*#__PURE__*/React.createElement("span", {
-    style: {
-      whiteSpace: 'nowrap',
-      display: 'inline-block',
-      color: 'var(--blue-900)'
-    }
-  }, titlePart2)) : cintaTitulo), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 15,
-      color: 'var(--neutral-700)'
-    }
-  }, direccionPart ? /*#__PURE__*/React.createElement("a", {
-    href: cintaUrlMapa,
-    target: "_blank",
-    rel: "noopener",
-    style: {
-      color: 'var(--neutral-700)',
-      textDecoration: 'none',
-      lineHeight: 1.4,
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 8,
-      flexWrap: 'wrap'
-    }
-  }, /*#__PURE__*/React.createElement("span", null, atencionPart), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--brand-accent)',
-      fontWeight: 800
-    }
-  }, "|"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: 600,
-      color: 'var(--blue-900)',
-      textDecoration: 'underline'
-    }
-  }, direccionPart.replace(/Dock\s+Sud/g, '').trim() + ' ', /*#__PURE__*/React.createElement("span", {
-    style: {
-      whiteSpace: 'nowrap'
-    }
-  }, "Dock Sud"))) : /*#__PURE__*/React.createElement("a", {
-    href: cintaUrlMapa,
-    target: "_blank",
-    rel: "noopener",
-    style: {
-      color: 'var(--blue-900)',
-      textDecoration: 'underline'
-    }
-  }, cintaDetalle))), /*#__PURE__*/React.createElement(Button, {
-    size: "sm",
-    variant: "accent",
-    style: {
-      marginLeft: 'auto'
-    },
-    onClick: onInscripcion
-  }, "Quiero inscribirme"))) : /*#__PURE__*/React.createElement("section", {
-    style: {
-      background: 'var(--surface-accent)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      maxWidth: 'var(--container-max)',
-      margin: '0 auto',
-      padding: '16px var(--gutter)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 'var(--space-4)',
-      flexWrap: 'wrap'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 4
-    }
-  }, /*#__PURE__*/React.createElement("strong", {
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 800,
-      fontSize: 18,
-      color: 'var(--text-on-accent)',
-      lineHeight: 1.3
-    }
-  }, titlePart2 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
-    style: {
-      marginRight: 6
-    }
-  }, titlePart1), /*#__PURE__*/React.createElement("span", {
-    style: {
-      whiteSpace: 'nowrap',
-      display: 'inline-block'
-    }
-  }, titlePart2)) : cintaTitulo), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 15,
-      color: 'var(--blue-900)'
-    }
-  }, direccionPart ? /*#__PURE__*/React.createElement("a", {
-    href: cintaUrlMapa,
-    target: "_blank",
-    rel: "noopener",
-    style: {
-      color: 'var(--blue-900)',
-      textDecoration: 'none',
-      lineHeight: 1.4,
-      display: 'inline-block'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'inline-block',
-      marginRight: 8
-    }
-  }, atencionPart), /*#__PURE__*/React.createElement("span", {
-    style: {
-      marginRight: 8
-    }
-  }, "·"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'inline-block',
-      fontWeight: 600,
-      textDecoration: 'underline'
-    }
-  }, direccionPart.replace(/Dock\s+Sud/g, '').trim() + ' ', /*#__PURE__*/React.createElement("span", {
-    style: {
-      whiteSpace: 'nowrap'
-    }
-  }, "Dock Sud"))) : /*#__PURE__*/React.createElement("a", {
-    href: cintaUrlMapa,
-    target: "_blank",
-    rel: "noopener",
-    style: {
-      color: 'var(--blue-900)',
-      textDecoration: 'underline'
-    }
-  }, cintaDetalle))), /*#__PURE__*/React.createElement(Button, {
-    size: "sm",
-    variant: "primary",
-    style: {
-      marginLeft: 'auto'
-    },
-    onClick: onInscripcion
-  }, "Quiero inscribirme"))), /*#__PURE__*/React.createElement("section", {
+  }), /*#__PURE__*/React.createElement(CintaAvisos, {
+    cinta: cinta,
+    titulo: cintaTitulo,
+    detalle: cintaDetalle,
+    urlMapa: cintaUrlMapa,
+    onInscripcion: onInscripcion
+  }), /*#__PURE__*/React.createElement("section", {
     style: {
       maxWidth: 'var(--container-max)',
       margin: '0 auto',
@@ -1415,39 +1370,46 @@ function HomeScreen({
       borderColor: 'rgba(255,255,255,.5)'
     },
     onClick: abrirCampus
-  }, "Campus Virtual"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+  }, "Campus Virtual"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(SectionHeading, {
+    invert: true,
+    overline: est.antetitulo,
+    title: est.titulo
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
+      gap: 'var(--space-4)',
+      marginTop: 'var(--space-8)'
+    }
+  }, est.items.map((it, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      background: 'rgba(255,255,255,.06)',
+      border: '1px solid rgba(255,255,255,.14)',
+      borderTop: '4px solid var(--brand-accent)',
+      borderRadius: 'var(--radius-lg)',
+      padding: 'clamp(16px,2.2vw,26px)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 800,
-      fontSize: 'clamp(22px, 2.8vw, 30px)',
-      lineHeight: 1.22,
-      color: 'var(--brand-accent)',
-      margin: '0 0 var(--space-6)'
+      fontSize: 'clamp(26px,2.6vw,30px)',
+      lineHeight: 1,
+      letterSpacing: '-.02em',
+      color: '#fff',
+      whiteSpace: 'nowrap'
     }
-  }, "Desde 1979,", /*#__PURE__*/React.createElement("br", null), "+45 años formando en oficios"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(ValorCifra, {
+    valor: it.valor
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))',
-      gap: 'var(--space-8)',
-      alignContent: 'center'
+      marginTop: 10,
+      fontSize: 15,
+      lineHeight: 1.35,
+      color: 'var(--blue-100)'
     }
-  }, /*#__PURE__*/React.createElement(StatBlock, {
-    invert: true,
-    value: "+3600",
-    label: "cursos dictados"
-  }), /*#__PURE__*/React.createElement(StatBlock, {
-    invert: true,
-    value: "+1800",
-    label: "egresados en FI. formando en oficios en Dock Sud"
-  }), /*#__PURE__*/React.createElement(StatBlock, {
-    invert: true,
-    value: AREAS_CAPACITACION.length,
-    label: "familias profesionales"
-  }), /*#__PURE__*/React.createElement(StatBlock, {
-    invert: true,
-    value: courses.length,
-    label: "Cursos gratuitos"
-  }))))));
+  }, it.etiqueta))))))));
 }
 
 /* ------------------------------------------------------------------ */
@@ -2030,6 +1992,9 @@ function NosotrosScreen({
   const historia = nos.historia || {};
   const objetivos = nos.objetivos || {};
   const redUocra = nos.redUocra || {};
+  // La tarjeta del convenio se puede ocultar desde el panel (por si deja de existir el convenio)
+  const mostrarRed = redUocra.visible !== false;
+  const est = estadisticasSitio();
   const historiaTexto = historia.cuerpo || '';
   const historiaParas = historiaTexto.split('\n\n').filter(Boolean);
   const midPoint = Math.ceil(historiaParas.length / 2);
@@ -2110,15 +2075,13 @@ function NosotrosScreen({
       marginBottom: 'var(--space-16)'
     }
   }, /*#__PURE__*/React.createElement(StatBlock, {
-    value: "1979",
+    value: est.anioCreacion,
     label: "Año de creación"
-  }), /*#__PURE__*/React.createElement(StatBlock, {
-    value: "+3600",
-    label: "Cursos dictados"
-  }), /*#__PURE__*/React.createElement(StatBlock, {
-    value: "+ de 24 mil",
-    label: "Egresados con certificado"
-  })), /*#__PURE__*/React.createElement(SectionHeading, {
+  }), est.items.slice(0, 2).map((it, i) => /*#__PURE__*/React.createElement(StatBlock, {
+    key: i,
+    value: it.valor,
+    label: it.etiqueta
+  }))), /*#__PURE__*/React.createElement(SectionHeading, {
     overline: historia.subtitulo || "Historia institucional",
     title: historia.titulo || "De la Unidad de Formación Profesional N° 13 al CFP N° 401"
   }), /*#__PURE__*/React.createElement("div", {
@@ -2166,12 +2129,16 @@ function NosotrosScreen({
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
+      gridTemplateColumns: mostrarRed ? 'repeat(auto-fit,minmax(min(100%,300px),1fr))' : '1fr',
       gap: 'var(--space-10)',
       marginTop: 'var(--space-8)',
       alignItems: 'start'
     }
-  }, /*#__PURE__*/React.createElement("div", null, objetivosParas.map((p, i) => /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: mostrarRed ? undefined : {
+      maxWidth: 820
+    }
+  }, objetivosParas.map((p, i) => /*#__PURE__*/React.createElement("p", {
     key: i,
     style: {
       ...P_NOSOTROS,
@@ -2179,7 +2146,7 @@ function NosotrosScreen({
         marginBottom: 0
       } : {})
     }
-  }, p))), /*#__PURE__*/React.createElement(Card, {
+  }, p))), mostrarRed && /*#__PURE__*/React.createElement(Card, {
     accentBar: true,
     padding: "var(--space-8)"
   }, /*#__PURE__*/React.createElement(Icon, {
@@ -2263,7 +2230,7 @@ function ContactScreen() {
   }, "Canales de Atención"), /*#__PURE__*/React.createElement(InfoList, {
     items: [{
       label: 'Atención al público:',
-      value: /*#__PURE__*/React.createElement("span", null, CT.atencion || 'Lunes a viernes de 9 a 22 hs', " ", /*#__PURE__*/React.createElement("strong", {
+      value: /*#__PURE__*/React.createElement("span", null, CT.atencion || 'Lunes a viernes de 9 a 20 hs', " ", /*#__PURE__*/React.createElement("strong", {
         style: {
           color: 'var(--brand-primary)',
           fontSize: 13
@@ -2334,7 +2301,7 @@ function ContactScreen() {
       name: "graduation-cap",
       size: 18
     })
-  }, "Ir al Campus Virtual")))))), /*#__PURE__*/React.createElement("div", {
+  }, "Campus Virtual")))))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 'var(--space-12)'
     }
@@ -2795,7 +2762,7 @@ function mbResponder(q, ir) {
     };
   }
   if (mbTiene(q, ['inscrib', 'anotar', 'matricul', 'documenta', 'requisito', 'que necesito', 'papeles'])) return {
-    texto: `Para inscribirte tenés que acercarte a la sede con 4 fotocopias del DNI y la constancia de estudios que pida el curso. Atendemos ${(ct.atencion || '').toLowerCase()}.\n\n${insc.periodos || ''}`,
+    texto: `Para inscribirte tenés que acercarte a la sede con fotocopia del DNI y la constancia de estudios que pida el curso. Atendemos ${(ct.atencion || '').toLowerCase()}.\n\n${insc.periodos || ''}`,
     acciones: [{
       label: 'Ver cómo inscribirme',
       onClick: () => ir('Inscripción')

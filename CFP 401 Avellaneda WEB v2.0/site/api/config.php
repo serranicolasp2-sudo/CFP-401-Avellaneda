@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 // =============================================================================
 // CFP N° 401 AVELLANEDA — CONFIGURACIÓN DEL PANEL DE ADMINISTRACIÓN
 // =============================================================================

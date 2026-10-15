@@ -740,6 +740,116 @@ function SiteNavBar({ active, onNavigate, assetBase = 'assets', cta }) {
 
 /* ------------------------------------------------------------------ */
 
+/* Cifras institucionales: las mismas en Inicio y en Nosotros y editables desde el panel (data.js →
+   estadisticas). En el valor, {cursos} y {familias} se reemplazan por la cantidad que hay hoy en el sitio. */
+const ESTADISTICAS_POR_DEFECTO = {
+  antetitulo: 'Desde 1979',
+  titulo: '+45 años formando en oficios',
+  anioCreacion: '1979',
+  items: [
+    { valor: '+3.600', etiqueta: 'Cursos dictados' },
+    { valor: '+36.000', etiqueta: 'Egresados en FI' },
+    { valor: '{familias}', etiqueta: 'Familias profesionales' },
+    { valor: '{cursos}', etiqueta: 'Cursos gratuitos' }
+  ]
+};
+
+function estadisticasSitio() {
+  const d = window.CFP_DATA || {};
+  const e = d.estadisticas || {};
+  const items = (Array.isArray(e.items) && e.items.length ? e.items : ESTADISTICAS_POR_DEFECTO.items).map(it => ({
+    etiqueta: (it && it.etiqueta) || '',
+    valor: String((it && it.valor) || '')
+      .replace(/\{cursos\}/g, String((d.courses || []).length))
+      .replace(/\{familias\}/g, String((d.familias || []).length))
+  }));
+  return {
+    antetitulo: e.antetitulo || ESTADISTICAS_POR_DEFECTO.antetitulo,
+    titulo: e.titulo || ESTADISTICAS_POR_DEFECTO.titulo,
+    anioCreacion: e.anioCreacion || ESTADISTICAS_POR_DEFECTO.anioCreacion,
+    items
+  };
+}
+
+/* Cifra con el "+" en amarillo, para que el número blanco mande */
+function ValorCifra({ valor }) {
+  return valor.startsWith('+')
+    ? <><span style={{color:'var(--brand-accent)'}}>+</span>{valor.slice(1)}</>
+    : <>{valor}</>;
+}
+
+/* Cinta de avisos del inicio: amarilla o blanca (se elige en el panel). Texto a la izquierda, logo de la
+   Provincia al centro y botón a la derecha; en tablet el logo baja junto al botón y en celular todo se apila.
+   El fondo va por clase (no en línea) para que no le apliquen las reglas viejas de index.html. */
+function CintaAvisos({ cinta, titulo, detalle, urlMapa, onInscripcion }) {
+  const blanca = cinta.estilo === 'blanca';
+  const conLogo = cinta.mostrarLogoProvincia !== false;
+  // Cada versión de la cinta puede tener su propio logo, subido desde el panel; si no, va el original
+  const logoPropio = blanca ? cinta.logoBlanca : cinta.logoAmarilla;
+  const logo = logoPropio || 'assets/logo-provincia-ba.png';
+  // "A PARTIR DE…" y "Dock Sud" nunca se cortan en dos renglones
+  const corte = titulo.search(/a partir de/i);
+  const titulo1 = corte > 0 ? titulo.slice(0, corte).trim() : titulo;
+  const titulo2 = corte > 0 ? titulo.slice(corte).trim() : '';
+  const partes = detalle.split(' · ');
+  const atencion = partes[0].trim();
+  const direccion = partes.slice(1).join(' · ').trim();
+  return (
+    <section className={'cfp-cinta ' + (blanca ? 'cfp-cinta-blanca' : 'cfp-cinta-amarilla')} aria-label="Aviso de inscripciones">
+      <style>{`
+.cfp-cinta-amarilla{background:var(--brand-accent)}
+.cfp-cinta-blanca{background:#fff;border-top:4px solid var(--brand-accent);border-bottom:4px solid var(--brand-accent)}
+.cfp-cinta-grid{max-width:var(--container-max);margin:0 auto;padding:14px var(--gutter);display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;grid-template-areas:"texto logo boton";align-items:center;column-gap:var(--space-6);row-gap:12px}
+.cfp-cinta-texto{grid-area:texto;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cfp-cinta-titulo{font-family:var(--font-display);font-weight:800;font-size:18px;line-height:1.3;color:var(--blue-900)}
+.cfp-cinta-detalle{font-size:15px;line-height:1.4;color:var(--blue-900)}
+.cfp-cinta-blanca .cfp-cinta-detalle{color:var(--neutral-700)}
+.cfp-cinta-detalle a{color:inherit;text-decoration:none}
+.cfp-cinta-dir{font-weight:600;color:var(--blue-900);text-decoration:underline;text-underline-offset:3px}
+.cfp-cinta-sep{margin:0 8px;font-weight:800;color:var(--blue-900)}
+.cfp-cinta-blanca .cfp-cinta-sep{color:var(--brand-accent)}
+.cfp-cinta-logo{grid-area:logo;justify-self:center;display:flex;align-items:center}
+.cfp-cinta-logo img{display:block;height:56px;width:auto;max-width:100%}
+.cfp-cinta-boton{grid-area:boton;justify-self:end}
+.cfp-cinta-grid.sin-logo{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"texto boton"}
+@media (max-width:1100px){
+  .cfp-cinta-grid,.cfp-cinta-grid.sin-logo{grid-template-columns:1fr;grid-template-areas:"texto" "logo" "boton";justify-items:center;text-align:center;padding-top:18px;padding-bottom:18px}
+  .cfp-cinta-texto{align-items:center}
+  .cfp-cinta-logo,.cfp-cinta-boton{justify-self:center}
+  .cfp-cinta-logo img{height:50px}
+}
+@media (max-width:560px){
+  .cfp-cinta-sep{display:none}
+  .cfp-cinta-atencion,.cfp-cinta-dir{display:block}
+  .cfp-cinta-logo img{height:auto;width:100%;max-width:320px}
+  .cfp-cinta-boton > *{min-width:240px}
+}`}</style>
+      <div className={'cfp-cinta-grid' + (conLogo ? '' : ' sin-logo')}>
+        <div className="cfp-cinta-texto">
+          <strong className="cfp-cinta-titulo">
+            {titulo2 ? <>{titulo1} <span style={{whiteSpace:'nowrap'}}>{titulo2}</span></> : titulo}
+          </strong>
+          <div className="cfp-cinta-detalle">
+            <a href={urlMapa} target="_blank" rel="noopener">
+              <span className="cfp-cinta-atencion">{atencion}</span>
+              {direccion && <><span className="cfp-cinta-sep" aria-hidden="true">{blanca ? '|' : '·'}</span>
+              <span className="cfp-cinta-dir">{direccion.replace(/Dock\s+Sud/g, '').trim()} <span style={{whiteSpace:'nowrap'}}>Dock Sud</span></span></>}
+            </a>
+          </div>
+        </div>
+        {conLogo && (
+          <div className="cfp-cinta-logo">
+            <img src={logo} alt="Dirección General de Cultura y Educación · Gobierno de la Provincia de Buenos Aires" {...(logoPropio ? {} : { width: 753, height: 121 })}/>
+          </div>
+        )}
+        <div className="cfp-cinta-boton">
+          <Button size="sm" variant={blanca ? 'accent' : 'primary'} onClick={onInscripcion}>Quiero inscribirme</Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HomeScreen({onNavigate,onInscripcion,cvConfig}){
   const courses=window.CFP_DATA.courses || [];
   const insc=window.CFP_DATA.inscripciones || {};
@@ -762,27 +872,11 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
     }
   };
 
-  const cintaTitulo = cinta.titulo || insc.bannerInicio || 'Nuevas inscripciones A PARTIR DE NOVIEMBRE';
-  const cintaDetalle = cinta.detalle || `${insc.horarioAtencion || 'Lunes a viernes de 9 a 22 hs'} · Juan Pablo Angulo 1272, Dock Sud`;
+  const cintaTitulo = cinta.titulo || insc.bannerInicio || 'Inscripciones abiertas a partir del 15 de noviembre';
+  const cintaDetalle = cinta.detalle || `${insc.horarioAtencion || 'Lunes a viernes de 9 a 20 hs'} · Juan Pablo Angulo 1272, Dock Sud`;
   const cintaUrlMapa = cinta.urlMapa || MAPS_URL;
 
-  // Formato para que en celular nunca se rompa "A PARTIR DE..." ni "Dock Sud"
-  let titlePart1 = cintaTitulo;
-  let titlePart2 = '';
-  const matchApt = cintaTitulo.match(/a partir de/i);
-  if (matchApt) {
-    const idxApt = matchApt.index;
-    titlePart1 = cintaTitulo.substring(0, idxApt).trim();
-    titlePart2 = cintaTitulo.substring(idxApt).trim();
-  }
-
-  let atencionPart = cintaDetalle;
-  let direccionPart = '';
-  if (cintaDetalle.includes(' · ')) {
-    const parts = cintaDetalle.split(' · ');
-    atencionPart = parts[0].trim();
-    direccionPart = parts.slice(1).join(' · ').trim();
-  }
+  const est = estadisticasSitio();
 
   const opacidadConfig = (window.CFP_DATA.home?.opacidadTarjetas !== undefined)
     ? (window.CFP_DATA.home.opacidadTarjetas / 100)
@@ -800,95 +894,8 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
       plane={false}
     />
     <VueloAvion assetBase="assets"/>
-    {/* Cinta de Avisos / Inscripciones (Intercambiable desde panel: amarilla o blanca) */}
-    {cinta.estilo === 'blanca' ? (
-      <section style={{
-        background: '#ffffff',
-        borderTop: '4px solid var(--brand-accent)',
-        borderBottom: '4px solid var(--brand-accent)',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
-      }}>
-        <div style={{
-          maxWidth: 'var(--container-max)',
-          margin: '0 auto',
-          padding: '12px var(--gutter)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 'var(--space-4)',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <strong style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: 'var(--blue-900)', lineHeight: 1.3 }}>
-              {titlePart2 ? (
-                <>
-                  <span style={{ marginRight: 6 }}>{titlePart1}</span>
-                  <span style={{ whiteSpace: 'nowrap', display: 'inline-block', color: 'var(--blue-900)' }}>{titlePart2}</span>
-                </>
-              ) : (
-                cintaTitulo
-              )}
-            </strong>
-            <div style={{ fontSize: 15, color: 'var(--neutral-700)' }}>
-              {direccionPart ? (
-                <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{ color: 'var(--neutral-700)', textDecoration: 'none', lineHeight: 1.4, display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span>{atencionPart}</span>
-                  <span style={{ color: 'var(--brand-accent)', fontWeight: 800 }}>|</span>
-                  <span style={{ fontWeight: 600, color: 'var(--blue-900)', textDecoration: 'underline' }}>
-                    {direccionPart.replace(/Dock\s+Sud/g, '').trim() + ' '}
-                    <span style={{ whiteSpace: 'nowrap' }}>Dock Sud</span>
-                  </span>
-                </a>
-              ) : (
-                <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{ color: 'var(--blue-900)', textDecoration: 'underline' }}>{cintaDetalle}</a>
-              )}
-            </div>
-          </div>
-          <Button size="sm" variant="accent" style={{ marginLeft: 'auto' }} onClick={onInscripcion}>Quiero inscribirme</Button>
-        </div>
-      </section>
-    ) : (
-      <section style={{background:'var(--surface-accent)'}}>
-        <div style={{
-          maxWidth:'var(--container-max)',
-          margin:'0 auto',
-          padding:'16px var(--gutter)',
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'space-between',
-          gap:'var(--space-4)',
-          flexWrap:'wrap'
-        }}>
-          <div style={{display:'flex',flexDirection:'column',gap:4}}>
-            <strong style={{fontFamily:'var(--font-display)',fontWeight:800,fontSize:18,color:'var(--text-on-accent)',lineHeight:1.3}}>
-              {titlePart2 ? (
-                <>
-                  <span style={{marginRight:6}}>{titlePart1}</span>
-                  <span style={{whiteSpace:'nowrap',display:'inline-block'}}>{titlePart2}</span>
-                </>
-              ) : (
-                cintaTitulo
-              )}
-            </strong>
-            <div style={{fontSize:15,color:'var(--blue-900)'}}>
-              {direccionPart ? (
-                <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{color:'var(--blue-900)',textDecoration:'none',lineHeight:1.4,display:'inline-block'}}>
-                  <span style={{display:'inline-block',marginRight:8}}>{atencionPart}</span>
-                  <span style={{marginRight:8}}>·</span>
-                  <span style={{display:'inline-block',fontWeight:600,textDecoration:'underline'}}>
-                    {direccionPart.replace(/Dock\s+Sud/g, '').trim() + ' '}
-                    <span style={{whiteSpace:'nowrap'}}>Dock Sud</span>
-                  </span>
-                </a>
-              ) : (
-                <a href={cintaUrlMapa} target="_blank" rel="noopener" style={{color:'var(--blue-900)',textDecoration:'underline'}}>{cintaDetalle}</a>
-              )}
-            </div>
-          </div>
-          <Button size="sm" variant="primary" style={{marginLeft:'auto'}} onClick={onInscripcion}>Quiero inscribirme</Button>
-        </div>
-      </section>
-    )}
+    {/* Cinta de avisos / inscripciones (amarilla o blanca, con logo de la Provincia; se elige en el panel) */}
+    <CintaAvisos cinta={cinta} titulo={cintaTitulo} detalle={cintaDetalle} urlMapa={cintaUrlMapa} onInscripcion={onInscripcion}/>
     <section style={{maxWidth:'var(--container-max)',margin:'0 auto',padding:'var(--section-y) var(--gutter)'}}>
       <SectionHeading overline={prop.subtitulo || "Nuestra propuesta"} title={prop.titulo || "Aprendizajes que transforman"} subtitle={parseTextoConNegritas(prop.descripcion || '"FORMARSE ES APOSTAR AL FUTURO"\nPrácticas auténticas en talleres equipados y con docentes profesionales del oficio.\n"ACOMPAÑAMOS CADA PASO DE TU CRECIMIENTO"')} align="center"/>
       <div style={{...GRID_AUTO(260),marginTop:'var(--space-10)'}}>
@@ -983,22 +990,14 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
           </div>
         </div>
         <div>
-          <h3 style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 800,
-            fontSize: 'clamp(22px, 2.8vw, 30px)',
-            lineHeight: 1.22,
-            color: 'var(--brand-accent)',
-            margin: '0 0 var(--space-6)'
-          }}>
-            Desde 1979,<br />
-            +45 años formando en oficios
-          </h3>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:'var(--space-8)',alignContent:'center'}}>
-            <StatBlock invert value="+3600" label="cursos dictados"/>
-            <StatBlock invert value="+1800" label="egresados en FI. formando en oficios en Dock Sud"/>
-            <StatBlock invert value={AREAS_CAPACITACION.length} label="familias profesionales"/>
-            <StatBlock invert value={courses.length} label="Cursos gratuitos"/>
+          <SectionHeading invert overline={est.antetitulo} title={est.titulo}/>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'var(--space-4)',marginTop:'var(--space-8)'}}>
+            {est.items.map((it, i) => (
+              <div key={i} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.14)',borderTop:'4px solid var(--brand-accent)',borderRadius:'var(--radius-lg)',padding:'clamp(16px,2.2vw,26px)'}}>
+                <div style={{fontFamily:'var(--font-display)',fontWeight:800,fontSize:'clamp(26px,2.6vw,30px)',lineHeight:1,letterSpacing:'-.02em',color:'#fff',whiteSpace:'nowrap'}}><ValorCifra valor={it.valor}/></div>
+                <div style={{marginTop:10,fontSize:15,lineHeight:1.35,color:'var(--blue-100)'}}>{it.etiqueta}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -1327,6 +1326,9 @@ function NosotrosScreen({onInscripcion}){
   const historia = nos.historia || {};
   const objetivos = nos.objetivos || {};
   const redUocra = nos.redUocra || {};
+  // La tarjeta del convenio se puede ocultar desde el panel (por si deja de existir el convenio)
+  const mostrarRed = redUocra.visible !== false;
+  const est = estadisticasSitio();
 
   const historiaTexto = historia.cuerpo || '';
   const historiaParas = historiaTexto.split('\n\n').filter(Boolean);
@@ -1356,9 +1358,8 @@ function NosotrosScreen({onInscripcion}){
     </div>
     <div style={{maxWidth:'var(--container-max)',margin:'0 auto',padding:'var(--space-12) var(--gutter) var(--section-y)'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,200px),1fr))',gap:'var(--space-6)',marginBottom:'var(--space-16)'}}>
-        <StatBlock value="1979" label="Año de creación"/>
-        <StatBlock value="+3600" label="Cursos dictados"/>
-        <StatBlock value="+ de 24 mil" label="Egresados con certificado"/>
+        <StatBlock value={est.anioCreacion} label="Año de creación"/>
+        {est.items.slice(0, 2).map((it, i) => <StatBlock key={i} value={it.valor} label={it.etiqueta}/>)}
       </div>
       <SectionHeading
         overline={historia.subtitulo || "Historia institucional"}
@@ -1381,11 +1382,11 @@ function NosotrosScreen({onInscripcion}){
         overline={objetivos.subtitulo || "Objetivos generales del Centro"}
         title={objetivos.titulo || "Formación con título oficial, al servicio del trabajo"}
       />
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,300px),1fr))',gap:'var(--space-10)',marginTop:'var(--space-8)',alignItems:'start'}}>
-        <div>
+      <div style={{display:'grid',gridTemplateColumns:mostrarRed ? 'repeat(auto-fit,minmax(min(100%,300px),1fr))' : '1fr',gap:'var(--space-10)',marginTop:'var(--space-8)',alignItems:'start'}}>
+        <div style={mostrarRed ? undefined : {maxWidth:820}}>
           {objetivosParas.map((p, i) => <p key={i} style={{...P_NOSOTROS, ...(i === objetivosParas.length - 1 ? {marginBottom: 0} : {})}}>{p}</p>)}
         </div>
-        <Card accentBar padding="var(--space-8)">
+        {mostrarRed && <Card accentBar padding="var(--space-8)">
           <Icon name="handshake" size={26} style={{color:'var(--brand-primary)'}}/>
           <h3 style={{margin:'var(--space-4) 0 var(--space-3)',fontFamily:'var(--font-display)',fontSize:20,lineHeight:1.25,fontWeight:700,color:'var(--text-title)'}}>
             {redUocra.titulo || "Red de CFP de Trabajadores de la Construcción"}
@@ -1393,7 +1394,7 @@ function NosotrosScreen({onInscripcion}){
           <p style={{...P_NOSOTROS,fontSize:16,marginBottom:0}}>
             {redUocra.cuerpo || "El CFP 401 de Avellaneda forma parte de la Red de Centros de Formación Profesional de Trabajadores de la Construcción, con convenio con la Fundación de Educación y Capacitación de Trabajadores de la Construcción — Centro de Formación Continua, que asiste con los adelantos tecnológicos en equipamiento y actualización docente en forma activa."}
           </p>
-        </Card>
+        </Card>}
       </div>
       <Callout tone="accent" title="Cursos abiertos a la comunidad" style={{marginTop:'var(--space-16)'}}>
         <p style={{margin:'0 0 var(--space-5)',fontSize:16,lineHeight:1.6}}>Todos nuestros cursos son gratuitos y otorgan título oficial de la Provincia de Buenos Aires.</p>
@@ -1417,7 +1418,7 @@ function ContactScreen(){
           <div>
             <h3 style={{fontFamily:'var(--font-display)',fontSize:20,fontWeight:700,color:'var(--blue-900)',margin:'0 0 var(--space-4)'}}>Canales de Atención</h3>
             <InfoList items={[
-              {label:'Atención al público:',value:<span>{CT.atencion || 'Lunes a viernes de 9 a 22 hs'} <strong style={{color:'var(--brand-primary)',fontSize:13}}>(Exclusivo Sede Central)</strong></span>},
+              {label:'Atención al público:',value:<span>{CT.atencion || 'Lunes a viernes de 9 a 20 hs'} <strong style={{color:'var(--brand-primary)',fontSize:13}}>(Exclusivo Sede Central)</strong></span>},
               {label:'Teléfonos:',value:(CT.telefonos||['4222-5418','4222-4217']).map((t,i)=><React.Fragment key={t}>{i>0&&' / '}<a href={'tel:+5411'+t.replace(/\D/g,'')}>{t}</a></React.Fragment>)},
               {label:'WhatsApp:',value:<a href={WHATSAPP_URL} target="_blank" rel="noopener">{CT.whatsapp || '11 6105-6018 (solo mensajes)'}</a>},
               {label:'Campus Virtual:',value:<span><a href={SEMI_URL} target="_blank" rel="noopener">Secundario (CENS N° 453)</a>{' / '}<a href={CAMPUS_URL} target="_blank" rel="noopener">Cursos del CFP</a></span>}
@@ -1429,7 +1430,7 @@ function ContactScreen(){
             </p>
             <div style={{display:'flex',gap:'var(--space-3)',flexWrap:'wrap'}}>
               <Button variant="accent" href={WHATSAPP_URL} target="_blank" rel="noopener" iconLeft={<Icon name="message-circle" size={18}/>}>Escribir por WhatsApp</Button>
-              <Button variant="secondary" onClick={abrirCampus} iconLeft={<Icon name="graduation-cap" size={18}/>}>Ir al Campus Virtual</Button>
+              <Button variant="secondary" onClick={abrirCampus} iconLeft={<Icon name="graduation-cap" size={18}/>}>Campus Virtual</Button>
             </div>
           </div>
         </div>
@@ -1647,7 +1648,7 @@ function mbResponder(q, ir) {
 
   if (mbTiene(q, ['inscrib', 'anotar', 'matricul', 'documenta', 'requisito', 'que necesito', 'papeles']))
     return {
-      texto: `Para inscribirte tenés que acercarte a la sede con 4 fotocopias del DNI y la constancia de estudios que pida el curso. Atendemos ${(ct.atencion || '').toLowerCase()}.\n\n${insc.periodos || ''}`,
+      texto: `Para inscribirte tenés que acercarte a la sede con fotocopia del DNI y la constancia de estudios que pida el curso. Atendemos ${(ct.atencion || '').toLowerCase()}.\n\n${insc.periodos || ''}`,
       acciones: [{ label: 'Ver cómo inscribirme', onClick: () => ir('Inscripción') }, wsp]
     };
 

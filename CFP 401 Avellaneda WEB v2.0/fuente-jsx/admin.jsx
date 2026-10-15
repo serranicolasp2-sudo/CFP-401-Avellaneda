@@ -695,8 +695,8 @@ const { useState, useEffect, useRef } = React;
               texto: 'Cursos presenciales sin costo de inscripción ni de cursada, con certificado de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires.'
             },
             cintaAmarilla: {
-              titulo: 'Nuevas inscripciones A PARTIR DE NOVIEMBRE',
-              detalle: 'Lunes a viernes de 9 a 22 hs · Juan Pablo Angulo 1272, Dock Sud',
+              titulo: 'Inscripciones abiertas a partir del 15 de noviembre',
+              detalle: 'Lunes a viernes de 9 a 20 hs · Juan Pablo Angulo 1272, Dock Sud',
               urlMapa: 'https://www.google.com/maps/place/Cfp+401/@-34.6516833,-58.347049,15z/data=!4m5!3m4!1s0x0:0x117f33b4198391f2!8m2!3d-34.6516831!4d-58.347049?shorturl=1'
             },
             propuesta: {
@@ -705,7 +705,7 @@ const { useState, useEffect, useRef } = React;
               descripcion: 'Porque aprender también es construir futuro. Nuestros talleres funcionan con equipamiento real y docentes de oficio.',
               tarjetas: [
                 { icono: 'graduation-cap', titulo: 'Títulos oficiales', descripcion: 'Certificación oficial de la Provincia de Buenos Aires.' },
-                { icono: 'wallet', titulo: '100% gratuito', descripcion: 'Sin costo de inscripción ni de cursada: solo necesitás la documentación pedida.' },
+                { icono: 'wallet', titulo: 'Cursos Gratuitos', descripcion: 'Sin costo de inscripción ni de cursada: solo necesitás la documentación requerida.' },
                 { icono: 'wrench', titulo: 'Talleres equipados', descripcion: 'Prácticas en herrería, soldadura, electricidad, sanitarios y gas.' }
               ]
             },
@@ -727,11 +727,25 @@ const { useState, useEffect, useRef } = React;
             textoAbiertas: 'Acercate a la sede de Juan Pablo Angulo 1272 para completar tu inscripción.'
           };
         }
+        if (!initial.estadisticas) {
+          // Mismas cifras por defecto que ESTADISTICAS_POR_DEFECTO de app.jsx; {cursos} y {familias} se cuentan solos
+          initial.estadisticas = {
+            antetitulo: 'Desde 1979',
+            titulo: '+45 años formando en oficios',
+            anioCreacion: '1979',
+            items: [
+              { valor: '+3.600', etiqueta: 'Cursos dictados' },
+              { valor: '+36.000', etiqueta: 'Egresados en FI' },
+              { valor: '{familias}', etiqueta: 'Familias profesionales' },
+              { valor: '{cursos}', etiqueta: 'Cursos gratuitos' }
+            ]
+          };
+        }
         if (!initial.nosotros) {
           initial.nosotros = {
             header: {
               subtitulo: 'Nosotros',
-              titulo: 'Más de cuatro décadas formando trabajadores'
+              titulo: 'Más de cuatro décadas formando en oficios'
             },
             historia: {
               subtitulo: 'Historia Institucional',
@@ -854,6 +868,15 @@ const { useState, useEffect, useRef } = React;
         });
         setDirty(true);
       };
+
+      // Cifras institucionales (data.estadisticas): campos sueltos y cada una de las 4 cifras
+      const actualizarCifras = (cambios) => updateData(prev => ({ ...prev, estadisticas: { ...(prev.estadisticas || {}), ...cambios } }));
+      const actualizarCifra = (i, clave, valor) => updateData(prev => {
+        const items = [...((prev.estadisticas && prev.estadisticas.items) || [])];
+        while (items.length <= i) items.push({ valor: '', etiqueta: '' });
+        items[i] = { ...items[i], [clave]: valor };
+        return { ...prev, estadisticas: { ...(prev.estadisticas || {}), items } };
+      });
 
       // Guardar en servidor vía PHP
       const handleGuardarServidor = async () => {
@@ -1016,6 +1039,29 @@ const { useState, useEffect, useRef } = React;
             return { ...prev, familias };
           });
           showToast(`Ruta 'assets/${file.name}' asignada a la familia.`, 'info');
+        }
+      };
+
+      // Logo de la cinta de avisos (uno por versión: amarilla o blanca). Usa subir-foto.php, que conserva la transparencia de los PNG.
+      const handleSubirLogoCinta = async (e, clave) => {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('foto', file);
+        showToast('Subiendo logo...', 'info');
+        try {
+          const res = await fetch('api/subir-foto.php', { method: 'POST', credentials: 'include', body: formData });
+          if (sesionVencida(res)) return;
+          const json = await res.json();
+          if (!json.success) { showToast(json.error || 'No se pudo subir el logo.', 'error'); return; }
+          updateData(prev => ({
+            ...prev,
+            home: { ...prev.home, cintaAmarilla: { ...(prev.home?.cintaAmarilla || {}), [clave]: 'assets/' + json.filename } }
+          }));
+          showToast('Logo cargado. Revisalo en la vista del sitio y guardá en el servidor para publicarlo.');
+        } catch (err) {
+          showToast('No se pudo subir el logo. Revisá la conexión y probá de nuevo.', 'error');
         }
       };
 
@@ -1774,6 +1820,68 @@ const { useState, useEffect, useRef } = React;
                           Blanca institucional (fondo blanco con líneas amarillas)
                         </label>
                       </div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13.5, cursor: 'pointer', marginTop: 10 }}>
+                        <input
+                          type="checkbox"
+                          checked={data.home?.cintaAmarilla?.mostrarLogoProvincia !== false}
+                          onChange={e => updateData(prev => ({
+                            ...prev,
+                            home: {
+                              ...prev.home,
+                              cintaAmarilla: { ...(prev.home?.cintaAmarilla || {}), mostrarLogoProvincia: e.target.checked }
+                            }
+                          }))}
+                        />
+                        Mostrar el logo de la Provincia (DGCyE) en el centro de la cinta
+                      </label>
+                      {data.home?.cintaAmarilla?.mostrarLogoProvincia !== false && (
+                        <div style={{ marginTop: 10, padding: 12, background: '#ffffff', border: '1px solid #fde68a', borderRadius: 10 }}>
+                          <div style={{ fontSize: 12.5, color: 'var(--neutral-600)', marginBottom: 2 }}>
+                            Podés usar un logo distinto para cada versión de la cinta (por ejemplo, uno con letras más oscuras para el fondo amarillo).
+                            Conviene un PNG con fondo transparente, de unos 750 × 120 px.
+                          </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 8 }}>
+                          <div style={{ width: 230, height: 58, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffd100', border: '1px solid #f5c400', borderRadius: 8, padding: '6px 10px', flex: 'none' }}>
+                            <img src={data.home?.cintaAmarilla?.logoAmarilla || 'assets/logo-provincia-ba.png'} alt="" style={{ maxHeight: 44, maxWidth: '100%', display: 'block' }} />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--blue-900)' }}>Logo para la cinta amarilla</span>
+                            <span style={{ fontSize: 12, color: 'var(--neutral-500)' }}>{data.home?.cintaAmarilla?.logoAmarilla ? 'Logo propio: ' + data.home.cintaAmarilla.logoAmarilla : 'Logo original'}</span>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                              <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
+                                <i data-lucide="upload" style={{ width: 14 }}></i> Subir otro logo
+                                <input type="file" accept="image/png,image/webp,image/jpeg" style={{ display: 'none' }} onChange={e => handleSubirLogoCinta(e, 'logoAmarilla')} />
+                              </label>
+                              {data.home?.cintaAmarilla?.logoAmarilla && (
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => updateData(prev => ({ ...prev, home: { ...prev.home, cintaAmarilla: { ...(prev.home?.cintaAmarilla || {}), logoAmarilla: '' } } }))}>
+                                  Volver al original
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 8 }}>
+                          <div style={{ width: 230, height: 58, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 10px', flex: 'none' }}>
+                            <img src={data.home?.cintaAmarilla?.logoBlanca || 'assets/logo-provincia-ba.png'} alt="" style={{ maxHeight: 44, maxWidth: '100%', display: 'block' }} />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--blue-900)' }}>Logo para la cinta blanca</span>
+                            <span style={{ fontSize: 12, color: 'var(--neutral-500)' }}>{data.home?.cintaAmarilla?.logoBlanca ? 'Logo propio: ' + data.home.cintaAmarilla.logoBlanca : 'Logo original'}</span>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                              <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
+                                <i data-lucide="upload" style={{ width: 14 }}></i> Subir otro logo
+                                <input type="file" accept="image/png,image/webp,image/jpeg" style={{ display: 'none' }} onChange={e => handleSubirLogoCinta(e, 'logoBlanca')} />
+                              </label>
+                              {data.home?.cintaAmarilla?.logoBlanca && (
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => updateData(prev => ({ ...prev, home: { ...prev.home, cintaAmarilla: { ...(prev.home?.cintaAmarilla || {}), logoBlanca: '' } } }))}>
+                                  Volver al original
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="form-group">
@@ -1793,7 +1901,7 @@ const { useState, useEffect, useRef } = React;
                             }
                           }));
                         }}
-                        placeholder="Ej: Nuevas inscripciones A PARTIR DE NOVIEMBRE"
+                        placeholder="Ej: Inscripciones abiertas a partir del 15 de noviembre"
                       />
                     </div>
                     <div className="form-group">
@@ -1809,7 +1917,7 @@ const { useState, useEffect, useRef } = React;
                             cintaAmarilla: { ...(prev.home?.cintaAmarilla || {}), detalle: e.target.value }
                           }
                         }))}
-                        placeholder="Ej: Lunes a viernes de 9 a 22 hs · Juan Pablo Angulo 1272, Dock Sud"
+                        placeholder="Ej: Lunes a viernes de 9 a 20 hs · Juan Pablo Angulo 1272, Dock Sud"
                       />
                     </div>
                     <div className="form-group">
@@ -1828,6 +1936,104 @@ const { useState, useEffect, useRef } = React;
                         placeholder="https://www.google.com/maps/..."
                       />
                     </div>
+                  </div>
+
+                  {/* Bloque 2b: Cifras institucionales (las mismas en Inicio y en Nosotros) */}
+                  <div style={{ padding: 20, background: '#ffffff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', marginBottom: 24 }}>
+                    <h3 style={{ margin: '0 0 6px', fontSize: 18, color: 'var(--blue-900)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <i data-lucide="trending-up" style={{ width: 18 }}></i> Cifras institucionales (Inicio y Nosotros)
+                    </h3>
+                    <p style={{ margin: '0 0 14px', fontSize: 12.5, color: 'var(--neutral-500)' }}>
+                      Se muestran en el bloque azul "Cómo inscribirte" del Inicio (2 arriba y 2 abajo) y en Nosotros (año de creación y las dos primeras cifras).
+                      En el valor podés escribir <strong>{'{cursos}'}</strong> o <strong>{'{familias}'}</strong> para que se cuente solo.
+                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 120px', gap: 10 }}>
+                      <div className="form-group">
+                        <label className="form-label">Antetítulo</label>
+                        <input type="text" className="form-input" value={data.estadisticas?.antetitulo || ''} onChange={e => actualizarCifras({ antetitulo: e.target.value })} placeholder="Desde 1979" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Título</label>
+                        <input type="text" className="form-input" value={data.estadisticas?.titulo || ''} onChange={e => actualizarCifras({ titulo: e.target.value })} placeholder="+45 años formando en oficios" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Año de creación</label>
+                        <input type="text" className="form-input" value={data.estadisticas?.anioCreacion || ''} onChange={e => actualizarCifras({ anioCreacion: e.target.value })} placeholder="1979" />
+                      </div>
+                    </div>
+                    <label className="form-label">Cifras (valor y texto)</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, marginBottom: 8 }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          aria-label="Cifra 1: valor"
+                          value={data.estadisticas?.items?.[0]?.valor || ''}
+                          onChange={e => actualizarCifra(0, 'valor', e.target.value)}
+                          placeholder="+3.600"
+                        />
+                        <input
+                          type="text"
+                          className="form-input"
+                          aria-label="Cifra 1: texto"
+                          value={data.estadisticas?.items?.[0]?.etiqueta || ''}
+                          onChange={e => actualizarCifra(0, 'etiqueta', e.target.value)}
+                          placeholder="Cursos dictados"
+                        />
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, marginBottom: 8 }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          aria-label="Cifra 2: valor"
+                          value={data.estadisticas?.items?.[1]?.valor || ''}
+                          onChange={e => actualizarCifra(1, 'valor', e.target.value)}
+                          placeholder="+3.600"
+                        />
+                        <input
+                          type="text"
+                          className="form-input"
+                          aria-label="Cifra 2: texto"
+                          value={data.estadisticas?.items?.[1]?.etiqueta || ''}
+                          onChange={e => actualizarCifra(1, 'etiqueta', e.target.value)}
+                          placeholder="Cursos dictados"
+                        />
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, marginBottom: 8 }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          aria-label="Cifra 3: valor"
+                          value={data.estadisticas?.items?.[2]?.valor || ''}
+                          onChange={e => actualizarCifra(2, 'valor', e.target.value)}
+                          placeholder="+3.600"
+                        />
+                        <input
+                          type="text"
+                          className="form-input"
+                          aria-label="Cifra 3: texto"
+                          value={data.estadisticas?.items?.[2]?.etiqueta || ''}
+                          onChange={e => actualizarCifra(2, 'etiqueta', e.target.value)}
+                          placeholder="Cursos dictados"
+                        />
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, marginBottom: 8 }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          aria-label="Cifra 4: valor"
+                          value={data.estadisticas?.items?.[3]?.valor || ''}
+                          onChange={e => actualizarCifra(3, 'valor', e.target.value)}
+                          placeholder="+3.600"
+                        />
+                        <input
+                          type="text"
+                          className="form-input"
+                          aria-label="Cifra 4: texto"
+                          value={data.estadisticas?.items?.[3]?.etiqueta || ''}
+                          onChange={e => actualizarCifra(3, 'etiqueta', e.target.value)}
+                          placeholder="Cursos dictados"
+                        />
+                      </div>
                   </div>
 
                   {/* Bloque 3: Sección Nuestra Propuesta */}
@@ -2423,7 +2629,7 @@ const { useState, useEffect, useRef } = React;
                           ...prev,
                           inscripciones: { ...prev.inscripciones, requisitoGeneral: e.target.value }
                         }))}
-                        placeholder="Ej: Presentar 4 fotocopias del DNI y la constancia de estudios requerida..."
+                        placeholder="Ej: Presentar fotocopia del DNI y la constancia de estudios requerida..."
                       />
                     </div>
                   </div>
@@ -2473,7 +2679,7 @@ const { useState, useEffect, useRef } = React;
                               header: { ...(prev.nosotros?.header || {}), titulo: e.target.value }
                             }
                           }))}
-                          placeholder="Ej: Más de cuatro décadas formando trabajadores"
+                          placeholder="Ej: Más de cuatro décadas formando en oficios"
                         />
                       </div>
                     </div>
@@ -2599,6 +2805,21 @@ const { useState, useEffect, useRef } = React;
                     <h3 style={{ margin: '0 0 16px', fontSize: 18, color: 'var(--blue-900)', display: 'flex', alignItems: 'center', gap: 8 }}>
                       <i data-lucide="handshake" style={{ width: 18 }}></i> Tarjeta Red de CFP / Convenio (Body Tarjeta)
                     </h3>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', marginBottom: 14, padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
+                      <input
+                        type="checkbox"
+                        checked={data.nosotros?.redUocra?.visible !== false}
+                        onChange={e => updateData(prev => ({
+                          ...prev,
+                          nosotros: {
+                            ...prev.nosotros,
+                            redUocra: { ...(prev.nosotros?.redUocra || {}), visible: e.target.checked }
+                          }
+                        }))}
+                      />
+                      Mostrar esta tarjeta en la página Nosotros
+                      <span style={{ fontWeight: 400, fontSize: 12, color: 'var(--neutral-500)' }}>(si se desmarca, se oculta sin borrar el texto)</span>
+                    </label>
                     <div className="form-group">
                       <label className="form-label">Título de la Tarjeta</label>
                       <input
@@ -2891,7 +3112,7 @@ const { useState, useEffect, useRef } = React;
                           ...prev,
                           contacto: { ...prev.contacto, atencion: e.target.value }
                         }))}
-                        placeholder="Lunes a viernes de 9 a 22 hs"
+                        placeholder="Lunes a viernes de 9 a 20 hs"
                       />
                     </div>
                     <div className="form-group">

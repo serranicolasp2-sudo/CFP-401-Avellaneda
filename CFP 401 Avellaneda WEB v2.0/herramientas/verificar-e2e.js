@@ -153,6 +153,9 @@ async function main() {
     const errores = [];
     page.on('pageerror', e => errores.push(e.message));
     await page.goto(`${BASE}/admin.html`, { waitUntil: 'networkidle' });
+    // Desde el 14/10/2026 el ingreso pide además el nombre del operador (auditoría de cambios)
+    const operador = page.locator('.form-group:has(> label:text-is("Operador / Nombre de usuario")) input');
+    if (await operador.count()) await operador.fill('Prueba e2e');
     await page.fill('input[type="password"]', clave);
     await page.click('button[type="submit"]');
     await page.locator('.admin-nav-item', { hasText: 'Promo' }).first().click();
@@ -181,6 +184,9 @@ async function main() {
     ok(p1 && p1.horarioOverride === antes.horarioOverride && p1.requisitoOverride === antes.requisitoOverride && p1.sedeOverride === antes.sedeOverride, 'No toca horario, requisito ni sede');
     ok(p1 && p1.fondo === antes.fondo && p1.fechaCreacion === antes.fechaCreacion && p1.cursoNombre === antes.cursoNombre, 'Conserva fondo, fecha de creación y titular', p1 && `${p1.fondo} · ${p1.fechaCreacion} · ${p1.cursoNombre}`);
     ok(p1 && /^fnv1a-[0-9a-f]{8}$/.test(p1.huellaCurso || ''), 'Guarda la huella del curso', p1 && p1.huellaCurso);
+    // Cifras institucionales (14/10/2026): el panel las agrega a data.js con los valores vigentes si faltan
+    const cifrasGuardadas = guardado.estadisticas;
+    ok(cifrasGuardadas && Array.isArray(cifrasGuardadas.items) && cifrasGuardadas.items.length === 4 && cifrasGuardadas.items[1].valor === '+36.000', 'Cifras institucionales: el panel las guarda en data.js (2 × 2, editables)', cifrasGuardadas && JSON.stringify(cifrasGuardadas.items.map(i => i.valor)));
 
     // Caso 2: editar la promo desactualizada
     await tarjetaAux.getByRole('button', { name: /Editar/ }).click();
@@ -214,6 +220,39 @@ async function main() {
     guardado = await espera;
     const p3 = guardado.promociones.find(p => p.modelo === 'aviso-primaria-v1');
     ok(p3 && p3.textos && p3.textos.selloNumero === '20' && /tematicas\/primaria\//.test(p3.imagen || '') && !p3.cursoSlug, 'Aviso Primaria: se guarda con su texto editado, su foto y sin curso', p3 && JSON.stringify({ sello: p3.textos.selloNumero, imagen: p3.imagen }));
+    // Caso 4: logo propio para la cinta amarilla (PNG transparente subido desde el panel)
+    {
+      const logo = new PNG({ width: 300, height: 48 });
+      for (let i = 0; i < logo.data.length; i += 4) { const x = (i / 4) % 300; logo.data[i] = 0; logo.data[i + 1] = 40; logo.data[i + 2] = 120; logo.data[i + 3] = x < 150 ? 255 : 0; }
+      await page.locator('.admin-nav-item', { hasText: 'Portada' }).first().click();
+      await page.locator('label', { hasText: 'Subir otro logo' }).first().locator('input[type="file"]').setInputFiles({ name: 'logo-prueba.png', mimeType: 'image/png', buffer: PNG.sync.write(logo) });
+      await page.waitForFunction(() => /Logo propio: assets\//.test(document.body.innerText), null, { timeout: 15000 }).catch(() => {});
+      espera = enviado();
+      await page.getByRole('button', { name: /Guardar en Servidor/ }).click();
+      guardado = await espera;
+      const ruta = guardado.home && guardado.home.cintaAmarilla && guardado.home.cintaAmarilla.logoAmarilla;
+      ok(/^assets\/foto-\d+-logo-prueba\.png$/.test(ruta || ''), 'Logo de la cinta: el panel sube un logo propio y lo guarda en data.js', ruta);
+      const archivo = ruta && path.join(T, 'site', ruta);
+      const subido = archivo && fs.existsSync(archivo) ? PNG.sync.read(fs.readFileSync(archivo)) : null;
+      ok(subido && subido.data[(10 * 300 + 250) * 4 + 3] === 0 && subido.data[(10 * 300 + 50) * 4 + 3] === 255, 'Logo de la cinta: el PNG conserva la transparencia');
+      const pubLogo = await browser.newPage();
+      await pubLogo.goto(`${BASE}/index.html`, { waitUntil: 'networkidle' });
+      const src = await pubLogo.locator('.cfp-cinta-logo img').first().getAttribute('src').catch(() => null);
+      ok(src === ruta, 'Logo de la cinta: el sitio público muestra el logo nuevo', src);
+      await pubLogo.close();
+    }
+    // Auditoría de operador: el nombre llega al encabezado de data.js y al registro de cambios
+    ok(/Operador \/ Usuario: Prueba e2e/.test(fs.readFileSync(dataFile, 'utf8')), 'Auditoría: el nombre del operador queda en el encabezado de data.js');
+    const registro = path.join(T, 'site', 'api', 'backups', 'registro-cambios.log');
+    ok(fs.existsSync(registro) && /Operador: Prueba e2e/.test(fs.readFileSync(registro, 'utf8')), 'Auditoría: el guardado queda en api/backups/registro-cambios.log');
+    // Un nombre de operador con "*/" no puede cerrar el comentario de data.js e inyectar código en el sitio público
+    {
+      const r = await fetch(`${BASE}/api/guardar.php`, { method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: cookie }, body: JSON.stringify({ data: leerData(dataFile), usuario: 'x */ window.__inyectado = 1; /*' }) });
+      const sb = { window: {} };
+      let ejecuta = true;
+      try { vm.runInNewContext(fs.readFileSync(dataFile, 'utf8'), sb); ejecuta = sb.window.__inyectado === 1; } catch (_) { ejecuta = true; }
+      ok(r.status === 200 && !ejecuta, 'Auditoría: un nombre de operador con "*/" no inyecta código en data.js', `HTTP ${r.status}`);
+    }
     ok(errores.length === 0, 'Sin errores de JavaScript en el panel', errores.join(' | '));
 
     // ── Sitio público: la copia guardada carga sin errores

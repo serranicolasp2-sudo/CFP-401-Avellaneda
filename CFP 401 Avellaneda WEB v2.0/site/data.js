@@ -1,6 +1,7 @@
 /* ===========================================================================
    CFP N° 401 AVELLANEDA — CONTENIDOS EDITABLES DEL SITIO (v2.0)
-   Generado desde el Panel de Administración: 2026-09-27 23:48:25
+   Generado desde el Panel de Administración: 2026-10-14 23:06:39
+   Operador / Usuario: Nico
    =========================================================================== */
 
 window.CFP_DATA = {
@@ -19,7 +20,7 @@ window.CFP_DATA = {
         "propuesta": {
             "subtitulo": "Nuestra propuesta",
             "titulo": "Aprendizajes que transforman",
-            "descripcion": "**\"FORMARSE ES APOSTAR AL FUTURO\"**\nPrácticas auténticas en talleres equipados y con docentes profesionales del oficio.\n**\"ACOMPAÑAMOS CADA PASO DE TU CRECIMIENTO\"**",
+            "descripcion": "**\"FORMARSE ES APOSTAR AL FUTURO\"**\nPrácticas auténticas en talleres equipados y con docentes profesionales del oficio.\nAcompañamos cada paso de tu crecimiento.",
             "tarjetas": [
                 {
                     "icono": "graduation-cap",
@@ -34,7 +35,7 @@ window.CFP_DATA = {
                 {
                     "icono": "wrench",
                     "titulo": "Talleres equipados",
-                    "descripcion": "Para prácticas en todos los oficios"
+                    "descripcion": "Para prácticas en todos los oficios."
                 }
             ]
         },
@@ -44,7 +45,7 @@ window.CFP_DATA = {
         "bannerInicio": "Inscripciones abiertas a partir del 15 de noviembre",
         "estado": "Inscripciones cerradas por el momento",
         "periodos": "Hay dos períodos de inscripción por año: de noviembre a febrero para los cursos que comienzan en marzo, y durante junio y julio para los que comienzan en agosto.",
-        "requisitoGeneral": "Presentar 4 fotocopias del DNI y la constancia de estudios requerida por el curso.",
+        "requisitoGeneral": "Presentar fotocopia del DNI y la constancia de estudios requerida por el curso.",
         "horarioAtencion": "Lunes a viernes de 9 a 20 hs",
         "cintaCursos": {
             "visible": true,

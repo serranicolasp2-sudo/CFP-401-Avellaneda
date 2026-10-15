@@ -62,9 +62,11 @@ img{max-width:100%}
    su proporción real es 1,34:1). Sólo se nota en pantallas angostas. */
 .cfp-arc-stage img, .cfp-vuelo img{max-width:none}
 
-/* Superposición de fotos sobre el isotipo del hero (§Pedido Directora) */
-.cfp-lens{z-index:2!important}
-.cfp-arc-stage{z-index:1!important}
+/* Superposición de fotos sobre el isotipo del hero solo en escritorio (§Pedido Directora) */
+@media (min-width: 981px){
+  .cfp-lens{z-index:2!important}
+  .cfp-arc-stage{z-index:1!important}
+}
 
 /* Tipografía de footer ligeramente más grande en PC (§Pedido Directora) */
 @media (min-width: 900px){
@@ -118,7 +120,7 @@ header nav a, header nav div>a{white-space:nowrap}
 /* 3. Hero. El bloque de texto traía 80 px de padding arriba y abajo.
       Se elimina el clipping y transform estático que causaba que el título desaparezca al scrollear en celular. */
 @media (max-width:760px){
-  section:has(.cfp-lens)>div:last-child{padding:var(--space-10) var(--gutter) var(--space-12)!important}
+  section:has(.cfp-lens)>div:last-child{padding:var(--space-10) var(--gutter) var(--space-12)!important;position:relative!important;z-index:3!important}
   .cfp-line-mask{overflow:visible!important}
   .cfp-line-in{transform:none!important;animation:none!important;opacity:1!important}
   h1{-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden;position:relative;z-index:2}
@@ -495,4 +497,4 @@ div[style*="z-index: 60"][style*="position: fixed"] div[style*="max-height: 420p
   </div>
 </noscript>
 
-<script src="plantillas-promo.js?v=a02eedca177f"></script><script src="app.js?v=6f305a46af22"></script></body></html>
+<script src="plantillas-promo.js?v=a02eedca177f"></script><script src="app.js?v=a92699fc94dc"></script></body></html>

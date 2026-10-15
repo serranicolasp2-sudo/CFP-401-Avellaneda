@@ -32,6 +32,8 @@ if (!$input || !isset($input['data'])) {
 
 $data = $input['data'];
 $usuario = isset($input['usuario']) && is_string($input['usuario']) ? trim(strip_tags($input['usuario'])) : 'Administrador';
+$usuario = preg_replace("/[^\p{L}\p{N} .,'()-]/u", '', $usuario);
+$usuario = function_exists('mb_substr') ? mb_substr(trim($usuario), 0, 40) : substr(trim($usuario), 0, 40);
 if (empty($usuario)) {
     $usuario = 'Administrador';
 }
@@ -130,7 +132,7 @@ if (isset($data['promociones'])) {
 
 // Convertir a estructura JavaScript limpia y legible
 $jsonString = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-$usuarioSeguro = addcslashes($usuario, "\0..\37\\\"");
+$usuarioSeguro = str_replace('*/', '* /', addcslashes($usuario, "\0..\37\\\""));
 $jsContent = "/* ===========================================================================\n"
            . "   CFP N° 401 AVELLANEDA — CONTENIDOS EDITABLES DEL SITIO (v2.0)\n"
            . "   Generado desde el Panel de Administración: " . date('Y-m-d H:i:s') . "\n"
