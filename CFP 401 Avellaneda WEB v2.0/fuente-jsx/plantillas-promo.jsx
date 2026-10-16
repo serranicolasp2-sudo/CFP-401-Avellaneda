@@ -346,7 +346,7 @@ function FlyerCursoV1({ promo, formato = 'feed', customRef }) {
             </div>
           </div>
 
-          {/* Círculo 100% GRATUITO (se puede ocultar) */}
+          {/* Círculo OFICIAL Y GRATUITO (se puede ocultar) */}
           {conSello && (
             <div style={{
               width: '24cqw',
@@ -361,7 +361,7 @@ function FlyerCursoV1({ promo, formato = 'feed', customRef }) {
               color: 'var(--brand-primary, #003890)',
               boxShadow: '0 0.6cqw 2cqw rgba(0,40,120,.18)'
             }}>
-              <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 800, fontSize: '6.6cqw', lineHeight: 1, letterSpacing: '-.03em' }}>{T.selloGrande}</div>
+              <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 800, fontSize: (T.selloGrande || '').length > 5 ? '3.8cqw' : '6.6cqw', lineHeight: 1, letterSpacing: (T.selloGrande || '').length > 5 ? '-.01em' : '-.03em' }}>{T.selloGrande}</div>
               <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 700, fontSize: '2.4cqw', letterSpacing: '.1em', marginTop: '.6cqw', textTransform: 'uppercase' }}>{T.selloChico}</div>
             </div>
           )}
@@ -516,7 +516,7 @@ function FlyerCursoV1Historia({ promo, customRef }) {
             </div>
             {conSello && (
               <div style={{ width: '25cqw', height: '25cqw', flex: 'none', borderRadius: '50%', background: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--brand-primary, #003890)', boxShadow: '0 0.74cqw 2.22cqw rgba(0,40,120,.18)' }}>
-                <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 800, fontSize: '7.04cqw', lineHeight: 1, letterSpacing: '-.03em' }}>{T.selloGrande}</div>
+                <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 800, fontSize: (T.selloGrande || '').length > 5 ? '4.1cqw' : '7.04cqw', lineHeight: 1, letterSpacing: (T.selloGrande || '').length > 5 ? '-.01em' : '-.03em' }}>{T.selloGrande}</div>
                 <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 700, fontSize: '2.59cqw', letterSpacing: '.1em', marginTop: '.74cqw', textTransform: 'uppercase' }}>{T.selloChico}</div>
               </div>
             )}
@@ -632,7 +632,7 @@ function PromoCursoV2({ promo, formato = 'feed', customRef }) {
             textAlign: 'center',
             clipPath: `polygon(0 0, 100% 0, 100% 100%, 50% ${M.cinta.punta}%, 0 100%)`
           }}>
-            <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 800, fontSize: M.cinta.grande + 'cqw', lineHeight: 1, letterSpacing: '-.03em' }}>{T.cintaGrande}</div>
+            <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 800, fontSize: ((T.cintaGrande || '').length > 5 ? (M.cinta.grande * 0.56) : M.cinta.grande) + 'cqw', lineHeight: 1, letterSpacing: (T.cintaGrande || '').length > 5 ? '-.01em' : '-.03em' }}>{T.cintaGrande}</div>
             <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 700, fontSize: M.cinta.chica + 'cqw', letterSpacing: '.12em', marginTop: M.cinta.separacion + 'cqw', textTransform: 'uppercase' }}>{T.cintaChica}</div>
           </div>
         )}
@@ -840,7 +840,7 @@ function InscripcionesV1({ promo, formato = 'feed', customRef }) {
               boxShadow: `${M.sello.sombra}cqw ${M.sello.sombra}cqw 0 var(--blue-900, #002878)`
             }}>
               {/* Adentro del sello, cqw es el ancho del sello */}
-              <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 800, fontSize: M.sello.grande + 'cqw', lineHeight: 1, letterSpacing: '-.03em' }}>{T.selloGrande}</div>
+              <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 800, fontSize: ((T.selloGrande || '').length > 5 ? (M.sello.grande * 0.55) : M.sello.grande) + 'cqw', lineHeight: 1, letterSpacing: (T.selloGrande || '').length > 5 ? '-.01em' : '-.03em' }}>{T.selloGrande}</div>
               <div style={{ fontFamily: FUENTE_DISPLAY, fontWeight: 700, fontSize: M.sello.chica + 'cqw', letterSpacing: '.1em', marginTop: M.sello.separacion + 'cqw', textTransform: 'uppercase' }}>{T.selloChico}</div>
             </div>
           )}
@@ -2030,7 +2030,7 @@ const CATALOGO_PLANTILLAS = {
       { clave: 'dias', etiqueta: 'Días', grupo: 'Cápsula amarilla', legado: 'diasOverride', defecto: p => (p.datosCurso || {}).dias || '' },
       { clave: 'etiquetaHorario', etiqueta: 'Rótulo de horario', grupo: 'Cápsula amarilla', defecto: 'HORARIO' },
       { clave: 'horario', etiqueta: 'Horario', grupo: 'Cápsula amarilla', legado: 'horarioOverride', defecto: p => (p.datosCurso || {}).horario || '' },
-      { clave: 'selloGrande', etiqueta: 'Círculo: texto grande', grupo: 'Cápsula amarilla', defecto: '100%' },
+      { clave: 'selloGrande', etiqueta: 'Círculo: texto grande', grupo: 'Cápsula amarilla', defecto: 'OFICIAL Y' },
       { clave: 'selloChico', etiqueta: 'Círculo: texto chico', grupo: 'Cápsula amarilla', defecto: 'GRATUITO' },
       { clave: 'etiquetaRequisito', etiqueta: 'Rótulo de requisito', grupo: 'Franja azul', defecto: 'REQUISITO' },
       { clave: 'requisito', etiqueta: 'Requisito', grupo: 'Franja azul', legado: 'requisitoOverride', defecto: p => (p.datosCurso || {}).requisito || 'Constancia de estudios primarios o superiores' },
@@ -2068,7 +2068,7 @@ const CATALOGO_PLANTILLAS = {
       { clave: 'cta', etiqueta: 'Llamado', grupo: 'Franja amarilla', defecto: '¡Inscribite ahora!' },
       { clave: 'sede', etiqueta: 'Sede', grupo: 'Franja amarilla', legado: 'sedeOverride', defecto: p => (p.datosCurso || {}).sede || 'Juan Pablo Angulo 1272, Dock Sud' },
       { clave: 'whatsapp', etiqueta: 'Número de WhatsApp', grupo: 'Franja amarilla', defecto: () => whatsappPromo() },
-      { clave: 'cintaGrande', etiqueta: 'Cinta: texto grande', grupo: 'Cinta', defecto: '100%' },
+      { clave: 'cintaGrande', etiqueta: 'Cinta: texto grande', grupo: 'Cinta', defecto: 'OFICIAL Y' },
       { clave: 'cintaChica', etiqueta: 'Cinta: texto chico', grupo: 'Cinta', defecto: 'GRATUITO' }
     ]
   },
@@ -2088,7 +2088,7 @@ const CATALOGO_PLANTILLAS = {
       { clave: 'linea1', etiqueta: 'Titular, línea blanca', grupo: 'Titular', defecto: 'INSCRIPCIONES' },
       { clave: 'linea2', etiqueta: 'Titular, línea amarilla', grupo: 'Titular', defecto: 'ABIERTAS' },
       { clave: 'bajada', etiqueta: 'Bajada', grupo: 'Titular', multilinea: true, defecto: 'Cursos de formación profesional con certificación oficial DGCyE.' },
-      { clave: 'selloGrande', etiqueta: 'Sello: texto grande', grupo: 'Sello', defecto: '100%' },
+      { clave: 'selloGrande', etiqueta: 'Sello: texto grande', grupo: 'Sello', defecto: 'OFICIAL Y' },
       { clave: 'selloChico', etiqueta: 'Sello: texto chico', grupo: 'Sello', defecto: 'GRATUITO' },
       { clave: 'dato1Label', etiqueta: 'Rótulo del dato 1', grupo: 'Pie', defecto: 'INSCRIPCIÓN' },
       { clave: 'dato1', etiqueta: 'Dato 1', grupo: 'Pie', defecto: () => fechaInscripcionPromo() },

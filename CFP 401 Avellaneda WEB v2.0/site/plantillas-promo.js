@@ -474,9 +474,9 @@ function FlyerCursoV1({
     style: {
       fontFamily: FUENTE_DISPLAY,
       fontWeight: 800,
-      fontSize: '6.6cqw',
+      fontSize: (T.selloGrande || '').length > 5 ? '3.8cqw' : '6.6cqw',
       lineHeight: 1,
-      letterSpacing: '-.03em'
+      letterSpacing: (T.selloGrande || '').length > 5 ? '-.01em' : '-.03em'
     }
   }, T.selloGrande), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -903,9 +903,9 @@ function FlyerCursoV1Historia({
     style: {
       fontFamily: FUENTE_DISPLAY,
       fontWeight: 800,
-      fontSize: '7.04cqw',
+      fontSize: (T.selloGrande || '').length > 5 ? '4.1cqw' : '7.04cqw',
       lineHeight: 1,
-      letterSpacing: '-.03em'
+      letterSpacing: (T.selloGrande || '').length > 5 ? '-.01em' : '-.03em'
     }
   }, T.selloGrande), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1305,9 +1305,9 @@ function PromoCursoV2({
     style: {
       fontFamily: FUENTE_DISPLAY,
       fontWeight: 800,
-      fontSize: M.cinta.grande + 'cqw',
+      fontSize: ((T.cintaGrande || '').length > 5 ? M.cinta.grande * 0.56 : M.cinta.grande) + 'cqw',
       lineHeight: 1,
-      letterSpacing: '-.03em'
+      letterSpacing: (T.cintaGrande || '').length > 5 ? '-.01em' : '-.03em'
     }
   }, T.cintaGrande), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1885,9 +1885,9 @@ function InscripcionesV1({
     style: {
       fontFamily: FUENTE_DISPLAY,
       fontWeight: 800,
-      fontSize: M.sello.grande + 'cqw',
+      fontSize: ((T.selloGrande || '').length > 5 ? M.sello.grande * 0.55 : M.sello.grande) + 'cqw',
       lineHeight: 1,
-      letterSpacing: '-.03em'
+      letterSpacing: (T.selloGrande || '').length > 5 ? '-.01em' : '-.03em'
     }
   }, T.selloGrande), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -3525,7 +3525,7 @@ const CATALOGO_PLANTILLAS = {
       clave: 'selloGrande',
       etiqueta: 'Círculo: texto grande',
       grupo: 'Cápsula amarilla',
-      defecto: '100%'
+      defecto: 'OFICIAL Y'
     }, {
       clave: 'selloChico',
       etiqueta: 'Círculo: texto chico',
@@ -3666,7 +3666,7 @@ const CATALOGO_PLANTILLAS = {
       clave: 'cintaGrande',
       etiqueta: 'Cinta: texto grande',
       grupo: 'Cinta',
-      defecto: '100%'
+      defecto: 'OFICIAL Y'
     }, {
       clave: 'cintaChica',
       etiqueta: 'Cinta: texto chico',
@@ -3710,7 +3710,7 @@ const CATALOGO_PLANTILLAS = {
       clave: 'selloGrande',
       etiqueta: 'Sello: texto grande',
       grupo: 'Sello',
-      defecto: '100%'
+      defecto: 'OFICIAL Y'
     }, {
       clave: 'selloChico',
       etiqueta: 'Sello: texto chico',

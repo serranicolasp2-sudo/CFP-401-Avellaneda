@@ -343,15 +343,15 @@ const { useState, useEffect, useRef } = React;
     /* Paso 4: elementos que se pueden ocultar en las plantillas nuevas */
     function OpcionesPromo({ promo, setPromo }) {
       const opciones = {
-        'apertura-inscripciones-v1': [['mostrarSello', 'Sello (100% gratuito)'], ['mostrarFamilias', 'Familias de oficios']],
-        'flyer-curso-v2': [['mostrarCinta', 'Cinta (100% gratuito)']],
+        'apertura-inscripciones-v1': [['mostrarSello', 'Sello (Oficial y gratuito)'], ['mostrarFamilias', 'Familias de oficios']],
+        'flyer-curso-v2': [['mostrarCinta', 'Cinta (Oficial y gratuito)']],
         'captacion-oficios-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
         'ultimos-cupos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
         'conmemoraciones-patrias-v1': [['mostrarCuadricula', 'Cuadrícula sobre la foto']],
         'grilla-cursos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
         'aviso-primaria-v1': [['mostrarSello', 'Sello de fecha límite'], ['mostrarExtranjero', 'Recuadro para extranjeros']],
         'actividad-institucional-v1': [['mostrarArco', 'Arco de fondo (marca de agua)']]
-      }[promo.modelo] || [['mostrarSello', 'Círculo (100% gratuito)']];
+      }[promo.modelo] || [['mostrarSello', 'Círculo (Oficial y gratuito)']];
       return (
         <div>
           <label className="form-label" style={{ marginBottom: 4 }}>Mostrar</label>
@@ -510,7 +510,7 @@ const { useState, useEffect, useRef } = React;
           antetitulo: 'CURSO · FORMACIÓN PROFESIONAL',
           frase: 'ES TU TIEMPO\nDE APRENDER',
           cta: '¡INSCRIBITE\nAHORA!',
-          selloGrande: '100%',
+          selloGrande: 'OFICIAL Y',
           selloChico: 'GRATUITO'
         }
       },
@@ -533,7 +533,7 @@ const { useState, useEffect, useRef } = React;
         },
         textos: {
           cta: '¡Inscribite ahora!',
-          cintaGrande: '100%',
+          cintaGrande: 'OFICIAL Y',
           cintaChica: 'GRATUITO'
         }
       },
@@ -553,7 +553,7 @@ const { useState, useEffect, useRef } = React;
           linea1: 'INSCRIPCIONES',
           linea2: 'ABIERTAS',
           bajada: 'Cursos de formación profesional con certificación oficial DGCyE en Dock Sud.',
-          selloGrande: '100%',
+          selloGrande: 'OFICIAL Y',
           selloChico: 'GRATUITO',
           dato1Label: 'INSCRIPCIÓN',
           dato1: 'Abiertas',

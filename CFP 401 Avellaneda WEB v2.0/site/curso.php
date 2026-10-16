@@ -108,7 +108,7 @@ if ($cursoEncontrado) {
           <?php if (!empty($cursoEncontrado['requisitos'])): ?><span>📋 <strong>Requisitos:</strong> <?php echo htmlspecialchars($cursoEncontrado['requisitos'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
         </div>
         <p><?php echo nl2br(htmlspecialchars($descRaw, ENT_QUOTES, 'UTF-8')); ?></p>
-        <p><strong>Certificación oficial:</strong> Todos los cursos otorgan certificado oficial de la DGCyE PBA y son 100% gratuitos.</p>
+        <p><strong>Certificación oficial:</strong> Todos los cursos otorgan certificado oficial de la DGCyE PBA y son oficiales y gratuitos.</p>
         <a class="btn" href="index.html#/curso/<?php echo urlencode($slug); ?>">Ver curso completo en el sitio</a>
       <?php else: ?>
         <h1>Curso no encontrado</h1>

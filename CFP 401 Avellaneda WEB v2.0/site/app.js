@@ -851,7 +851,7 @@ function SiteNavBar({
           fontSize: 12,
           color: 'var(--blue-900)'
         }
-      }, /*#__PURE__*/React.createElement("span", null, "Todos los cursos otorgan ", /*#__PURE__*/React.createElement("strong", null, "certificación oficial y son 100% gratuitos"), "."), /*#__PURE__*/React.createElement("a", {
+      }, /*#__PURE__*/React.createElement("span", null, "Todos los cursos otorgan ", /*#__PURE__*/React.createElement("strong", null, "certificación oficial y son gratuitos"), "."), /*#__PURE__*/React.createElement("a", {
         href: WHATSAPP_URL,
         target: "_blank",
         rel: "noopener",
@@ -1718,7 +1718,7 @@ function CourseDetailScreen({
       color: 'rgba(255,255,255,0.8)',
       marginTop: 4
     }
-  }, "Certificación Oficial DGCyE Provincia de Buenos Aires • 100% Gratuito")), /*#__PURE__*/React.createElement("div", {
+  }, "Certificación Oficial DGCyE Provincia de Buenos Aires • Oficial y Gratuito")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 10,

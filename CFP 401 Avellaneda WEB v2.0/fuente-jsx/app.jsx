@@ -719,7 +719,7 @@ function SiteNavBar({ active, onNavigate, assetBase = 'assets', cta }) {
                           fontSize: 12,
                           color: 'var(--blue-900)'
                         }}>
-                          <span>Todos los cursos otorgan <strong>certificación oficial y son 100% gratuitos</strong>.</span>
+                          <span>Todos los cursos otorgan <strong>certificación oficial y son gratuitos</strong>.</span>
                           <a href={WHATSAPP_URL} target="_blank" rel="noopener" style={{ color: 'var(--brand-primary)', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
                             <Icon name="message-circle" size={14} /> Consultar por WhatsApp
                           </a>
@@ -1222,7 +1222,7 @@ function CourseDetailScreen({ course, onNavigate, onInscripcion }) {
               {course.sede || 'Juan Pablo Angulo 1272, Dock Sud'}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-              Certificación Oficial DGCyE Provincia de Buenos Aires • 100% Gratuito
+              Certificación Oficial DGCyE Provincia de Buenos Aires • Oficial y Gratuito
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
