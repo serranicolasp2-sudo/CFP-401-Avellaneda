@@ -14,6 +14,7 @@
 4. Llevá una bitácora en `BITACORA.md` (en la raíz del proyecto nuevo): fecha, fase, qué se hizo, qué se verificó y cómo, qué queda pendiente. Mismo estilo de commits que el repo actual (`feat:`, `fix:`, `docs:`, en español).
 5. **Nunca** escribas contraseñas, claves ni tokens en archivos versionados, en la bitácora o en el chat.
 6. Usá las **versiones estables vigentes** de cada librería al momento de implementar y fijalas en `package.json` (sin `^`). Los modelos de IA, tamaños de redes y cuotas gratuitas **cambian**: verificalos en la documentación oficial y dejalos configurables (Remote Config o JSON de presets), nunca grabados en el código.
+7. **Costo cero:** no agregues ningún servicio, API ni librería que pida tarjeta de crédito o plan pago (ver 1.1). Si algo solo existe pago, proponé una alternativa gratuita o dejalo afuera y anotalo en la bitácora.
 
 ---
 
@@ -30,6 +31,21 @@
 
 Objetivo de calidad: que **cualquier persona**, aunque nunca haya diseñado, obtenga una pieza **reconocible como CFP 401, con datos correctos y lista para publicar**, y que el equipo mantenga **consistencia visual impecable** en todas las plataformas.
 
+### 1.1 Costo cero (regla del proyecto)
+
+**Todo tiene que ser gratis y seguir siéndolo.** Ningún servicio se da de alta con tarjeta de crédito: sin tarjeta cargada nadie puede cobrar nada, y si se llega a un límite gratuito el servicio se frena hasta que se renueva (al día o al mes siguiente), pero no factura.
+
+**¿Qué es Firebase?** Un servicio de Google que funciona como la "nube" de la app: guarda los diseños, el calendario y las ideas, los sincroniza en tiempo real entre todas las PCs de la escuela y resuelve el inicio de sesión con cuentas de Google. Tiene un **plan gratuito (Spark)** que no pide tarjeta y alcanza para una escuela.
+
+| Servicio | Para qué | Costo |
+|---|---|---|
+| Firebase **Spark**: Auth, Firestore, Realtime Database, Remote Config | Inicio de sesión, datos, sincronización, presencia, configuración | Gratis, sin tarjeta. Límites de Firestore: 1 GiB guardado, 50.000 lecturas y 20.000 escrituras por día (verificar los vigentes) |
+| Gemini vía Firebase AI Logic (Gemini Developer API) | IA | Nivel gratuito, con límite de uso por minuto y por día |
+| GitHub | Código y versiones | Gratis |
+| Hosting Ferozo de la escuela | Actualizaciones automáticas | Ya se paga hoy; no suma costo |
+| Electron, React, Redux Toolkit, FFmpeg, Poppins y Source Sans 3 | Software y fuentes | Libres y gratuitos |
+| **No se usan:** plan Blaze, Firebase Storage, Cloud Functions, firma de código, API de X, generación de imágenes paga | — | Son pagos |
+
 ---
 
 ## 2. Decisión de stack: React Native vs. la propuesta
@@ -39,7 +55,7 @@ El pedido original menciona React Native. **Es posible** (existe React Native fo
 | Criterio | React Native for Windows | **Electron + React (recomendado)** |
 |---|---|---|
 | Reutilizar las plantillas actuales (HTML/CSS verificadas por píxeles) | ❌ No hay DOM ni CSS: habría que redibujar todo o meter un WebView2 igual | ✅ Se reutilizan los mismos CSS de `Sistema de Diseño/Promociones y Redes/templates/` y los componentes JSX del panel |
-| Firebase con caché offline | ❌ `@react-native-firebase` **no soporta Windows**; el SDK web no tiene IndexedDB en RN Windows | ✅ SDK web completo: Firestore con caché persistente, Auth, Storage, Remote Config, AI Logic |
+| Firebase con caché offline | ❌ `@react-native-firebase` **no soporta Windows**; el SDK web no tiene IndexedDB en RN Windows | ✅ SDK web completo: Firestore con caché persistente, Auth, Remote Config, AI Logic |
 | Video (FFmpeg), archivos, render de PNG/PDF | ⚠️ Requiere módulos nativos en C++/C# | ✅ `ffmpeg-static`, `capturePage`, `printToPDF`, `sharp` |
 | Instalar en PCs de la escuela sin admin | ⚠️ MSIX: exige certificado y permitir sideloading | ✅ Instalador NSIS por usuario (sin admin) + `.exe` portable |
 | Ecosistema y mantenimiento por otros | Chico | Enorme, mucha documentación |
@@ -91,10 +107,10 @@ El pedido original menciona React Native. **Es posible** (existe React Native fo
                                 │
           ┌─────────────────────┼─────────────────────────────┐
           ▼                     ▼                             ▼
-   Firebase (proyecto CFP)   Gemini (Google)          Sitio cfp401avellaneda.com.ar
-   Auth · Firestore ·        vía Firebase AI Logic    data.js (catálogo de cursos)
-   Storage · RTDB (presencia)                         + carpeta de actualizaciones
-   Remote Config
+   Firebase plan Spark       Gemini (Google)          Sitio cfp401avellaneda.com.ar
+   (gratis, sin tarjeta)     vía Firebase AI Logic    data.js (catálogo de cursos)
+   Auth · Firestore ·        nivel gratuito           + carpeta de actualizaciones
+   RTDB (presencia) · Remote Config
 ```
 
 ### 4.2 Monorepo (npm workspaces)
@@ -141,7 +157,7 @@ estudio-cfp401/
 | Estado | **Redux Toolkit** + **RTK Query** + `createListenerMiddleware` + `createEntityAdapter` | Firestore en tiempo real con `queryFn` + `onCacheEntryAdded` |
 | Deshacer/rehacer | parches de Immer (`produceWithPatches`) en el slice del editor | Historial de 100 pasos |
 | Validación | Zod (+ `zod-to-json-schema` para la salida estructurada de Gemini) | |
-| Backend | Firebase: Auth (Google), Firestore (caché persistente), Storage, Realtime Database (solo presencia), Remote Config, **AI Logic** | |
+| Backend | Firebase **plan Spark (gratis)**: Auth (Google), Firestore (caché persistente), Realtime Database (solo presencia), Remote Config, **AI Logic** | Sin Storage ni Cloud Functions (exigen plan pago) |
 | IA | Gemini (modelo Flash para tareas rápidas, Pro para planificación y plantillas), IDs en Remote Config | |
 | Render de piezas | `BrowserWindow` offscreen + `capturePage` / `printToPDF`; `sharp` para WebP/AVIF/redimensionado | |
 | Video | `ffmpeg-static` + `ffprobe-static`; motor de motion propio basado en `frame` | Ver 7.6 |
@@ -168,7 +184,8 @@ estudio-cfp401/
 | `posts/{id}` | entrada del calendario: título, pilar, campaña, plataformas, `scheduledAt` por plataforma, `status` (`idea` → `borrador` → `en_revision` → `aprobado` → `programado` → `publicado` → `medido`), diseños, copy/hashtags/alt por plataforma, responsable, aprobaciones, métricas |
 | `ideas/{id}` | texto, origen (`persona` · `ia`), pilar, votos, convertida en `postId` |
 | `campaigns/{id}` | p. ej. "Inscripciones marzo": fechas, objetivos, plataformas |
-| `assets/{id}` | ruta en Storage, tipo, dimensiones, etiquetas (curso, sede, tema), `consentimiento` (`si` · `no` · `no_aplica`), fuente, autor |
+| `assets/{id}` | tipo, dimensiones, etiquetas (curso, sede, tema), `consentimiento` (`si` · `no` · `no_aplica`), fuente, autor |
+| `assetBlobs/{id}` | la foto comprimida (WebP, máx. 1600 px de lado, < 600 KB) en base64; se descarga una vez por PC y queda en caché |
 | `notifications/{uid}/items/{id}` | tipo, texto, enlace interno, `read`, `createdAt` |
 | `usage/{uid_yyyymmdd}` | contador de llamadas a IA por usuario y día |
 | `activity/{id}` | registro de acciones (quién aprobó, exportó, publicó) |
@@ -183,12 +200,14 @@ estudio-cfp401/
 - `notifications/{uid}`: el dueño lee/marca; otros solo pueden **crear** ítems con campos limitados.
 - Todas las reglas con **pruebas automáticas** contra el emulador (Fase 1).
 
-### 6.3 Storage y Realtime Database
+### 6.3 Archivos sin costo (sin Firebase Storage)
 
-- Storage: `assets/`, `exports/` (con regla de ciclo de vida: borrar renders de más de 90 días), `templates/thumbnails/`. Subidas reanudables (`uploadBytesResumable`).
-- ❓ **Storage requiere plan Blaze** en proyectos nuevos (verificar en la documentación vigente). Ver decisión D2.
-- Los **másters de video** pesados no se suben por defecto: quedan locales o en Google Drive institucional (decisión D3). A Firebase solo van los exportes finales y miniaturas.
-- Realtime Database solo para **presencia** ("Ana está editando esta pieza"), por su `onDisconnect`.
+Firebase Storage y Cloud Functions exigen el plan pago (Blaze), así que **no se usan**. En su lugar:
+- **Fotos nuevas:** se comprimen en la PC (WebP, máx. 1600 px, < 600 KB) y se guardan en `assetBlobs/` de Firestore. Con 1 GiB gratis entran unas 1.500 fotos; la app muestra el espacio usado y avisa al 80 %.
+- **Plantillas, logos, fuentes y fototeca curada:** vienen dentro del instalador; no ocupan la nube.
+- **Exportes (PNG, PDF, MP4):** se generan y quedan en la PC; no se suben. En la nube se comparte el **diseño** (un JSON liviano), así cualquier PC lo vuelve a exportar idéntico.
+- **Videos y másters pesados:** quedan en la PC. Para pasarlos entre personas, usar a mano la carpeta de Google Drive de la escuela. Una integración automática con Drive solo se agrega si se verifica que es gratis y simple (ADR).
+- **Realtime Database** solo para **presencia** ("Ana está editando esta pieza"), por su `onDisconnect`.
 
 ---
 
@@ -248,7 +267,7 @@ Dos tipos, misma interfaz para quien la usa:
 ### 7.3 Editor
 - **Modo simple (por defecto):** panel de campos a la izquierda (con autocompletado desde el catálogo de cursos), lienzo al centro, **todas las variantes de formato a la vista** a la derecha. Clic en un texto del lienzo para editarlo. Selector de foto con búsqueda por curso/tema.
 - **Modo avanzado (plantillas `spec`):** mover/redimensionar capas (`react-moveable`), alinear a la grilla de 4 px, capas, bloqueo.
-- **Autoguardado en cada edición:** `listenerMiddleware` con *debounce* de 800 ms → escritura en Firestore (que persiste local primero, aun sin conexión). Indicador "Guardado hace 2 s" / "Guardado en esta PC, se sincroniza al volver la conexión".
+- **Autoguardado en cada edición:** cada cambio se guarda **al instante en la PC** (borrador local). La sincronización con Firestore se agrupa con `listenerMiddleware` (tras 3 s sin cambios o cada 30 s como máximo, solo los campos modificados) para no gastar el límite gratuito de escrituras diarias. Indicador "Guardado hace 2 s" / "Guardado en esta PC, se sincroniza al volver la conexión".
 - **Historial:** deshacer/rehacer (Ctrl+Z / Ctrl+Y), versiones restaurables, recuperación tras cierre inesperado.
 - **Colaboración:** presencia en vivo; edición simultánea con "último cambio gana" **por campo** y aviso visible si otra persona modificó el mismo campo.
 - **Fondo del lienzo neutro e independiente del tema** de la app (los colores de la pieza se juzgan siempre igual).
@@ -336,13 +355,13 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
 - **Recordatorios programados** calculados localmente a partir de los posts asignados (24 h y 1 h antes de publicar), así no hacen falta Cloud Functions.
 - **Eventos:** asignación, pedido de revisión, aprobación/rechazo, mención, comentario, efeméride en 7 días, resumen semanal (lunes 9 hs), idea de la semana de la IA.
 - **Preferencias por usuario:** qué recibir, horario de silencio, sonido.
-- **Push al celular:** Fase 9 (Expo + FCM + Cloud Functions, requiere Blaze).
+- **Push al celular:** descartado, porque necesita Cloud Functions (pago). Si se hace la app móvil, muestra los avisos al abrirla.
 
 ### 7.10 Sin conexión y caché local
 - Firestore con `persistentLocalCache` + `persistentMultipleTabManager`.
 - **Incluido en el instalador:** plantillas, fuentes, logos, fototeca curada y la base de conocimiento de la IA → diseñar y exportar funciona 100 % sin internet.
 - Caché de assets descargados en `%APPDATA%/EstudioCFP401/cache` con LRU y tope configurable (2 GB por defecto).
-- **Bandeja de salida** para subidas a Storage que se reanudan al volver la conexión.
+- **Bandeja de salida** para fotos nuevas: se suben solas al volver la conexión.
 - Banner de estado: "Sin conexión — tus cambios se guardan en esta PC y se sincronizan al volver".
 - **Modo PC compartida:** al cerrar sesión se limpia la caché de Firestore y los borradores locales del usuario.
 
@@ -369,9 +388,9 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
   - `packages/media` (EDL → argumentos de FFmpeg): ≥ 90 %, con *snapshots* de comandos.
   - `packages/ai`: constructores de prompts, validación y reintentos con el modelo simulado.
   - Slices y listeners de Redux; componentes con React Testing Library.
-  - **Reglas de Firestore/Storage** con emuladores + `@firebase/rules-unit-testing`.
+  - **Reglas de Firestore y Realtime Database** con emuladores + `@firebase/rules-unit-testing`.
 - **Además de Jest:** Playwright con Electron para flujos de punta a punta y **regresión visual** de cada plantilla contra las piezas aprobadas (umbral 0,1 %).
-- **CI (GitHub Actions, `windows-latest`):** lint → typecheck → Jest → pruebas de reglas (emuladores, requiere Java) → build. En cada tag `vX.Y.Z`: instalador + portable, publicación en GitHub Releases y subida por FTP a la carpeta de actualizaciones del sitio (credenciales en *secrets*).
+- **CI (GitHub Actions, `windows-latest`, gratis: los repos privados tienen 2.000 minutos por mes y Windows cuenta doble, así que el instalador se compila solo en tags):** lint → typecheck → Jest → pruebas de reglas (emuladores, requiere Java) → build. En cada tag `vX.Y.Z`: instalador + portable, publicación en GitHub Releases y subida por FTP a la carpeta de actualizaciones del sitio (credenciales en *secrets*).
 - **ADRs** en `docs/adr/` para cada decisión técnica relevante (stack, IA, motion, almacenamiento).
 
 ---
@@ -381,7 +400,7 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
 - **Instalador NSIS por usuario** (no pide permisos de administrador, se instala en `%LOCALAPPDATA%`) y **versión portable** (USB o carpeta de red).
 - **Requisitos mínimos:** Windows 10 (1809+) u 11, 64 bits, 4 GB de RAM (8 GB recomendados para video), 2 GB libres. ❓ **Electron actual no funciona en Windows 7/8**: relevar las PCs (decisión D6).
 - **Actualizaciones automáticas** con `electron-updater` (proveedor `generic`) desde `https://cfp401avellaneda.com.ar/estudio/actualizaciones/` (verificar ruta y que el servidor sirva `.exe` y `.yml`).
-- **Firma de código:** sin firma en la v1 → Windows SmartScreen muestra "Windows protegió su PC" la primera vez ("Más información" → "Ejecutar de todas formas"); explicarlo en el manual con capturas. Opción futura: Azure Trusted Signing.
+- **Firma de código:** sin firma en la v1 → Windows SmartScreen muestra "Windows protegió su PC" la primera vez ("Más información" → "Ejecutar de todas formas"); explicarlo en el manual con capturas. La firma de código es paga, así que queda descartada.
 - **Red de la escuela:** verificar que el firewall no bloquee `*.googleapis.com`, `*.firebaseio.com`, `firebasestorage.googleapis.com` ni `cfp401avellaneda.com.ar`.
 - **Manual de usuario** (`docs/manual/`, también como PDF con la marca) y un video tutorial de 3 minutos hecho con la propia app.
 - Licencias: fuentes OFL incluidas con su licencia; FFmpeg con su aviso de licencia en "Acerca de".
@@ -394,7 +413,7 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
 
 ### Fase 0 — Preparación
 - Resolver decisiones D1–D8 (o aplicar los valores por defecto).
-- Crear el proyecto Firebase con la **cuenta institucional** (Auth Google, Firestore, RTDB, Remote Config, AI Logic; Storage según D2) y alertas de presupuesto.
+- Crear el proyecto Firebase en **plan Spark (gratis), sin cargar tarjeta**, con la **cuenta institucional** (Auth Google, Firestore, RTDB, Remote Config, AI Logic con Gemini Developer API).
 - Crear el repo y el monorepo en `C:\dev\estudio-cfp401`.
 - `scripts/sync-design-system.ts`: copia tokens, logos, fototeca, CSS de plantillas y archivos de la skill desde `Sistema de Diseño/` a `packages/design-system/`, con manifiesto y hash de versión.
 - Descargar Poppins y Source Sans 3 (OFL) en `packages/design-system/fonts/`.
@@ -404,7 +423,7 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
 - Electron + electron-vite + React + TS + RTK + RTK Query; preload con API tipada; seguridad de 4.3.
 - Shell de interfaz (barra lateral, barra superior), temas claro/oscuro/personalizable, escala de UI, enrutado.
 - Login Google por loopback + roles + lista permitida; modo PC compartida.
-- Reglas de Firestore/Storage/RTDB con pruebas.
+- Reglas de Firestore y RTDB con pruebas.
 - Jest, ESLint (con boundaries), Prettier, Husky, CI básica.
 - **DdT:** se instala en una PC limpia, se inicia sesión, se ve el shell en ambos temas, CI en verde, reglas probadas.
 
@@ -422,7 +441,7 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
 
 ### Fase 4 — Biblioteca, fototeca y offline
 - Biblioteca con búsqueda/filtros, favoritos, plantillas aprobadas vs. borrador.
-- Fototeca con etiquetas y consentimiento; subida reanudable; caché LRU; bandeja de salida.
+- Fototeca con etiquetas y consentimiento; compresión y subida a `assetBlobs/`; medidor del espacio gratuito; caché LRU; bandeja de salida.
 - **DdT:** con el cable de red desconectado se crea, edita y exporta una pieza; al reconectar se sincroniza sin duplicados.
 
 ### Fase 5 — Calendario, ideas, flujo y notificaciones
@@ -451,8 +470,8 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
 - **DdT:** una persona que nunca usó la app instala, inicia sesión y publica una pieza correcta en menos de 10 minutos sin ayuda.
 
 ### Fase 9 — Opcional / futuro
-- App móvil **Expo (React Native)** reutilizando `packages/core`, `firebase` y `ai`: aprobar, calendario, push (FCM + Cloud Functions), cargar fotos del taller con consentimiento.
-- Publicación directa: Meta Graph API (Instagram/Facebook, cuentas profesionales y revisión de app), YouTube Data API; LinkedIn y TikTok requieren aprobación de la plataforma; X requiere plan pago.
+- App móvil **Expo (React Native)** reutilizando `packages/core`, `firebase` y `ai`: aprobar, ver el calendario, cargar fotos del taller con consentimiento (sin push: es pago).
+- Publicación directa (solo APIs gratuitas): Meta Graph API (Instagram/Facebook, cuentas profesionales y revisión de app), YouTube Data API; LinkedIn y TikTok requieren aprobación de la plataforma; X queda afuera porque su API es paga.
 - Métricas automáticas (Instagram Insights, YouTube Analytics) y recomendaciones de horario por datos reales.
 - Composiciones 16:9 y 1:1 para el resto de las plantillas.
 
@@ -465,7 +484,7 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
 | Riesgo | Mitigación |
 |---|---|
 | Cambian los límites gratuitos o los modelos de Gemini | Modelos en Remote Config; cuotas por usuario; la app funciona sin IA; plan B con `@google/genai` |
-| Costos de Storage (Blaze) | Alertas de presupuesto, videos fuera de Storage, ciclo de vida de exportes, compresión |
+| Se agota el plan gratuito de Firebase (espacio o escrituras diarias) | Fotos comprimidas, exportes y videos solo en la PC, sincronización agrupada, medidor de uso; si se llega al límite, la app sigue funcionando en la PC y sincroniza cuando se renueva |
 | PCs viejas (Windows 7/8, poca RAM) | Relevamiento en Fase 0; modo borrador de video; versión portable |
 | Ruta con tilde/espacios rompe la compilación | Proyecto en `C:\dev\estudio-cfp401` |
 | Login de Google en Electron | Flujo loopback + PKCE (no popup) |
@@ -483,7 +502,7 @@ Motor en el proceso main: ventana offscreen al tamaño exacto, espera `document.
 | # | Decisión | Por defecto si no hay respuesta |
 |---|---|---|
 | D1 | Cuenta dueña de Firebase/Google Cloud | Cuenta Google **institucional** creada para el estudio (nunca una personal) |
-| D2 | ¿Plan Blaze para Storage? | Sí, con alerta de presupuesto en USD 5 y ciclo de vida de 90 días |
+| D2 | Plan de Firebase | **Decidido: Spark (gratis), sin tarjeta.** No se usa Blaze. |
 | D3 | ¿La escuela tiene Google Workspace for Education? | No: los másters de video quedan locales |
 | D4 | Repositorio (GitHub, privado) y dueño | Privado, a nombre de la cuenta institucional |
 | D5 | Firma de código | Sin firma en la v1 |
@@ -509,6 +528,7 @@ Reglas:
   convencionales en español, y un resumen de qué verificaste y cómo.
 - Nunca escribas contraseñas, claves o tokens en archivos, bitácora o chat.
 - Si una decisión ❓ (sección 12) te bloquea, usá el valor por defecto y avisame.
+- Costo cero: nada que pida tarjeta de crédito o plan pago (sección 1.1).
 - Verificá en documentación oficial todo lo que cambia (versiones, modelos de
   Gemini, cuotas gratuitas, medidas de redes, plan de Firebase) antes de usarlo.
 - Respetá la marca del CFP 401 tal como está en la skill y el Sistema de Diseño.
