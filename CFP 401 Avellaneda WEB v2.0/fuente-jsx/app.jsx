@@ -813,9 +813,10 @@ function ValorCifra({ valor }) {
 function CintaAvisos({ cinta, titulo, detalle, urlMapa, onInscripcion }) {
   const blanca = cinta.estilo === 'blanca';
   const conLogo = cinta.mostrarLogoProvincia !== false;
-  // Cada versión de la cinta puede tener su propio logo, subido desde el panel; si no, va el original
+  // Cada versión de la cinta puede tener su propio logo, subido desde el panel. Si no, en la blanca va el
+  // original y en la amarilla la versión en azul institucional (el celeste del original no contrasta con el amarillo)
   const logoPropio = blanca ? cinta.logoBlanca : cinta.logoAmarilla;
-  const logo = logoPropio || 'assets/logo-provincia-ba.png';
+  const logo = logoPropio || (blanca ? 'assets/logo-provincia-ba.png' : 'assets/logo-provincia-ba-azul.png');
   // "A PARTIR DE…" y "Dock Sud" nunca se cortan en dos renglones
   const corte = titulo.search(/a partir de/i);
   const titulo1 = corte > 0 ? titulo.slice(0, corte).trim() : titulo;
@@ -879,6 +880,12 @@ function CintaAvisos({ cinta, titulo, detalle, urlMapa, onInscripcion }) {
   );
 }
 
+/* Carrusel del inicio: versiones livianas de las fotos, recortadas al cuadrado que se ve dentro del círculo
+   (1320 px, assets/livianas/). Las originales quedan intactas para las piezas del promocionador; una foto
+   nueva subida desde el panel se muestra tal cual hasta que se le prepare su versión liviana. */
+const FOTOS_CARRUSEL_LIVIANAS = ['hero-soldadura.jpg', 'hero-electricidad.jpg', 'hero-domotica.jpg', 'hero-egresados.jpg', 'hero-energias.jpg'];
+const fotoCarrusel = foto => FOTOS_CARRUSEL_LIVIANAS.includes(foto) ? `assets/livianas/${foto}` : foto;
+
 function HomeScreen({onNavigate,onInscripcion,cvConfig}){
   const courses=window.CFP_DATA.courses || [];
   const insc=window.CFP_DATA.inscripciones || {};
@@ -920,7 +927,7 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
       primaryCta={{label:'Ver los cursos', onClick: scrollToOferta}}
       secondaryCta={{label:'Cómo inscribirme', onClick: onInscripcion}}
       assetBase="assets"
-      shots={window.CFP_DATA.heroFotos}
+      shots={(window.CFP_DATA.heroFotos || []).map(fotoCarrusel)}
       plane={false}
     />
     <VueloAvion assetBase="assets"/>
@@ -1042,6 +1049,71 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
 /* ===========================================================================
    PANTALLA DE DETALLE INDIVIDUAL DE CURSO (PÁGINA PROPIA DE CADA CURSO)
    =========================================================================== */
+/* Párrafos separados por una línea en blanco; los renglones que empiezan con "•" se muestran como lista */
+function TextoConListas({ texto }) {
+  const estiloParrafo = { margin: '0 0 14px', fontSize: 16, lineHeight: 1.75, color: 'var(--neutral-700)' };
+  return (
+    <div>
+      {String(texto).split(/\n\s*\n/).map((bloque, i) => {
+        const lineas = bloque.split('\n').map(l => l.trim()).filter(Boolean);
+        const items = lineas.filter(l => /^[•\-]\s*/.test(l));
+        const textoLibre = lineas.filter(l => !/^[•\-]\s*/.test(l));
+        return (
+          <div key={i}>
+            {textoLibre.map((l, j) => <p key={j} style={estiloParrafo}>{l}</p>)}
+            {items.length > 0 && (
+              <ul style={{ margin: '0 0 16px', paddingLeft: 22, fontSize: 16, lineHeight: 1.65, color: 'var(--neutral-700)' }}>
+                {items.map((l, j) => <li key={j} style={{ marginBottom: 6 }}>{l.replace(/^[•\-]\s*/, '')}</li>)}
+              </ul>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* En celular, las secciones largas se muestran recortadas con un degradé y el botón "Leer más" */
+function Plegable({ children, alto = 300 }) {
+  const contenido = React.useRef(null);
+  const [abierto, setAbierto] = React.useState(false);
+  const [recortable, setRecortable] = React.useState(false);
+  React.useEffect(() => {
+    const medir = () => {
+      const celular = window.matchMedia('(max-width: 700px)').matches;
+      // Solo se recorta si lo oculto es bastante (si sobra poco, se muestra entero)
+      setRecortable(Boolean(celular && contenido.current && contenido.current.scrollHeight > alto + 140));
+    };
+    medir();
+    window.addEventListener('resize', medir);
+    return () => window.removeEventListener('resize', medir);
+  }, [alto, children]);
+  const recortado = recortable && !abierto;
+  return (
+    <div>
+      <div ref={contenido} className={recortado ? 'cfp-plegado' : undefined} style={{ position: 'relative', maxHeight: recortado ? alto : 'none', overflow: recortado ? 'hidden' : 'visible' }}>
+        {children}
+        {recortado && <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 96, background: 'linear-gradient(rgba(255,255,255,0), #ffffff 85%)' }} />}
+      </div>
+      {recortable && (
+        <button
+          type="button"
+          aria-expanded={abierto}
+          onClick={() => {
+            setAbierto(!abierto);
+            // Al plegar, volver al comienzo de la sección para no quedar perdido más abajo
+            if (abierto && contenido.current) contenido.current.parentElement.parentElement.scrollIntoView({ block: 'start', behavior: 'smooth' });
+          }}
+          style={{ background: 'none', border: 'none', color: 'var(--brand-primary)', fontWeight: 800, fontSize: 15, padding: '8px 0', minHeight: 44, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          {abierto ? 'Leer menos' : 'Leer más'}
+          <Icon name={abierto ? 'chevron-up' : 'chevron-down'} size={18} color="var(--brand-primary)" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 function CourseDetailScreen({ course, onNavigate, onInscripcion }) {
   if (!course) {
     return (
@@ -1119,7 +1191,9 @@ function CourseDetailScreen({ course, onNavigate, onInscripcion }) {
               <span>Días y horarios del curso</span>
             </div>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-title)', lineHeight: 1.4, textAlign: 'center' }}>
-              {course.horarios || 'A confirmar en sede'}
+              {course.horarios
+                ? course.horarios.split(/\s+·\s+/).map((franja, idx) => <div key={idx} style={{ marginTop: idx ? 6 : 0 }}>{franja}</div>)
+                : 'A confirmar en sede'}
             </div>
           </div>
 
@@ -1132,6 +1206,11 @@ function CourseDetailScreen({ course, onNavigate, onInscripcion }) {
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-title)', lineHeight: 1.4, textAlign: 'center' }}>
               {course.horasTotales || course.duracion || 'Consultar en sede'}
             </div>
+            {course.horasTotales && course.duracion && (
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-body)', lineHeight: 1.4, textAlign: 'center' }}>
+                {course.duracion}
+              </div>
+            )}
           </div>
 
           {/* Columna 3: Requisitos */}
@@ -1182,6 +1261,16 @@ function CourseDetailScreen({ course, onNavigate, onInscripcion }) {
           </p>
         </div>
 
+        {/* Sección: Capacidades profesionales (texto de la dirección + diseño curricular, editable en el panel) */}
+        {course.capacidades && (
+          <div style={{ marginBottom: 32, background: '#ffffff', padding: '28px 32px', borderRadius: 'var(--radius-lg, 12px)', border: '1px solid var(--border-subtle)' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-title)', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Icon name="badge-check" size={22} color="var(--brand-primary)" /> Capacidades profesionales
+            </h2>
+            <Plegable><TextoConListas texto={course.capacidades} /></Plegable>
+          </div>
+        )}
+
         {/* Sección: Detalles Del Curso */}
         <div style={{ marginBottom: 36, background: '#ffffff', padding: '28px 32px', borderRadius: 'var(--radius-lg, 12px)', border: '1px solid var(--border-subtle)' }}>
           <h2 style={{
@@ -1193,14 +1282,77 @@ function CourseDetailScreen({ course, onNavigate, onInscripcion }) {
           }}>
             Detalles Del Curso
           </h2>
+          <Plegable>
           <div style={{ fontSize: 16, lineHeight: 1.75, color: 'var(--neutral-700)' }}>
-            {paragraphs.map((p, idx) => (
-              <p key={idx} style={{ margin: '0 0 16px', lineHeight: 1.75 }}>
-                {p}
-              </p>
-            ))}
+            {paragraphs.map((p, idx) => {
+              const isHeader = (p.startsWith('=== ') && p.endsWith(' ===')) || (p.startsWith('--- ') && p.endsWith(' ---'));
+              if (isHeader) {
+                const title = p.replace(/^(=+|-+)\s*/, '').replace(/\s*(=+|-+)$/, '');
+                return (
+                  <div key={idx} style={{ marginTop: 28, marginBottom: 14 }}>
+                    <h3 style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 17,
+                      fontWeight: 800,
+                      color: 'var(--blue-900)',
+                      margin: '0 0 6px 0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8
+                    }}>
+                      <Icon name="book-open" size={17} color="var(--brand-primary)" />
+                      {title}
+                    </h3>
+                    <div style={{ height: 2, background: 'var(--brand-accent)', width: 44, borderRadius: 2 }}></div>
+                  </div>
+                );
+              }
+              return (
+                <p key={idx} style={{ margin: '0 0 16px', lineHeight: 1.75 }}>
+                  {p}
+                </p>
+              );
+            })}
           </div>
+          </Plegable>
         </div>
+
+        {/* Certificación del trayecto (del Catálogo oficial 2027, cargada desde el panel) */}
+        {course.certificacion && (
+          <div style={{ marginBottom: 36, background: '#ffffff', padding: '24px 32px', borderRadius: 'var(--radius-lg, 12px)', border: '1px solid var(--border-subtle)', borderLeft: '4px solid var(--brand-accent)', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+            <Icon name="award" size={28} color="var(--brand-primary)" style={{ flexShrink: 0, marginTop: 2 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 800, color: 'var(--text-title)', margin: 0 }}>
+                  Certificación que se obtiene
+                </h2>
+                {((course.trayectosCatalogo && course.trayectosCatalogo.length > 1) || course.certificacion.includes('•') || course.certificacion.includes('certificaciones oficiales')) && (
+                  <span style={{ fontSize: 11, fontWeight: 800, background: '#dcfce7', color: '#166534', padding: '2px 10px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Múltiples Certificaciones Oficiales
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--neutral-700)' }}>
+                {course.certificacion.split('\n').map((line, idx) => {
+                  const isBullet = line.trim().startsWith('•') || line.trim().startsWith('-');
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        marginTop: idx > 0 ? 6 : 0,
+                        fontWeight: isBullet ? 600 : 400,
+                        color: isBullet ? 'var(--blue-900)' : 'var(--neutral-700)',
+                        paddingLeft: isBullet ? 4 : 0
+                      }}
+                    >
+                      {line}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Callout de Sede y Certificación Oficial */}
         <div style={{
@@ -1269,6 +1421,9 @@ function CoursesScreen({onNavigate,onInscripcion,initialFamily='Todas'}){
   const [fam,setFam]=React.useState(initialFamily&&familias.includes(initialFamily)?initialFamily:'Todas');
   const [q,setQ]=React.useState('');
   const [view,setView]=React.useState('Tarjetas');
+  const turnosDe=c=>window.CFPReglas.turnosDeCurso(c);
+  const turnos=['Todos',...window.CFPReglas.TURNOS.filter(t=>all.some(c=>turnosDe(c).includes(t)))];
+  const [turno,setTurno]=React.useState('Todos');
 
   React.useEffect(()=>{
     if(initialFamily&&familias.includes(initialFamily)){
@@ -1276,7 +1431,7 @@ function CoursesScreen({onNavigate,onInscripcion,initialFamily='Todas'}){
     }
   },[initialFamily]);
 
-  const rows=all.filter(c=>(fam==='Todas'||esDeFamilia(c,fam))&&c.curso.toLowerCase().includes(q.toLowerCase()));
+  const rows=all.filter(c=>(fam==='Todas'||esDeFamilia(c,fam))&&(turno==='Todos'||turnosDe(c).includes(turno))&&c.curso.toLowerCase().includes(q.toLowerCase()));
 
   return <div style={{maxWidth:'var(--container-max)',margin:'0 auto',padding:'var(--space-12) var(--gutter) var(--section-y)'}}>
     <SectionHeading overline="Oferta formativa" title="Cursos gratuitos con certificación oficial" subtitle="Todos los cursos se dictan en la sede de Juan Pablo Angulo 1272, Dock Sud, salvo donde se indique un anexo."/>
@@ -1301,6 +1456,7 @@ function CoursesScreen({onNavigate,onInscripcion,initialFamily='Todas'}){
     <div style={{display:'flex',gap:'var(--space-4)',alignItems:'flex-end',marginTop:'var(--space-8)',flexWrap:'wrap'}}>
       <Input label="Buscar curso" placeholder="Soldador, informática…" value={q} onChange={e=>setQ(e.target.value)} style={{flex:'1 1 280px'}}/>
       <Select label="Familia profesional" options={familias} value={fam} onChange={e=>setFam(e.target.value)} style={{flex:'1 1 240px'}}/>
+      <Select label="Turno" options={turnos} value={turno} onChange={e=>setTurno(e.target.value)} style={{flex:'1 1 160px'}}/>
       <div style={{marginLeft:'auto'}}><Tabs items={['Tarjetas','Tabla']} active={view} onChange={setView}/></div>
     </div>
     <div style={{marginTop:'var(--space-8)'}}>
@@ -1321,7 +1477,9 @@ function CoursesScreen({onNavigate,onInscripcion,initialFamily='Todas'}){
                 <Badge tone="brand">{c.familia}</Badge>
               </div>
               <div style={{display:'flex',flexWrap:'wrap',gap:'var(--space-4)',marginTop:'var(--space-4)',fontSize:14,color:'var(--text-body)'}}>
-                <span style={{display:'flex',gap:8,alignItems:'flex-start'}}><Icon name="clock" size={16} color="var(--brand-primary)"/>{c.horarios}</span>
+                <span style={{display:'flex',gap:8,alignItems:'flex-start'}}><Icon name="clock" size={16} color="var(--brand-primary)" style={{flexShrink:0,marginTop:2}}/>
+                  <span>{String(c.horarios||'').split(/\s+·\s+/).map((franja,i)=><span key={i} style={{display:'block',marginTop:i?4:0}}>{franja}</span>)}</span>
+                </span>
               </div>
               <div style={{display:'flex',flexWrap:'wrap',gap:'var(--space-4)',marginTop:'var(--space-2)',fontSize:14,color:'var(--text-muted)'}}>
                 <span style={{display:'flex',gap:8,alignItems:'flex-start'}}><Icon name="map-pin" size={16} color="var(--brand-primary)"/>{c.sede}</span>
@@ -1336,7 +1494,7 @@ function CoursesScreen({onNavigate,onInscripcion,initialFamily='Todas'}){
             </Card>)}
           </div>}
     </div>
-    {rows.length===0&&<p style={{marginTop:'var(--space-8)',color:'var(--text-muted)'}}>No encontramos cursos con ese filtro. Probá con otra familia profesional.</p>}
+    {rows.length===0&&<p style={{marginTop:'var(--space-8)',color:'var(--text-muted)'}}>No encontramos cursos con ese filtro. Probá con otra familia profesional u otro turno.</p>}
   </div>;
 }
 
@@ -2176,10 +2334,9 @@ function findCourseBySlug(slug) {
   if (!slug) return null;
   const courses = window.CFP_DATA.courses || [];
   const clean = slug.toLowerCase().trim();
-  return courses.find(c => 
-    (c.slug && c.slug.toLowerCase() === clean) || 
-    (c.curso && c.curso.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === clean)
-  ) || null;
+  return courses.find(c => window.CFPReglas.slugsDeCurso(c).some(s => s.toLowerCase() === clean))
+    || courses.find(c => c.curso && c.curso.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === clean)
+    || null;
 }
 
 /* =========================================================================
@@ -2406,6 +2563,8 @@ function App(){
         const slug = decodeURIComponent(hash.replace('#/curso/', ''));
         const found = findCourseBySlug(slug);
         if (found) {
+          // Enlace con un slug anterior (curso renombrado): se muestra con la dirección actual
+          if (found.slug && found.slug !== slug) history.replaceState(null, '', '#/curso/' + found.slug);
           setSelectedCourse(found);
           setPage('CursoDetalle');
           window.scrollTo(0, 0);

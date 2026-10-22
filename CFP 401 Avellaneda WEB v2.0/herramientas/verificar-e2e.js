@@ -62,9 +62,17 @@ async function main() {
   // Datos de la copia: una promo "desactualizada" (huella vieja) con un campo personalizado y otro no
   const dataFile = path.join(T, 'site', 'data.js');
   const data = leerData(dataFile);
+  // Las pruebas de promociones usan dos piezas fijas (Soldador Básico y Auxiliar Contable). Si en el sitio real las
+  // borraron desde el panel, se agregan a la copia desde herramientas/fixtures/promociones-e2e.json
+  data.promociones = data.promociones || [];
+  // (al principio de la lista, como estaban: así las encuentran primero las búsquedas por texto de las tarjetas)
+  const fijas = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'promociones-e2e.json'), 'utf8'));
+  data.promociones.unshift(...fijas.filter(fija => !data.promociones.some(p => p.id === fija.id)));
   const iAux = data.promociones.findIndex(p => p.cursoSlug === 'auxiliar-contable');
   const aux = data.promociones[iAux];
   data.promociones[iAux] = { ...aux, huellaCurso: 'fnv1a-00000000', datosCurso: { ...(aux.datosCurso || {}), dias: 'Día viejo' }, diasOverride: 'Día viejo', sedeOverride: 'Sede personalizada (prueba)' };
+  // El caso 4 prueba el logo propio de la cinta AMARILLA: en la copia se fija ese estilo (en el sitio real puede estar en blanca)
+  if (data.home && data.home.cintaAmarilla) data.home.cintaAmarilla.estilo = 'amarilla';
   escribirData(dataFile, data);
   const original = JSON.parse(JSON.stringify(data));
 
@@ -149,6 +157,7 @@ async function main() {
 
     // ── Panel en el navegador
     const browser = await abrirNavegador();
+    navegadorAbierto = browser;
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     const errores = [];
     page.on('pageerror', e => errores.push(e.message));
@@ -176,7 +185,7 @@ async function main() {
     await campo('Días').fill('Martes y jueves (prueba)');
     await page.getByRole('button', { name: /Guardar Promoción/ }).click();
     let espera = enviado();
-    await page.getByRole('button', { name: /Guardar en Servidor/ }).click();
+    await page.locator('[data-accion="guardar-servidor"]').click(); // barra completa o pastilla discreta (Promociones)
     let guardado = await espera;
     let p1 = guardado.promociones.find(p => p.cursoSlug === 'soldador-basico');
     ok(p1 && p1.id === antes.id, 'Editar y guardar conserva el id de la promo', p1 && p1.id);
@@ -196,7 +205,7 @@ async function main() {
     await page.getByRole('button', { name: /Guardar Promoción/ }).click();
     ok(await page.locator('.promo-card', { hasText: 'Datos desactualizados' }).count() === 0, 'Después de guardarla, el aviso desaparece');
     espera = enviado();
-    await page.getByRole('button', { name: /Guardar en Servidor/ }).click();
+    await page.locator('[data-accion="guardar-servidor"]').click(); // barra completa o pastilla discreta (Promociones)
     guardado = await espera;
     const p2 = guardado.promociones.find(p => p.cursoSlug === 'auxiliar-contable');
     ok(p2 && p2.id === aux.id && p2.huellaCurso !== 'fnv1a-00000000', 'Mantiene su id y actualiza la huella', p2 && `${p2.id} · ${p2.huellaCurso}`);
@@ -204,10 +213,14 @@ async function main() {
     await page.getByRole('button', { name: /Nueva Promoción/ }).click();
     await page.locator('strong', { hasText: 'Aviso Primaria (Stories)' }).click();
     ok(await page.locator('.promo-stepper-bar [aria-disabled]').nth(1).getAttribute('aria-disabled') === 'true', 'Aviso Primaria: el paso 2 (curso) queda bloqueado');
-    await page.getByRole('button', { name: /^Continuar/ }).first().click();
-    ok(await page.locator('img[src*="tematicas/primaria/"]').count() >= 2, 'Aviso Primaria: el paso 3 ofrece las fotos propias de la plantilla');
-    await page.getByRole('button', { name: /^Continuar/ }).first().click();
-    const botonesFormato = await page.locator('.promo-preview-col button').allInnerTexts();
+    // Al elegir el modelo pasa solo al paso siguiente habilitado (el 3); al elegir la foto, a la vista previa
+    await page.locator('h4', { hasText: 'Elegí la foto de fondo' }).waitFor({ timeout: 5000 }).catch(() => {});
+    ok(await page.locator('h4', { hasText: 'Elegí la foto de fondo' }).count() === 1 && await page.locator('.modal-card img[src*="tematicas/primaria/"]').count() >= 2, 'Aviso Primaria: al elegir el modelo pasa solo al paso 3, con las fotos propias de la plantilla');
+    await page.locator('.modal-card img[src*="tematicas/primaria/"]').first().click();
+    await page.locator('.promo-preview-col').waitFor({ timeout: 5000 }).catch(() => {});
+    ok(await page.locator('.promo-preview-col').count() === 1, 'Promociones: al elegir la foto pasa solo a la vista previa');
+    // Solo la botonera de formatos (debajo de la vista previa también están los botones de encuadre)
+    const botonesFormato = await page.locator('.promo-preview-col > div:first-child button').allInnerTexts();
     ok(botonesFormato.join('|') === 'Historia 9:16', 'Aviso Primaria: la vista previa solo ofrece Historia', botonesFormato.join(' | '));
     const pieModal = page.locator('.promo-footer-descargas');
     ok(await pieModal.getByRole('button', { name: /Feed/ }).count() === 0 && await pieModal.getByRole('button', { name: /A4/ }).count() === 0 && await pieModal.getByRole('button', { name: /Historia/ }).count() === 1, 'Aviso Primaria: solo ofrece descargar Historia');
@@ -216,7 +229,7 @@ async function main() {
     const tarjetaPrimaria = page.locator('.promo-card', { hasText: 'Aviso Primaria' });
     ok(await tarjetaPrimaria.count() === 1 && await tarjetaPrimaria.getByRole('button', { name: /Feed 4:5/ }).count() === 0 && await tarjetaPrimaria.getByRole('button', { name: /Historia 9:16/ }).count() === 1, 'Aviso Primaria: la tarjeta solo descarga Historia');
     espera = enviado();
-    await page.getByRole('button', { name: /Guardar en Servidor/ }).click();
+    await page.locator('[data-accion="guardar-servidor"]').click(); // barra completa o pastilla discreta (Promociones)
     guardado = await espera;
     const p3 = guardado.promociones.find(p => p.modelo === 'aviso-primaria-v1');
     ok(p3 && p3.textos && p3.textos.selloNumero === '20' && /tematicas\/primaria\//.test(p3.imagen || '') && !p3.cursoSlug, 'Aviso Primaria: se guarda con su texto editado, su foto y sin curso', p3 && JSON.stringify({ sello: p3.textos.selloNumero, imagen: p3.imagen }));
@@ -224,10 +237,11 @@ async function main() {
     await page.getByRole('button', { name: /Nueva Promoción/ }).click();
     await page.locator('strong', { hasText: 'Actividades Institucionales' }).click();
     ok(await page.locator('.promo-stepper-bar [aria-disabled]').nth(1).getAttribute('aria-disabled') === 'true', 'Actividades: el paso 2 (curso) queda bloqueado');
-    await page.getByRole('button', { name: /^Continuar/ }).first().click();
+    await page.locator('h4', { hasText: 'Elegí la foto de fondo' }).waitFor({ timeout: 5000 }).catch(() => {});
     ok(await page.locator('img[src*="tematicas/actividades/"]').count() >= 1, 'Actividades: el paso 3 ofrece la foto propia de la plantilla');
     await page.getByRole('button', { name: /^Continuar/ }).first().click();
-    const formatosActividad = await page.locator('.promo-preview-col button').allInnerTexts();
+    await page.locator('.promo-preview-col').waitFor({ timeout: 5000 }).catch(() => {});
+    const formatosActividad = await page.locator('.promo-preview-col > div:first-child button').allInnerTexts();
     ok(formatosActividad.length === 3, 'Actividades: la vista previa ofrece Feed, Historia y A4', formatosActividad.join(' | '));
     const pieActividad = page.locator('.promo-footer-descargas');
     ok(await pieActividad.getByRole('button', { name: /Feed/ }).count() === 1 && await pieActividad.getByRole('button', { name: /Historia/ }).count() === 1 && await pieActividad.getByRole('button', { name: /A4/ }).count() === 1, 'Actividades: ofrece descargar los tres formatos');
@@ -251,7 +265,7 @@ async function main() {
     }
     await page.getByRole('button', { name: /Guardar Promoción/ }).click();
     espera = enviado();
-    await page.getByRole('button', { name: /Guardar en Servidor/ }).click();
+    await page.locator('[data-accion="guardar-servidor"]').click(); // barra completa o pastilla discreta (Promociones)
     guardado = await espera;
     const p3b = guardado.promociones.find(p => p.modelo === 'actividad-institucional-v1');
     ok(p3b && p3b.textos && p3b.textos.titulo === 'Charla de prueba' && /tematicas\/actividades\//.test(p3b.imagen || '') && p3b.mostrarArco === false && !p3b.cursoSlug, 'Actividades: se guarda con su titular, su foto, sin arco y sin curso', p3b && JSON.stringify({ titulo: p3b.textos && p3b.textos.titulo, imagen: p3b.imagen, arco: p3b.mostrarArco }));
@@ -263,7 +277,7 @@ async function main() {
       await page.locator('label', { hasText: 'Subir otro logo' }).first().locator('input[type="file"]').setInputFiles({ name: 'logo-prueba.png', mimeType: 'image/png', buffer: PNG.sync.write(logo) });
       await page.waitForFunction(() => /Logo propio: assets\//.test(document.body.innerText), null, { timeout: 15000 }).catch(() => {});
       espera = enviado();
-      await page.getByRole('button', { name: /Guardar en Servidor/ }).click();
+      await page.locator('[data-accion="guardar-servidor"]').click(); // barra completa o pastilla discreta (Promociones)
       guardado = await espera;
       const ruta = guardado.home && guardado.home.cintaAmarilla && guardado.home.cintaAmarilla.logoAmarilla;
       ok(/^assets\/foto-\d+-logo-prueba\.png$/.test(ruta || ''), 'Logo de la cinta: el panel sube un logo propio y lo guarda en data.js', ruta);
@@ -275,6 +289,90 @@ async function main() {
       const src = await pubLogo.locator('.cfp-cinta-logo img').first().getAttribute('src').catch(() => null);
       ok(src === ruta, 'Logo de la cinta: el sitio público muestra el logo nuevo', src);
       await pubLogo.close();
+    }
+    // Caso 5: Catálogo oficial 2027 · alta de cursos (20/10/2026)
+    {
+      await page.locator('.admin-nav-item', { hasText: 'Catálogo 2027' }).first().click();
+      await page.waitForFunction(() => /338 trayectos/.test(document.body.innerText), null, { timeout: 15000 }).catch(() => {});
+      ok(/338 trayectos/.test(await page.locator('body').innerText()), 'Catálogo 2027: carga los 338 trayectos precargados');
+      const buscar = page.locator('input[placeholder^="Buscar por código"]');
+      // Vincular un trayecto a un curso que ya existe (coincidencia por nombre)
+      await buscar.fill('MT30');
+      const tarjetaMT30 = page.locator('.admin-course-card', { hasText: 'MT30' }).first();
+      // Desde los cursos 2027, «Soldador Básico» ya viene vinculado: se desvincula y se vuelve a vincular por la sugerencia de nombre
+      const desvincular = tarjetaMT30.getByRole('button', { name: 'Desvincular' });
+      if (await desvincular.count()) await desvincular.first().click();
+      await tarjetaMT30.locator('span', { hasText: '«Soldador Básico»' }).getByRole('button', { name: 'Vincular', exact: true }).click();
+      ok(await page.locator('.admin-course-card', { hasText: 'MT30' }).first().getByText(/En el sitio: Soldador Básico/).count() === 1, 'Catálogo 2027: vincula MT30 al curso «Soldador Básico» del sitio');
+      // Dar de alta un trayecto nuevo con los datos del catálogo
+      await buscar.fill('AA01');
+      const tarjetaAA01 = page.locator('.admin-course-card', { hasText: 'Operario Apícola' }).first();
+      await tarjetaAA01.locator('button', { hasText: 'Ver los' }).click();
+      ok(await tarjetaAA01.locator('table tbody tr').count() === 4, 'Catálogo 2027: muestra los módulos del trayecto (AA01: 4)');
+      await tarjetaAA01.getByRole('button', { name: /Dar de alta en el sitio/ }).click();
+      const nombreModal = await page.locator('.modal-card input.form-input').first().inputValue();
+      const certModal = await page.locator('.form-group:has(> label:text-is("Certificación (se muestra en la página individual del curso)")) textarea').inputValue();
+      ok(nombreModal === 'Operario Apícola' && /Resolución Nro\. 3096\/15/.test(certModal), 'Catálogo 2027: «Dar de alta» abre el editor con nombre y certificación del catálogo', `${nombreModal} · ${certModal}`);
+      await page.getByRole('button', { name: /Guardar y Sincronizar Curso/ }).click();
+      espera = enviado();
+      await page.locator('[data-accion="guardar-servidor"]').click(); // barra completa o pastilla discreta (Promociones)
+      guardado = await espera;
+      const nuevo = guardado.courses.find(c => c.curso === 'Operario Apícola');
+      const soldador = guardado.courses.find(c => c.curso === 'Soldador Básico');
+      ok(nuevo && (nuevo.trayectosCatalogo || []).includes('AA01') && /3096\/15/.test(nuevo.certificacion || '') && nuevo.horasTotales === '120 horas reloj', 'Catálogo 2027: el curso nuevo se guarda con código, certificación y horas del catálogo', nuevo && JSON.stringify({ t: nuevo.trayectosCatalogo, h: nuevo.horasTotales }));
+      ok(soldador && (soldador.trayectosCatalogo || []).includes('MT30'), 'Catálogo 2027: el vínculo de «Soldador Básico» con MT30 queda guardado');
+      const pubCurso = await browser.newPage();
+      await pubCurso.goto(`${BASE}/index.html#/curso/${nuevo ? nuevo.slug : 'operario-apicola'}`, { waitUntil: 'networkidle' });
+      const textoCurso = await pubCurso.locator('body').innerText();
+      ok(/Certificación que se obtiene/.test(textoCurso) && /Operario Apícola según Resolución/.test(textoCurso), 'Catálogo 2027: la página del curso muestra la certificación');
+      await pubCurso.close();
+    }
+    // Caso 6: Cursos 2027 — turnos, capacidades y slugs anteriores (21/10/2026)
+    {
+      await page.locator('.admin-nav-item', { hasText: /^\s*Cursos \(/ }).first().click();
+      const tarjetaHerreria = page.locator('.admin-course-card', { has: page.locator('.admin-course-title', { hasText: /^Herrería$/ }) }).first();
+      ok(/Turnos:\s*Tarde, Noche/.test(await tarjetaHerreria.innerText()), 'Cursos 2027: la lista del panel muestra los turnos del curso');
+      await tarjetaHerreria.locator('.btn-course-edit').click();
+      const capacidades = await page.locator('.form-group:has(> label:text-is("Capacidades profesionales (Página Individual)")) textarea').inputValue();
+      const turnosTildados = await page.locator('.modal-card label:has(input[type="checkbox"]:checked)').allInnerTexts();
+      ok(/Herrero está capacitado/.test(capacidades) && /diseño curricular oficial/.test(capacidades) && ['Tarde', 'Noche'].every(t => turnosTildados.map(x => x.trim()).includes(t)), 'Cursos 2027: el editor trae capacidades (dirección + diseño) y los turnos tildados', turnosTildados.join(','));
+      await page.locator('.modal-card').getByRole('button', { name: 'Cancelar' }).click();
+      const pubT = await browser.newPage();
+      await pubT.goto(`${BASE}/index.html#/cursos`, { waitUntil: 'networkidle' });
+      await pubT.locator('select').filter({ has: pubT.locator('option[value="Noche"]') }).selectOption('Mañana');
+      const titulos = (await pubT.locator('h3').allInnerTexts()).map(t => t.trim());
+      ok(titulos.includes('Mantenimiento de Edificios') && !titulos.includes('Soldador Básico'), 'Cursos 2027: el filtro «Turno: Mañana» muestra los de mañana y oculta los de noche');
+      await pubT.goto(`${BASE}/index.html#/curso/gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad`, { waitUntil: 'networkidle' });
+      await pubT.waitForFunction(() => location.hash === '#/curso/gasista-domiciliario', null, { timeout: 5000 }).catch(() => {});
+      const textoGasista = await pubT.locator('body').innerText();
+      ok(await pubT.evaluate(() => location.hash) === '#/curso/gasista-domiciliario' && /Capacidades profesionales/.test(textoGasista) && /Según el diseño curricular oficial/.test(textoGasista), 'Cursos 2027: un enlace con el slug anterior abre la página nueva, con capacidades');
+      await pubT.close();
+    }
+    // Caso 7: pastilla de guardado en todo el panel, "Revertir" y registro de cambios en Sistema y Seguridad (20/10/2026)
+    {
+      await page.locator('.admin-nav-item', { hasText: /^\s*Cursos \(/ }).first().click();
+      const pastilla = page.locator('.save-bar-discreta');
+      ok(await pastilla.count() === 1 && await page.locator('.save-bar:not(.save-bar-discreta)').count() === 0 && await pastilla.getByText('Descargar data.js').count() === 0, 'Panel: la pastilla de guardado está en Cursos y sin "Descargar data.js"');
+      const tarjeta = page.locator('.admin-course-card', { has: page.locator('.admin-course-title', { hasText: /^Herrería$/ }) }).first();
+      const campoCap = () => page.locator('.form-group:has(> label:text-is("Capacidades profesionales (Página Individual)")) textarea');
+      await tarjeta.locator('.btn-course-edit').click();
+      const capOriginal = await campoCap().inputValue();
+      await campoCap().fill('Texto de prueba que se va a revertir');
+      await page.getByRole('button', { name: /Guardar y Sincronizar Curso/ }).click();
+      ok(/Sin guardar/.test(await pastilla.innerText()) && await pastilla.locator('[data-accion="revertir"]').count() === 1, 'Panel: con un cambio sin guardar aparecen "Sin guardar" y "Revertir"');
+      page.once('dialog', d => d.accept());
+      await pastilla.locator('[data-accion="revertir"]').click();
+      await tarjeta.locator('.btn-course-edit').click();
+      const capRevertida = await campoCap().inputValue();
+      await page.locator('.modal-card').getByRole('button', { name: 'Cancelar' }).click();
+      ok(capRevertida === capOriginal && /Guardado/.test(await pastilla.innerText()) && await pastilla.locator('[data-accion="revertir"]').count() === 0, 'Panel: "Revertir" devuelve los datos al último guardado');
+      await page.locator('.admin-nav-item', { hasText: 'Sistema y Seguridad' }).first().click();
+      await page.waitForFunction(() => /Registro de cambios/.test(document.body.innerText) && document.querySelectorAll('table td').length > 0, null, { timeout: 10000 }).catch(() => {});
+      const filas = await page.locator('table tbody tr', { hasText: 'Prueba e2e' }).count();
+      ok(filas >= 1, 'Sistema y Seguridad: el registro de cambios muestra quién guardó y cuándo', `${filas} guardados de "Prueba e2e"`);
+      ok(await page.getByRole('button', { name: /Descargar data\.js/ }).count() === 1, 'Sistema y Seguridad: ofrece "Descargar data.js"');
+      const sinSesion = await fetch(`${BASE}/api/registro.php`);
+      ok(sinSesion.status === 401, 'El registro de cambios no se puede leer sin sesión', `HTTP ${sinSesion.status}`);
     }
     // Auditoría de operador: el nombre llega al encabezado de data.js y al registro de cambios
     ok(/Operador \/ Usuario: Prueba e2e/.test(fs.readFileSync(dataFile, 'utf8')), 'Auditoría: el nombre del operador queda en el encabezado de data.js');
@@ -299,6 +397,8 @@ async function main() {
     ok(erroresPub.length === 0 && (await pub.evaluate(() => typeof (window.CFPReglas && window.CFPReglas.popupVigente))) === 'function' && (await pub.evaluate(() => Array.isArray(window.CFP_DATA && window.CFP_DATA.courses))), 'Sitio público carga reglas y datos sin errores', erroresPub.join(' | '));
     await browser.close();
   } finally {
+    // Si una prueba falla con un error, el navegador también se cierra (si no, el proceso queda colgado)
+    if (navegadorAbierto) await navegadorAbierto.close().catch(() => {});
     server.kill(); serverChico.kill();
   }
   await new Promise(r => setTimeout(r, 400));
@@ -307,4 +407,5 @@ async function main() {
   process.exitCode = fallas ? 1 : 0;
 }
 
+let navegadorAbierto = null;
 main().catch(e => { console.error(e.stack || e.message); process.exitCode = 1; });

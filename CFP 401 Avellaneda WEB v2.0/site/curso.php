@@ -24,8 +24,11 @@ if (file_exists($dataPath)) {
         if (isset($data['courses']) && is_array($data['courses'])) {
             $todosLosCursos = $data['courses'];
             foreach ($todosLosCursos as $c) {
-                if (isset($c['slug']) && $c['slug'] === $slug) {
+                // También responde a los slugs anteriores de un curso renombrado (enlaces ya compartidos)
+                $anteriores = isset($c['slugsAnteriores']) && is_array($c['slugsAnteriores']) ? $c['slugsAnteriores'] : [];
+                if (isset($c['slug']) && ($c['slug'] === $slug || in_array($slug, $anteriores, true))) {
                     $cursoEncontrado = $c;
+                    $slug = $c['slug'];
                     break;
                 }
             }

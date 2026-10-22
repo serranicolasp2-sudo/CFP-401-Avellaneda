@@ -20,11 +20,12 @@ function tituloCortoFlyer(nombre) {
 }
 
 /* Foto sugerida para un curso: primero las de ese curso (por cursoSlug o por el nombre de
-   archivo "{slug}-{n}.jpg"), después las de su familia */
+   archivo "{slug}-{n}.jpg", también con los slugs anteriores si se renombró), después las de su familia */
 function fotoSugeridaPromo(c, biblioteca) {
   if (!c) return null;
   const fotos = biblioteca || [];
-  const esDelCurso = f => f.cursoSlug && f.cursoSlug === c.slug || (f.archivo || '').split('/').pop().replace(/-\d+\.\w+$/, '') === c.slug;
+  const slugs = window.CFPReglas.slugsDeCurso(c);
+  const esDelCurso = f => f.cursoSlug && slugs.includes(f.cursoSlug) || slugs.includes((f.archivo || '').split('/').pop().replace(/-\d+\.\w+$/, ''));
   return fotos.find(esDelCurso) || fotos.find(f => f.familia === c.familia) || null;
 }
 
@@ -120,6 +121,68 @@ function refrescarDatosCurso(promo, curso) {
 /* Tipo de pieza según su plantilla: 'curso' o 'inscripciones' */
 function tipoDePromo(promo) {
   return plantillaDePromo(promo).tipo || 'curso';
+}
+
+/* Punto de enfoque de la foto: en el paso 3 y también en la vista previa (al elegir la foto se pasa
+   solo al paso 4, así que ahí se puede corregir viendo el resultado) */
+const ENCUADRES = [{
+  label: 'Taller foco',
+  val: '40% 45%'
+}, {
+  label: 'Centro',
+  val: '50% 50%'
+}, {
+  label: 'Arriba',
+  val: '50% 20%'
+}, {
+  label: 'Abajo',
+  val: '50% 80%'
+}, {
+  label: 'Izquierda',
+  val: '20% 50%'
+}, {
+  label: 'Derecha',
+  val: '80% 50%'
+}];
+function SelectorEncuadre({
+  promo,
+  setPromo
+}) {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "form-label",
+    style: {
+      marginBottom: 6
+    }
+  }, "Punto de enfoque de la foto (encuadre):"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6,
+      flexWrap: 'wrap',
+      alignItems: 'center'
+    }
+  }, ENCUADRES.map(pos => {
+    const activo = promo.encuadre === pos.val;
+    return /*#__PURE__*/React.createElement("button", {
+      key: pos.val,
+      type: "button",
+      title: pos.val,
+      "aria-pressed": activo,
+      onClick: () => setPromo(prev => ({
+        ...prev,
+        encuadre: pos.val
+      })),
+      style: {
+        padding: '4px 10px',
+        borderRadius: 6,
+        fontSize: 12,
+        border: '1px solid',
+        borderColor: activo ? 'var(--blue-900)' : '#cbd5e1',
+        background: activo ? 'var(--blue-900)' : '#fff',
+        color: activo ? '#fff' : 'var(--neutral-700)',
+        cursor: 'pointer'
+      }
+    }, pos.label);
+  })));
 }
 
 /* Pasos del asistente que usa cada plantilla: el 2 (un curso, varios cursos o familias de oficios)
@@ -870,6 +933,497 @@ const MUESTRAS_PLANTILLAS = {
     textos: {}
   }
 };
+
+/* ---------- Catálogo oficial 2027 (DGCyE): alta de cursos ----------
+   Lista precargada de todos los trayectos del catálogo (site/catalogo/catalogo-2027.json, extraído del PDF
+   oficial con herramientas/catalogo/extraer.py). Desde acá se da de alta un curso en el sitio con los datos
+   del catálogo o se vincula a un curso que ya existe (un curso del sitio puede reunir varios trayectos). */
+const SECTOR_A_FAMILIA = {
+  AC: 'Administración',
+  SM: 'Administración',
+  OC: 'Construcción',
+  EE: 'Electricidad',
+  ET: 'Informática',
+  IM: 'Informática',
+  CS: 'Informática',
+  IC: 'Informática',
+  MT: 'Metalmecánica',
+  EM: 'Climatización'
+};
+const normalizarNombre = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\(.*?\)/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+const nombreCertificado = t => (t.certificacion || '').split(/\s+seg[uú]n\s+/i)[0];
+function familiaSugerida(t, familiasSitio) {
+  if (/solar|renovable/i.test(t.nombre) && familiasSitio.includes('Energías Renovables')) return 'Energías Renovables';
+  const f = SECTOR_A_FAMILIA[t.familia];
+  return f && familiasSitio.includes(f) ? f : familiasSitio[0] || '';
+}
+function unificarDatosCatalogo(trayectos) {
+  if (!trayectos || !trayectos.length) return null;
+  const totalReloj = trayectos.reduce((acc, t) => acc + (Number(t.horasReloj) || 0), 0);
+  const totalCatedra = trayectos.reduce((acc, t) => acc + (Number(t.horasCatedra) || 0), 0);
+  const horasTotales = `${totalReloj} horas reloj` + (totalCatedra ? ` (${totalCatedra} hs cátedra)` : '');
+  let certificacion = '';
+  if (trayectos.length === 1) {
+    certificacion = trayectos[0].certificacion || trayectos[0].nombre;
+  } else {
+    const certs = trayectos.map(t => {
+      const res = (t.resJurisdiccional || '').trim();
+      return `• ${t.nombre}${res ? ` (Res. ${res})` : ''}`;
+    });
+    certificacion = `Se otorgan ${trayectos.length} certificaciones oficiales de la DGCyE:\n` + certs.join('\n');
+  }
+  let introduccion = '';
+  if (trayectos.length === 1) {
+    introduccion = trayectos[0].introduccion || '';
+  } else {
+    const nombres = trayectos.map(t => t.nombre);
+    introduccion = `Trayecto formativo integral que articula las especialidades y certificaciones oficiales de ${nombres.join(', ')}. Quienes completan la cursada obtienen ${trayectos.length} títulos oficiales de la Dirección General de Cultura y Educación.`;
+  }
+  let detalles = '';
+  if (trayectos.length === 1) {
+    detalles = trayectos[0].detalles || '';
+  } else {
+    const cods = trayectos.map(t => t.codigo).join(', ');
+    const encabezado = `Este trayecto formativo aúna los contenidos y prácticas de ${trayectos.length} diseños curriculares oficiales de la DGCyE (${cods}), permitiendo a los estudiantes capacitarse de forma integral y articulada en una sola cursada, obteniendo cada una de las certificaciones correspondientes al finalizar.`;
+    const bloques = trayectos.map(t => {
+      const horas = t.horasReloj ? ` (${t.horasReloj} hs reloj)` : '';
+      return `=== ${t.nombre.toUpperCase()}${horas} ===
+
+${t.detalles || 'Contenidos teóricos y prácticas según diseño curricular oficial de la DGCyE.'}`;
+    });
+    detalles = [encabezado, ...bloques].join('\n\n');
+  }
+  const pideSecundaria = trayectos.some(t => (t.requisitos || '').toLowerCase().includes('secundari'));
+  const requisitos = pideSecundaria ? 'Estudios secundarios completos' : 'Estudios primarios completos';
+  return {
+    horasTotales,
+    certificacion,
+    introduccion,
+    detalles,
+    requisitos
+  };
+}
+function buscarCoincidenciasCatalogo(curso, catalogo) {
+  if (!curso || !catalogo || !catalogo.trayectos) return [];
+  if (curso.trayectosCatalogo && curso.trayectosCatalogo.length) {
+    const map = Object.fromEntries(catalogo.trayectos.map(t => [t.codigo, t]));
+    const sel = curso.trayectosCatalogo.map(c => map[c]).filter(Boolean);
+    if (sel.length) return sel;
+  }
+  const partes = (curso.curso || '').split(/\s*\+\s*/).map(normalizarNombre).filter(Boolean);
+  const matches = [];
+  const normFull = normalizarNombre(curso.curso);
+  catalogo.trayectos.forEach(t => {
+    const nt = normalizarNombre(t.nombre);
+    const nc = normalizarNombre(nombreCertificado(t));
+    if (normFull === nt || normFull === nc) {
+      if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+    } else {
+      for (const p of partes) {
+        const pClean = p.replace(/\(.*?\)/g, '').trim();
+        if (p === nt || p === nc || pClean === nt || pClean === nc) {
+          if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+        } else if (pClean.length > 10 && (pClean.includes(nt) || nt.includes(pClean))) {
+          if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+        } else if (pClean.includes('sanitari') && pClean.includes('gas') && (t.codigo === 'OC32' || t.codigo === 'OC33')) {
+          if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+        } else if ((pClean.includes('termico') || pClean.includes('solar')) && t.codigo === 'OC42') {
+          if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+        }
+      }
+    }
+  });
+  return matches;
+}
+function CatalogoOficial({
+  cursos,
+  familiasSitio,
+  catalogo: catalogoProp,
+  onAlta,
+  onEditar,
+  onVincular,
+  onDesvincular
+}) {
+  const [catalogoLocal, setCatalogoLocal] = useState(null);
+  const catalogo = catalogoProp || catalogoLocal;
+  const [error, setError] = useState('');
+  const [busqueda, setBusqueda] = useState('');
+  const [sector, setSector] = useState('');
+  const [estado, setEstado] = useState('todos');
+  const [abiertos, setAbiertos] = useState({});
+  const [visibles, setVisibles] = useState(40);
+  const [vinculando, setVinculando] = useState(null);
+  useEffect(() => {
+    fetch('catalogo/catalogo-2027.json', {
+      cache: 'no-cache'
+    }).then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(c => {
+      if (!catalogoProp) setCatalogoLocal(c);
+    }).catch(err => setError('No se pudo cargar el catálogo (' + err.message + ').'));
+  }, []);
+  useEffect(() => {
+    if (window.lucide) window.lucide.createIcons();
+  });
+  useEffect(() => {
+    setVisibles(40);
+  }, [busqueda, sector, estado]);
+  if (error) return /*#__PURE__*/React.createElement("div", {
+    className: "form-hint",
+    style: {
+      color: '#b91c1c'
+    }
+  }, error);
+  if (!catalogo) return /*#__PURE__*/React.createElement("div", {
+    className: "form-hint"
+  }, "Cargando el catálogo oficial 2027…");
+
+  // Cursos del sitio vinculados a cada trayecto, y posibles coincidencias por nombre
+  const vinculados = {};
+  cursos.forEach((c, i) => (c.trayectosCatalogo || []).forEach(cod => {
+    (vinculados[cod] = vinculados[cod] || []).push({
+      curso: c,
+      indice: i
+    });
+  }));
+  const posibles = t => vinculados[t.codigo] ? [] : cursos.map((c, i) => ({
+    curso: c,
+    indice: i
+  })).filter(({
+    curso
+  }) => curso.curso.split(/\s*\+\s*/).map(normalizarNombre).some(p => p === normalizarNombre(t.nombre) || p === normalizarNombre(nombreCertificado(t))));
+  const q = normalizarNombre(busqueda);
+  const nombreSector = Object.fromEntries(catalogo.familias.map(f => [f.codigo, f.nombre]));
+  const filtrados = catalogo.trayectos.filter(t => {
+    if (sector && t.familia !== sector) return false;
+    if (estado === 'sitio' && !vinculados[t.codigo]) return false;
+    if (estado === 'no-listados' && vinculados[t.codigo]) return false;
+    if (estado === 'con-pagina' && !t.introduccion) return false;
+    if (estado === 'posibles' && !posibles(t).length) return false;
+    if (estado === 'observaciones' && !(t.observaciones || []).length) return false;
+    if (!q) return true;
+    const texto = normalizarNombre([t.codigo, t.nombre, t.certificacion, t.codigoDisenoCurricular, ...t.modulos.map(m => m.codigoPlanificacion + ' ' + m.denominacion)].join(' '));
+    return q.split(' ').every(p => texto.includes(p));
+  });
+  const enSitio = catalogo.trayectos.filter(t => vinculados[t.codigo]).length;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "admin-course-header"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontSize: 24,
+      margin: '0 0 4px',
+      color: 'var(--blue-900)'
+    }
+  }, "Catálogo oficial 2027 · Alta de cursos"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      margin: 0,
+      fontSize: 14,
+      color: 'var(--neutral-500)'
+    }
+  }, catalogo.trayectos.length, " trayectos de la DGCyE precargados (", catalogo.familias.length, " sectores). ", enSitio, " vinculados a cursos del sitio. \"Dar de alta\" abre el editor de cursos con los datos del catálogo: después completás días, horarios y sede."))), /*#__PURE__*/React.createElement("div", {
+    className: "admin-course-filters",
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 10,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    className: "form-input",
+    style: {
+      flex: '2 1 280px'
+    },
+    placeholder: "Buscar por código, nombre, módulo, código de planificación o de diseño curricular…",
+    value: busqueda,
+    onChange: e => setBusqueda(e.target.value)
+  }), /*#__PURE__*/React.createElement("select", {
+    className: "form-select",
+    style: {
+      flex: '1 1 200px'
+    },
+    value: sector,
+    onChange: e => setSector(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Todos los sectores"), catalogo.familias.map(f => /*#__PURE__*/React.createElement("option", {
+    key: f.codigo,
+    value: f.codigo
+  }, f.codigo, " · ", f.nombre))), /*#__PURE__*/React.createElement("select", {
+    className: "form-select",
+    style: {
+      flex: '1 1 200px'
+    },
+    value: estado,
+    onChange: e => setEstado(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "todos"
+  }, "Todos"), /*#__PURE__*/React.createElement("option", {
+    value: "sitio"
+  }, "Ya están en el sitio"), /*#__PURE__*/React.createElement("option", {
+    value: "no-listados"
+  }, "No listados"), /*#__PURE__*/React.createElement("option", {
+    value: "con-pagina"
+  }, "Con página individual lista (", catalogo.trayectos.filter(t => t.introduccion).length, ")"), /*#__PURE__*/React.createElement("option", {
+    value: "posibles"
+  }, "Posible coincidencia por nombre"), /*#__PURE__*/React.createElement("option", {
+    value: "observaciones"
+  }, "Con observaciones para revisar"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: 'var(--neutral-500)',
+      marginBottom: 12
+    }
+  }, "Mostrando ", Math.min(visibles, filtrados.length), " de ", filtrados.length, ". Fuente: ", catalogo.fuente, ".", ' ', /*#__PURE__*/React.createElement("a", {
+    href: "catalogo/catalogo-2027.pdf",
+    target: "_blank",
+    rel: "noopener"
+  }, "Abrir el PDF")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10
+    }
+  }, filtrados.slice(0, visibles).map(t => {
+    const vinc = vinculados[t.codigo] || [];
+    const sugeridos = posibles(t);
+    const abierto = !!abiertos[t.codigo];
+    const obs = t.observaciones || [];
+    return /*#__PURE__*/React.createElement("div", {
+      key: t.codigo,
+      className: "admin-course-card",
+      style: {
+        alignItems: 'flex-start',
+        borderLeft: vinc.length ? '4px solid #16a34a' : '4px solid transparent'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "admin-course-info",
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "admin-course-title-row",
+      style: {
+        flexWrap: 'wrap',
+        gap: 6
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "admin-course-badge-slug",
+      style: {
+        fontWeight: 800
+      }
+    }, t.codigo), /*#__PURE__*/React.createElement("strong", {
+      className: "admin-course-title"
+    }, t.nombre), /*#__PURE__*/React.createElement("span", {
+      className: "admin-course-badge-main",
+      title: nombreSector[t.familia]
+    }, nombreSector[t.familia] || t.familia), t.tipoCertificacion && /*#__PURE__*/React.createElement("span", {
+      className: "admin-course-badge-sub"
+    }, t.tipoCertificacion), t.introduccion && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        background: '#e0f2fe',
+        color: '#0369a1',
+        padding: '2px 8px',
+        borderRadius: 999
+      },
+      title: "Tiene página individual precargada con introducción y detalles"
+    }, "Página lista"), vinc.map(v => /*#__PURE__*/React.createElement("span", {
+      key: v.indice,
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        background: '#dcfce7',
+        color: '#166534',
+        padding: '2px 8px',
+        borderRadius: 999
+      }
+    }, "En el sitio: ", v.curso.curso))), /*#__PURE__*/React.createElement("div", {
+      className: "admin-course-details"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Certificación:"), " ", t.certificacion || '—'), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Código de diseño curricular:"), " ", t.codigoDisenoCurricular || '—', t.codigoDisenoCurricular && /*#__PURE__*/React.createElement(React.Fragment, null, " · ", /*#__PURE__*/React.createElement("a", {
+      href: 'https://www.google.com/search?q=' + encodeURIComponent('"' + t.codigoDisenoCurricular + '" diseño curricular formación profesional'),
+      target: "_blank",
+      rel: "noopener"
+    }, "buscar en internet")), ' ', "· ", /*#__PURE__*/React.createElement("strong", null, "Horas:"), " ", t.horasReloj ?? '—', " reloj (", t.horasCatedra ?? '—', " cátedra) · ", /*#__PURE__*/React.createElement("strong", null, "Módulos:"), " ", t.modulos.length), t.requisitos && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Requisitos / correlatividad:"), " ", t.requisitos), obs.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 6,
+        padding: '6px 10px',
+        background: '#fff7ed',
+        border: '1px solid #fed7aa',
+        borderRadius: 8,
+        color: '#9a3412',
+        fontSize: 12.5
+      }
+    }, obs.map((o, i) => /*#__PURE__*/React.createElement("div", {
+      key: i
+    }, "⚠ ", o)), /*#__PURE__*/React.createElement("a", {
+      href: 'catalogo/catalogo-2027.pdf#page=' + t.pagina,
+      target: "_blank",
+      rel: "noopener"
+    }, "Ver página ", t.pagina, " del catálogo")), sugeridos.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 6,
+        fontSize: 12.5,
+        color: 'var(--blue-900)'
+      }
+    }, "Posible coincidencia con ", sugeridos.map((s, i) => /*#__PURE__*/React.createElement("span", {
+      key: s.indice
+    }, i > 0 && ', ', "«", s.curso.curso, "» ", /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "btn btn-secondary btn-sm",
+      style: {
+        padding: '2px 8px',
+        fontSize: 11.5
+      },
+      onClick: () => onVincular(s.indice, t)
+    }, "Vincular")))), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: () => setAbiertos(p => ({
+        ...p,
+        [t.codigo]: !abierto
+      })),
+      style: {
+        marginTop: 6,
+        background: 'none',
+        border: 0,
+        padding: 0,
+        color: 'var(--blue-700)',
+        fontWeight: 700,
+        fontSize: 13,
+        cursor: 'pointer'
+      }
+    }, abierto ? '▾ Ocultar módulos' : `▸ Ver los ${t.modulos.length} módulos`), abierto && /*#__PURE__*/React.createElement("div", {
+      style: {
+        overflowX: 'auto',
+        marginTop: 6
+      }
+    }, /*#__PURE__*/React.createElement("table", {
+      style: {
+        width: '100%',
+        borderCollapse: 'collapse',
+        fontSize: 12.5
+      }
+    }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+      style: {
+        background: '#f1f5f9',
+        textAlign: 'left'
+      }
+    }, /*#__PURE__*/React.createElement("th", {
+      style: {
+        padding: '6px 8px'
+      }
+    }, "Código de planificación"), /*#__PURE__*/React.createElement("th", {
+      style: {
+        padding: '6px 8px'
+      }
+    }, "Denominación del módulo"), /*#__PURE__*/React.createElement("th", {
+      style: {
+        padding: '6px 8px',
+        textAlign: 'right'
+      }
+    }, "Hs. cát."), /*#__PURE__*/React.createElement("th", {
+      style: {
+        padding: '6px 8px',
+        textAlign: 'right'
+      }
+    }, "Hs. reloj"))), /*#__PURE__*/React.createElement("tbody", null, t.modulos.map((m, i) => /*#__PURE__*/React.createElement("tr", {
+      key: i,
+      style: {
+        borderTop: '1px solid #e2e8f0'
+      }
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '5px 8px',
+        whiteSpace: 'nowrap',
+        fontWeight: 700
+      }
+    }, m.codigoPlanificacion), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '5px 8px'
+      }
+    }, m.denominacion || '—'), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '5px 8px',
+        textAlign: 'right'
+      }
+    }, m.horasCatedra ?? '—'), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '5px 8px',
+        textAlign: 'right'
+      }
+    }, m.horasReloj ?? '—')))))))), /*#__PURE__*/React.createElement("div", {
+      className: "admin-course-actions",
+      style: {
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: 6,
+        minWidth: 190
+      }
+    }, vinc.map(v => /*#__PURE__*/React.createElement(React.Fragment, {
+      key: v.indice
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-secondary btn-sm",
+      onClick: () => onEditar(v.indice)
+    }, /*#__PURE__*/React.createElement("i", {
+      "data-lucide": "edit-3",
+      style: {
+        width: 14
+      }
+    }), " Editar «", v.curso.curso.length > 22 ? v.curso.curso.slice(0, 22) + '…' : v.curso.curso, "»"), /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-secondary btn-sm",
+      style: {
+        fontSize: 11.5
+      },
+      onClick: () => onDesvincular(v.indice, t)
+    }, "Desvincular"))), !vinc.length && /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-primary btn-sm",
+      onClick: () => onAlta(t, familiaSugerida(t, familiasSitio))
+    }, /*#__PURE__*/React.createElement("i", {
+      "data-lucide": "plus",
+      style: {
+        width: 14
+      }
+    }), " Dar de alta en el sitio"), vinculando === t.codigo ? /*#__PURE__*/React.createElement("select", {
+      className: "form-select",
+      autoFocus: true,
+      defaultValue: "",
+      onChange: e => {
+        if (e.target.value !== '') onVincular(Number(e.target.value), t);
+        setVinculando(null);
+      },
+      onBlur: () => setVinculando(null),
+      style: {
+        fontSize: 12.5
+      }
+    }, /*#__PURE__*/React.createElement("option", {
+      value: "",
+      disabled: true
+    }, "Elegí el curso del sitio…"), cursos.map((c, i) => /*#__PURE__*/React.createElement("option", {
+      key: i,
+      value: i
+    }, c.curso))) : /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-secondary btn-sm",
+      onClick: () => setVinculando(t.codigo)
+    }, /*#__PURE__*/React.createElement("i", {
+      "data-lucide": "link",
+      style: {
+        width: 14
+      }
+    }), " Vincular a un curso existente")));
+  })), visibles < filtrados.length && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      marginTop: 14
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-secondary",
+    onClick: () => setVisibles(v => v + 40)
+  }, "Mostrar 40 más (", filtrados.length - visibles, " restantes)")));
+}
 function AdminApp() {
   // Autenticación y registro de operador (§Auditoría)
   const [autenticado, setAutenticado] = useState(false);
@@ -882,8 +1436,22 @@ function AdminApp() {
   const [data, setData] = useState(null);
   const [activeTab, setActiveTab] = useState('cursos');
   const [dirty, setDirty] = useState(false);
+  // Copia de los datos tal como estaban al cargar el panel o en el último guardado (para "Revertir")
+  const guardadoRef = useRef(null);
   const [guardando, setGuardando] = useState(false);
+  const [registroCambios, setRegistroCambios] = useState(null); // null: sin cargar; [] o entradas
   const [toast, setToast] = useState(null);
+
+  // Catálogo oficial 2027 precargado globalmente
+  const [catalogoGlobal, setCatalogoGlobal] = useState(null);
+  useEffect(() => {
+    fetch('catalogo/catalogo-2027.json', {
+      cache: 'no-cache'
+    }).then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(setCatalogoGlobal).catch(() => {});
+  }, []);
 
   // Modales y filtros
   const [cursoModal, setCursoModal] = useState(null); // null o curso object
@@ -899,6 +1467,9 @@ function AdminApp() {
   // Promociones y Flyers
   const [promoModal, setPromoModal] = useState(null); // null o promo object
   const [promoStep, setPromoStep] = useState(1); // 1: modelo, 2: curso, 3: foto & encuadre, 4: preview & overrides
+  // Las elecciones únicas (modelo, curso, foto) pasan solas al paso siguiente; la pausa deja ver la marca de elegido.
+  // Solo avanza si se sigue en el paso donde se eligió (si ya se apretó "Continuar", no hace nada)
+  const avanzarPromo = (desde, hasta) => setTimeout(() => setPromoStep(actual => actual === desde ? hasta : actual), 250);
   const [promoPreviewFormat, setPromoPreviewFormat] = useState('feed'); // 'feed' | 'historia' | 'a4'
   // Plantillas de un solo formato (Aviso Primaria = solo Stories): la vista previa pasa a uno que admita
   useEffect(() => {
@@ -1065,6 +1636,7 @@ function AdminApp() {
         activo: true
       };
     }
+    guardadoRef.current = JSON.stringify(initial);
     setData(initial);
   }, []);
 
@@ -1208,7 +1780,9 @@ function AdminApp() {
       if (sesionVencida(res)) return;
       const json = await res.json();
       if (json.success) {
+        guardadoRef.current = JSON.stringify(data);
         setDirty(false);
+        setRegistroCambios(null); // el registro de cambios se vuelve a pedir con la entrada nueva
         showToast(json.message || 'Datos guardados correctamente en el servidor.');
       } else {
         showToast(json.error || 'Error al guardar en el servidor', 'error');
@@ -1219,6 +1793,35 @@ function AdminApp() {
       setGuardando(false);
     }
   };
+
+  // Revertir: descarta los cambios sin guardar y vuelve a los datos del último guardado (o de cuando se abrió el panel)
+  const handleRevertir = () => {
+    if (!dirty || !guardadoRef.current) return;
+    if (!window.confirm('¿Descartar todos los cambios sin guardar y volver a como estaba en el último guardado?\n\nLas fotos o piezas que ya se subieron al servidor no se borran.')) return;
+    setData(JSON.parse(guardadoRef.current));
+    setDirty(false);
+    setCursoModal(null);
+    setPromoModal(null);
+    showToast('Cambios descartados: el panel volvió al último guardado.');
+  };
+
+  // Registro de cambios (quién guardó y cuándo), en Sistema y Seguridad
+  const cargarRegistroCambios = async () => {
+    setRegistroCambios('cargando');
+    try {
+      const res = await fetch('api/registro.php', {
+        credentials: 'include'
+      });
+      if (sesionVencida(res)) return;
+      const json = await res.json();
+      setRegistroCambios(json.success ? json.entradas : []);
+    } catch (err) {
+      setRegistroCambios('error');
+    }
+  };
+  useEffect(() => {
+    if (autenticado && activeTab === 'sistema' && registroCambios === null) cargarRegistroCambios();
+  }, [autenticado, activeTab, registroCambios]);
 
   // Descargar data.js manualmente
   const handleDescargarDataJs = () => {
@@ -1694,13 +2297,15 @@ function AdminApp() {
       color: 'var(--neutral-500)',
       fontWeight: 600
     }
-  }, "10 secciones")), /*#__PURE__*/React.createElement("select", {
+  }, "11 secciones")), /*#__PURE__*/React.createElement("select", {
     className: "form-select admin-mobile-select",
     value: activeTab,
     onChange: e => handleTabChange(e.target.value)
   }, /*#__PURE__*/React.createElement("option", {
     value: "cursos"
   }, "📖 Gestión de Cursos (", cursos.length, ")"), /*#__PURE__*/React.createElement("option", {
+    value: "catalogo"
+  }, "📚 Catálogo 2027 · Alta de cursos"), /*#__PURE__*/React.createElement("option", {
     value: "promociones"
   }, "📢 Promociones y Flyers (", (data.promociones || []).length, ")"), /*#__PURE__*/React.createElement("option", {
     value: "inicio"
@@ -1729,6 +2334,14 @@ function AdminApp() {
       width: 18
     }
   }), " Cursos (", cursos.length, ")"), /*#__PURE__*/React.createElement("button", {
+    className: `admin-nav-item ${activeTab === 'catalogo' ? 'active' : ''}`,
+    onClick: () => handleTabChange('catalogo')
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "library",
+    style: {
+      width: 18
+    }
+  }), " Catálogo 2027 · Alta"), /*#__PURE__*/React.createElement("button", {
     className: `admin-nav-item ${activeTab === 'promociones' ? 'active' : ''}`,
     onClick: () => handleTabChange('promociones')
   }, /*#__PURE__*/React.createElement("i", {
@@ -1883,14 +2496,81 @@ function AdminApp() {
       className: "admin-course-badge-slug"
     }, "Página: #", `/curso/${c.slug}`)), /*#__PURE__*/React.createElement("div", {
       className: "admin-course-details"
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Horarios:"), " ", c.horarios), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Duración:"), " ", c.duracion, " • ", /*#__PURE__*/React.createElement("strong", null, "Horas totales:"), " ", c.horasTotales || '360 horas reloj', " • ", /*#__PURE__*/React.createElement("strong", null, "Sede:"), " ", c.sede), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Requisitos:"), " ", c.requisitos), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Estado de cupos:"), " ", {
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Horarios:"), " ", c.horarios), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Turnos:"), " ", window.CFPReglas.turnosDeCurso(c).join(', ') || 'sin definir'), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Duración:"), " ", c.duracion, " • ", /*#__PURE__*/React.createElement("strong", null, "Horas totales:"), " ", c.horasTotales || '360 horas reloj', " • ", /*#__PURE__*/React.createElement("strong", null, "Sede:"), " ", c.sede), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Requisitos:"), " ", c.requisitos), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Estado de cupos:"), " ", {
       'sin-confirmar': 'Sin confirmar',
       abierto: 'Abierto',
       'ultimos-cupos': 'Últimos cupos',
       completo: 'Completo'
-    }[c.estadoCupo || 'sin-confirmar'], c.cupoConfirmadoEn ? ` · confirmado ${c.cupoConfirmadoEn}` : ' · requiere confirmación', c.estadoCupo === 'ultimos-cupos' && window.CFPReglas?.estadoCupoVencido(c) ? ' · VENCIDO: actualizar en el panel' : ''))), /*#__PURE__*/React.createElement("div", {
+    }[c.estadoCupo || 'sin-confirmar'], c.cupoConfirmadoEn ? ` · confirmado ${c.cupoConfirmadoEn}` : ' · requiere confirmación', c.estadoCupo === 'ultimos-cupos' && window.CFPReglas?.estadoCupoVencido(c) ? ' · VENCIDO: actualizar en el panel' : ''), c.trayectosCatalogo && c.trayectosCatalogo.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 6,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        flexWrap: 'wrap'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        color: '#1e40af'
+      }
+    }, c.trayectosCatalogo.length > 1 ? '🔗 Curso articulado:' : '🔗 Trayecto oficial:'), c.trayectosCatalogo.map(cod => /*#__PURE__*/React.createElement("span", {
+      key: cod,
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        background: '#dbeafe',
+        color: '#1e40af',
+        padding: '1px 8px',
+        borderRadius: 6
+      }
+    }, cod))))), /*#__PURE__*/React.createElement("div", {
       className: "admin-course-actions"
-    }, c.slug && /*#__PURE__*/React.createElement("a", {
+    }, (() => {
+      const sugeridos = buscarCoincidenciasCatalogo(c, catalogoGlobal);
+      if (!sugeridos || !sugeridos.length) return null;
+      const yaVinculado = c.trayectosCatalogo && c.trayectosCatalogo.length === sugeridos.length && sugeridos.every(s => c.trayectosCatalogo.includes(s.codigo));
+      return /*#__PURE__*/React.createElement("button", {
+        type: "button",
+        className: "btn btn-secondary btn-sm",
+        style: {
+          background: yaVinculado ? '#f8fafc' : '#f0fdf4',
+          borderColor: yaVinculado ? '#cbd5e1' : '#86efac',
+          color: yaVinculado ? '#475569' : '#166534',
+          fontSize: 11.5
+        },
+        title: yaVinculado ? "Sincroniza horas, certificaciones y contenidos con los trayectos vinculados del catálogo" : `Asocia y actualiza horas, certificados y contenidos con ${sugeridos.map(s => s.codigo).join(' + ')}`,
+        onClick: () => {
+          const unificados = unificarDatosCatalogo(sugeridos);
+          if (!unificados) return;
+          const cods = sugeridos.map(s => s.codigo);
+          if ((c.introduccion || c.detalles) && !window.confirm(`Se van a reemplazar las horas, la certificación, la introducción y los detalles de "${c.curso}" por los textos del catálogo (${cods.join(' + ')}).\n\nLo que hayas escrito a mano en esos campos se pierde (días, horarios, turnos y capacidades no cambian). ¿Continuar?`)) return;
+          updateData(prev => {
+            const list = [...(prev.courses || [])];
+            list[realIndex] = {
+              ...list[realIndex],
+              trayectosCatalogo: cods,
+              horasTotales: unificados.horasTotales,
+              certificacion: unificados.certificacion,
+              introduccion: unificados.introduccion,
+              detalles: unificados.detalles,
+              requisitos: list[realIndex].requisitos ? list[realIndex].requisitos : unificados.requisitos
+            };
+            return {
+              ...prev,
+              courses: list
+            };
+          });
+          showToast(`Curso "${c.curso}" sincronizado con ${cods.join(' + ')} (${unificados.horasTotales}). Guardá en el servidor para publicar.`);
+        }
+      }, /*#__PURE__*/React.createElement("i", {
+        "data-lucide": "refresh-cw",
+        style: {
+          width: 13
+        }
+      }), yaVinculado ? 'Sincronizar Catálogo' : `Actualizar con Catálogo (${sugeridos.map(s => s.codigo).join('+')})`);
+    })(), c.slug && /*#__PURE__*/React.createElement("a", {
       href: `index.html#/curso/${c.slug}`,
       target: "_blank",
       rel: "noopener",
@@ -1940,7 +2620,67 @@ function AdminApp() {
       background: 'var(--neutral-25)',
       borderRadius: 'var(--radius-md)'
     }
-  }, "No se encontraron cursos con los filtros aplicados."))), activeTab === 'promociones' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, "No se encontraron cursos con los filtros aplicados."))), activeTab === 'catalogo' && /*#__PURE__*/React.createElement(CatalogoOficial, {
+    catalogo: catalogoGlobal,
+    cursos: cursos,
+    familiasSitio: (data.familias || []).map(f => f.nombre),
+    onAlta: (t, familia) => {
+      setCursoIndex(-1);
+      setCursoModal({
+        curso: t.nombre,
+        slug: '',
+        familia,
+        horarios: '',
+        duracion: '',
+        horasTotales: t.horasReloj ? t.horasReloj + ' horas reloj' : '',
+        requisitos: t.requisitos || '',
+        estadoCupo: 'sin-confirmar',
+        cupoConfirmadoEn: '',
+        sede: data.sedePrincipal || 'Sede Juan Pablo Angulo 1272, Dock Sud',
+        tambien: [],
+        introduccion: t.introduccion || '',
+        detalles: t.detalles || '',
+        certificacion: t.certificacion || '',
+        trayectosCatalogo: [t.codigo]
+      });
+    },
+    onEditar: i => {
+      setCursoIndex(i);
+      setCursoModal({
+        ...cursos[i]
+      });
+    },
+    onVincular: (i, t) => {
+      updateData(prev => {
+        const list = [...(prev.courses || [])];
+        const c = {
+          ...list[i]
+        };
+        c.trayectosCatalogo = Array.from(new Set([...(c.trayectosCatalogo || []), t.codigo]));
+        if (!c.certificacion && t.certificacion) c.certificacion = t.certificacion;
+        list[i] = c;
+        return {
+          ...prev,
+          courses: list
+        };
+      });
+      showToast(`«${t.codigo} · ${t.nombre}» vinculado a «${cursos[i].curso}». Guardá en el servidor para publicarlo.`);
+    },
+    onDesvincular: (i, t) => {
+      updateData(prev => {
+        const list = [...(prev.courses || [])];
+        list[i] = {
+          ...list[i],
+          trayectosCatalogo: (list[i].trayectosCatalogo || []).filter(cod => cod !== t.codigo)
+        };
+        return {
+          ...prev,
+          courses: list
+        };
+      });
+      showToast(`«${t.codigo}» desvinculado de «${cursos[i].curso}».`);
+    }
+  }), activeTab === 'promociones' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "admin-course-header"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
     style: {
@@ -2574,7 +3314,7 @@ function AdminApp() {
       flex: 'none'
     }
   }, /*#__PURE__*/React.createElement("img", {
-    src: data.home?.cintaAmarilla?.logoAmarilla || 'assets/logo-provincia-ba.png',
+    src: data.home?.cintaAmarilla?.logoAmarilla || 'assets/logo-provincia-ba-azul.png',
     alt: "",
     style: {
       maxHeight: 44,
@@ -2598,7 +3338,7 @@ function AdminApp() {
       fontSize: 12,
       color: 'var(--neutral-500)'
     }
-  }, data.home?.cintaAmarilla?.logoAmarilla ? 'Logo propio: ' + data.home.cintaAmarilla.logoAmarilla : 'Logo original'), /*#__PURE__*/React.createElement("div", {
+  }, data.home?.cintaAmarilla?.logoAmarilla ? 'Logo propio: ' + data.home.cintaAmarilla.logoAmarilla : 'Logo original en azul institucional (contrasta con el amarillo)'), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 8,
@@ -2634,7 +3374,7 @@ function AdminApp() {
         }
       }
     }))
-  }, "Volver al original")))), /*#__PURE__*/React.createElement("div", {
+  }, "Volver al original (azul)")))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -4954,58 +5694,174 @@ function AdminApp() {
       display: 'none'
     },
     onChange: handleImportarBackup
-  })))))))), /*#__PURE__*/React.createElement("div", {
-    className: "save-bar"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "save-bar-status"
-  }, dirty ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 10,
-      height: 10,
-      borderRadius: '50%',
-      background: 'var(--brand-accent)',
-      flexShrink: 0
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 13.5,
-      fontWeight: 700,
-      color: 'var(--blue-900)'
-    }
-  }, "Tenés cambios sin guardar")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 10,
-      height: 10,
-      borderRadius: '50%',
-      background: 'var(--green-600)',
-      flexShrink: 0
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 13.5,
-      color: 'var(--neutral-600)'
-    }
-  }, "Todos los datos sincronizados"))), /*#__PURE__*/React.createElement("div", {
-    className: "save-bar-actions"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: "btn btn-secondary",
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-secondary btn-sm",
     onClick: handleDescargarDataJs,
-    title: "Descargar archivo data.js listo para FTP"
+    title: "Archivo data.js listo para subir por FTP, por si el guardado en el servidor no funcionara"
   }, /*#__PURE__*/React.createElement("i", {
     "data-lucide": "download",
     style: {
-      width: 16
+      width: 14
     }
-  }), " Descargar data.js"), /*#__PURE__*/React.createElement("button", {
-    className: "btn btn-primary",
+  }), " Descargar data.js"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 20,
+      border: '1px solid var(--border-subtle)',
+      borderRadius: 'var(--radius-lg)',
+      gridColumn: '1 / -1'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+      flexWrap: 'wrap',
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: 16,
+      margin: 0,
+      color: 'var(--blue-900)'
+    }
+  }, "Registro de cambios"), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-secondary btn-sm",
+    onClick: cargarRegistroCambios,
+    disabled: registroCambios === 'cargando'
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "refresh-cw",
+    style: {
+      width: 14
+    }
+  }), " Actualizar")), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: 'var(--neutral-600)',
+      margin: '0 0 12px'
+    }
+  }, "Cada vez que alguien guarda en el servidor queda anotado el nombre con el que ingresó al panel y la hora. Se muestran los últimos 50 guardados, del más reciente al más antiguo."), registroCambios === 'cargando' && /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: 'var(--neutral-500)',
+      margin: 0
+    }
+  }, "Cargando…"), registroCambios === 'error' && /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: '#b91c1c',
+      margin: 0
+    }
+  }, "No se pudo leer el registro (el servidor no respondió)."), Array.isArray(registroCambios) && registroCambios.length === 0 && /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: 'var(--neutral-500)',
+      margin: 0
+    }
+  }, "Todavía no hay guardados registrados."), Array.isArray(registroCambios) && registroCambios.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxHeight: 320,
+      overflowY: 'auto',
+      border: '1px solid #e2e8f0',
+      borderRadius: 8
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      fontSize: 13
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      background: '#f1f5f9',
+      textAlign: 'left',
+      position: 'sticky',
+      top: 0
+    }
+  }, /*#__PURE__*/React.createElement("th", {
+    style: {
+      padding: '6px 10px'
+    }
+  }, "Fecha y hora"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      padding: '6px 10px'
+    }
+  }, "Operador"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      padding: '6px 10px'
+    }
+  }, "Cursos"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      padding: '6px 10px'
+    }
+  }, "IP"))), /*#__PURE__*/React.createElement("tbody", null, registroCambios.map((e, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i,
+    style: {
+      borderTop: '1px solid #e2e8f0'
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '5px 10px',
+      whiteSpace: 'nowrap'
+    }
+  }, e.fecha.slice(8, 10), "/", e.fecha.slice(5, 7), "/", e.fecha.slice(0, 4), " ", e.fecha.slice(11, 16), " hs"), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '5px 10px',
+      fontWeight: 700,
+      color: 'var(--blue-900)'
+    }
+  }, e.operador), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '5px 10px'
+    }
+  }, e.cursos), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '5px 10px',
+      color: 'var(--neutral-500)'
+    }
+  }, e.ip))))))))))), /*#__PURE__*/React.createElement("div", {
+    className: "save-bar save-bar-discreta",
+    role: "region",
+    "aria-label": "Guardado en el servidor"
+  }, /*#__PURE__*/React.createElement("span", {
+    title: dirty ? 'Hay cambios sin guardar en el servidor' : 'Todos los datos sincronizados',
+    style: {
+      width: 9,
+      height: 9,
+      borderRadius: '50%',
+      background: dirty ? 'var(--brand-accent)' : 'var(--green-600)',
+      flexShrink: 0
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12.5,
+      color: dirty ? 'var(--blue-900)' : 'var(--neutral-600)',
+      fontWeight: dirty ? 700 : 500,
+      whiteSpace: 'nowrap'
+    }
+  }, dirty ? 'Sin guardar' : 'Guardado'), dirty && /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-secondary btn-sm",
+    "data-accion": "revertir",
+    onClick: handleRevertir,
+    disabled: guardando,
+    title: "Descartar los cambios sin guardar y volver al último guardado"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "undo-2",
+    style: {
+      width: 14
+    }
+  }), " Revertir"), /*#__PURE__*/React.createElement("button", {
+    className: `btn ${dirty ? 'btn-primary' : 'btn-secondary'} btn-sm`,
+    "data-accion": "guardar-servidor",
     onClick: handleGuardarServidor,
-    disabled: guardando
+    disabled: guardando,
+    title: "Guardar los cambios en el servidor para publicarlos en el sitio"
   }, /*#__PURE__*/React.createElement("i", {
     "data-lucide": "save",
     style: {
-      width: 16
+      width: 14
     }
-  }), " ", guardando ? 'Guardando en PHP...' : '💾 Guardar en Servidor (PHP)'))), cursoModal && /*#__PURE__*/React.createElement("div", {
+  }), " ", guardando ? 'Guardando…' : 'Guardar')), cursoModal && /*#__PURE__*/React.createElement("div", {
     className: "modal-overlay",
     onClick: () => setCursoModal(null)
   }, /*#__PURE__*/React.createElement("div", {
@@ -5177,7 +6033,42 @@ function AdminApp() {
     placeholder: "Ej: Lunes, miércoles y viernes de 18:00 a 21:50 hs"
   }), /*#__PURE__*/React.createElement("div", {
     className: "form-hint"
-  }, "Cualquier cambio aquí se refleja inmediatamente en el recuadro \"Días y horarios\" de la página propia del curso.")), /*#__PURE__*/React.createElement("div", {
+  }, "Separá cada turno con \" · \" (ej.: \"Mañana: martes y jueves de 9:10 a 12:30 hs · Noche: lunes y jueves de 18:00 a 21:40 hs\"). En la página del curso se muestra uno por renglón.")), /*#__PURE__*/React.createElement("div", {
+    className: "form-group"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "form-label"
+  }, "Turnos (para el filtro \"Turno\" de la página de cursos)"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 18,
+      flexWrap: 'wrap',
+      alignItems: 'center'
+    }
+  }, window.CFPReglas.TURNOS.map(t => {
+    const marcados = window.CFPReglas.turnosDeCurso(cursoModal);
+    return /*#__PURE__*/React.createElement("label", {
+      key: t,
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        fontSize: 14,
+        cursor: 'pointer'
+      }
+    }, /*#__PURE__*/React.createElement("input", {
+      type: "checkbox",
+      checked: marcados.includes(t),
+      onChange: e => {
+        const nuevos = e.target.checked ? [...marcados, t] : marcados.filter(x => x !== t);
+        setCursoModal({
+          ...cursoModal,
+          turnos: window.CFPReglas.TURNOS.filter(x => nuevos.includes(x))
+        });
+      }
+    }), t);
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-hint"
+  }, Array.isArray(cursoModal.turnos) && cursoModal.turnos.length ? 'Marcados a mano.' : 'Sin marcar: se deducen de los horarios (las casillas tildadas muestran lo que se deduce).')), /*#__PURE__*/React.createElement("div", {
     className: "form-group"
   }, /*#__PURE__*/React.createElement("label", {
     className: "form-label"
@@ -5242,6 +6133,178 @@ function AdminApp() {
   }, "Completo")), /*#__PURE__*/React.createElement("div", {
     className: "form-hint"
   }, "Última confirmación: ", cursoModal.cupoConfirmadoEn || 'sin fecha', ". Los avisos de últimos cupos vencen a los 30 días y se bloquean si el curso está completo o sin confirmar.")), /*#__PURE__*/React.createElement("div", {
+    className: "form-group",
+    style: {
+      padding: 14,
+      border: '1px solid #bfdbfe',
+      borderRadius: 10,
+      background: '#eff6ff',
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      fontSize: 13,
+      color: '#1e3a8a',
+      textTransform: 'uppercase',
+      letterSpacing: '0.04em'
+    }
+  }, "Trayectos del Catálogo 2027 vinculados"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: 8,
+      fontSize: 11,
+      fontWeight: 700,
+      background: '#dbeafe',
+      color: '#1e40af',
+      padding: '2px 8px',
+      borderRadius: 999
+    }
+  }, (cursoModal.trayectosCatalogo || []).length, " ", (cursoModal.trayectosCatalogo || []).length === 1 ? 'trayecto oficial' : 'trayectos articulados')), (cursoModal.trayectosCatalogo || []).length > 0 && catalogoGlobal && /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn btn-primary btn-sm",
+    style: {
+      padding: '3px 10px',
+      fontSize: 11.5
+    },
+    title: "Autosuma las horas, combina certificaciones oficiales y aúna los contenidos de los diseños curriculares",
+    onClick: () => {
+      const map = Object.fromEntries(catalogoGlobal.trayectos.map(t => [t.codigo, t]));
+      const selected = (cursoModal.trayectosCatalogo || []).map(cod => map[cod]).filter(Boolean);
+      const unificados = unificarDatosCatalogo(selected);
+      if (unificados) {
+        setCursoModal(prev => ({
+          ...prev,
+          horasTotales: unificados.horasTotales,
+          certificacion: unificados.certificacion,
+          introduccion: unificados.introduccion,
+          detalles: unificados.detalles,
+          requisitos: prev.requisitos ? prev.requisitos : unificados.requisitos
+        }));
+        showToast(`Datos unificados con ${selected.length} trayecto(s). Podés editar las horas y textos a mano.`);
+      }
+    }
+  }, "⚡ Unificar datos desde el Catálogo")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 6,
+      marginBottom: 10
+    }
+  }, (cursoModal.trayectosCatalogo || []).map(cod => {
+    const t = catalogoGlobal ? catalogoGlobal.trayectos.find(x => x.codigo === cod) : null;
+    return /*#__PURE__*/React.createElement("span", {
+      key: cod,
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        background: '#ffffff',
+        border: '1px solid #bfdbfe',
+        color: '#1e3a8a',
+        padding: '3px 8px',
+        borderRadius: 6,
+        fontSize: 12
+      }
+    }, /*#__PURE__*/React.createElement("strong", null, cod), ": ", t ? t.nombre : cod, " ", t && t.horasReloj ? `(${t.horasReloj} hs)` : '', /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: () => {
+        const nuevos = (cursoModal.trayectosCatalogo || []).filter(c => c !== cod);
+        let unif = null;
+        if (catalogoGlobal && nuevos.length > 0) {
+          const map = Object.fromEntries(catalogoGlobal.trayectos.map(x => [x.codigo, x]));
+          const sel = nuevos.map(c => map[c]).filter(Boolean);
+          unif = unificarDatosCatalogo(sel);
+        }
+        setCursoModal(prev => ({
+          ...prev,
+          trayectosCatalogo: nuevos,
+          horasTotales: unif ? unif.horasTotales : prev.horasTotales
+        }));
+      },
+      style: {
+        background: 'none',
+        border: 'none',
+        color: '#dc2626',
+        cursor: 'pointer',
+        fontWeight: 800,
+        padding: '0 2px'
+      },
+      title: "Quitar este trayecto"
+    }, "✕"));
+  }), !(cursoModal.trayectosCatalogo || []).length && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12.5,
+      color: '#64748b',
+      fontStyle: 'italic'
+    }
+  }, "No hay trayectos oficiales asociados a este curso todavía.")), catalogoGlobal && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("select", {
+    className: "form-select",
+    style: {
+      fontSize: 12,
+      flex: 1,
+      background: '#ffffff'
+    },
+    value: "",
+    onChange: e => {
+      const cod = e.target.value;
+      if (!cod) return;
+      if ((cursoModal.trayectosCatalogo || []).includes(cod)) return;
+      const nuevos = [...(cursoModal.trayectosCatalogo || []), cod];
+      const map = Object.fromEntries(catalogoGlobal.trayectos.map(x => [x.codigo, x]));
+      const sel = nuevos.map(c => map[c]).filter(Boolean);
+      const unificados = unificarDatosCatalogo(sel);
+      setCursoModal(prev => ({
+        ...prev,
+        trayectosCatalogo: nuevos,
+        // Autosuma las horas automáticamente, pero permitiendo modificarlas libremente
+        horasTotales: unificados ? unificados.horasTotales : prev.horasTotales,
+        // Si antes no tenía certificación ni intro, precarga
+        certificacion: !prev.certificacion && unificados ? unificados.certificacion : prev.certificacion,
+        introduccion: !prev.introduccion && unificados ? unificados.introduccion : prev.introduccion
+      }));
+      showToast(`Trayecto ${cod} asociado. Horas recalculadas automáticamente.`);
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "+ Asociar otro trayecto del Catálogo 2027 (para articular cursos)..."), catalogoGlobal.trayectos.filter(t => !(cursoModal.trayectosCatalogo || []).includes(t.codigo)).map(t => /*#__PURE__*/React.createElement("option", {
+    key: t.codigo,
+    value: t.codigo
+  }, t.codigo, " — ", t.nombre, " (", t.horasReloj, " hs reloj · ", t.familia, ")")))), /*#__PURE__*/React.createElement("div", {
+    className: "form-hint",
+    style: {
+      marginTop: 6,
+      color: '#1e40af'
+    }
+  }, "💡 Podés asociar varios trayectos para formar un curso articulado. Las horas se autosuman y podés cambiarlas a mano. El botón \"⚡ Unificar datos\" aúna las certificaciones oficiales y todos los programas curriculares.")), /*#__PURE__*/React.createElement("div", {
+    className: "form-group"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "form-label"
+  }, "Certificación (se muestra en la página individual del curso)"), /*#__PURE__*/React.createElement("textarea", {
+    className: "form-textarea",
+    rows: 3,
+    value: cursoModal.certificacion || '',
+    onChange: e => setCursoModal({
+      ...cursoModal,
+      certificacion: e.target.value
+    }),
+    placeholder: "Ej: Soldador Básico según Resolución Nro. … (del Catálogo oficial 2027)"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "form-hint"
+  }, "Se muestra en el recuadro \"Certificación que se obtiene\" de la página individual. Para cursos articulados se listan todas las certificaciones otorgadas.")), /*#__PURE__*/React.createElement("div", {
     className: "form-group"
   }, /*#__PURE__*/React.createElement("label", {
     className: "form-label"
@@ -5257,6 +6320,21 @@ function AdminApp() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "form-hint"
   }, "Aparece en la sección destacada \"Introducción\" de la página individual del curso.")), /*#__PURE__*/React.createElement("div", {
+    className: "form-group"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "form-label"
+  }, "Capacidades profesionales (Página Individual)"), /*#__PURE__*/React.createElement("textarea", {
+    className: "form-textarea",
+    rows: 6,
+    value: cursoModal.capacidades || '',
+    onChange: e => setCursoModal({
+      ...cursoModal,
+      capacidades: e.target.value
+    }),
+    placeholder: "Qué está capacitado para hacer quien egresa. Para una lista, empezá cada renglón con •"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "form-hint"
+  }, "Aparece en la sección \"Capacidades profesionales\", debajo de la introducción. Si queda vacío, la sección no se muestra. Separá párrafos con un renglón en blanco; los renglones que empiezan con • se muestran como lista.")), /*#__PURE__*/React.createElement("div", {
     className: "form-group"
   }, /*#__PURE__*/React.createElement("label", {
     className: "form-label"
@@ -5451,7 +6529,7 @@ function AdminApp() {
       fontSize: 13,
       color: 'var(--neutral-600)'
     }
-  }, "Los modelos de curso toman los datos del curso que elijas. El de inscripciones es un aviso general con las familias de oficios."), /*#__PURE__*/React.createElement("div", {
+  }, "Los modelos de curso toman los datos del curso que elijas. El de inscripciones es un aviso general con las familias de oficios.", ' ', "Al elegir el modelo, el curso o la foto se pasa solo al paso siguiente; para volver, tocá el paso en la barra de arriba."), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
@@ -5545,6 +6623,9 @@ function AdminApp() {
             modelo: plt.id
           }));
         }
+        avanzarPromo(1, pasoSiguiente({
+          modelo: plt.id
+        }, 1));
       },
       style: {
         borderRadius: 14,
@@ -5767,6 +6848,7 @@ function AdminApp() {
           huellaCurso: window.CFPReglas?.huellaCurso(c) || '',
           popupActivo: promoModal.popupActivo === true
         });
+        avanzarPromo(2, pasoSiguiente(promoModal, 2));
       },
       style: {
         padding: '12px 16px',
@@ -5986,6 +7068,7 @@ function AdminApp() {
           imagen: foto.archivo,
           encuadre: foto.encuadre || prev.encuadre || '40% 45%'
         }));
+        avanzarPromo(3, 4);
       },
       style: {
         position: 'relative',
@@ -6059,54 +7142,10 @@ function AdminApp() {
       borderRadius: 8,
       border: '1px solid #e2e8f0'
     }
-  }, /*#__PURE__*/React.createElement("label", {
-    className: "form-label",
-    style: {
-      marginBottom: 6
-    }
-  }, "Punto de enfoque de la foto (Encuadre):"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      flexWrap: 'wrap',
-      alignItems: 'center'
-    }
-  }, [{
-    label: 'Taller foco (40% 45%)',
-    val: '40% 45%'
-  }, {
-    label: 'Centro (50% 50%)',
-    val: '50% 50%'
-  }, {
-    label: 'Arriba (50% 20%)',
-    val: '50% 20%'
-  }, {
-    label: 'Abajo (50% 80%)',
-    val: '50% 80%'
-  }, {
-    label: 'Izquierda (20% 50%)',
-    val: '20% 50%'
-  }, {
-    label: 'Derecha (80% 50%)',
-    val: '80% 50%'
-  }].map(pos => /*#__PURE__*/React.createElement("button", {
-    key: pos.val,
-    type: "button",
-    onClick: () => setPromoModal(prev => ({
-      ...prev,
-      encuadre: pos.val
-    })),
-    style: {
-      padding: '4px 10px',
-      borderRadius: 6,
-      fontSize: 12,
-      border: '1px solid',
-      borderColor: promoModal.encuadre === pos.val ? 'var(--blue-900)' : '#cbd5e1',
-      background: promoModal.encuadre === pos.val ? 'var(--blue-900)' : '#fff',
-      color: promoModal.encuadre === pos.val ? '#fff' : 'var(--neutral-700)',
-      cursor: 'pointer'
-    }
-  }, pos.label)))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(SelectorEncuadre, {
+    promo: promoModal,
+    setPromo: setPromoModal
+  })), /*#__PURE__*/React.createElement("div", {
     className: "promo-step-actions",
     style: {
       marginTop: 24,
@@ -6177,7 +7216,16 @@ function AdminApp() {
       color: 'var(--neutral-500)',
       marginTop: 8
     }
-  }, "Previsualización dinámica a escala real (", promoPreviewFormat.toUpperCase(), ")")), /*#__PURE__*/React.createElement("div", {
+  }, "Previsualización dinámica a escala real (", promoPreviewFormat.toUpperCase(), ")"), pasoHabilitado(promoModal, 3) && promoModal.imagen && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 12,
+      width: '100%',
+      maxWidth: 340
+    }
+  }, /*#__PURE__*/React.createElement(SelectorEncuadre, {
+    promo: promoModal,
+    setPromo: setPromoModal
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "promo-controls-col"
   }, /*#__PURE__*/React.createElement("h4", {
     style: {

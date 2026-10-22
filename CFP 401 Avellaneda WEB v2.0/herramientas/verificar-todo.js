@@ -13,7 +13,7 @@ function run(command, args, opts = {}) { return execFileSync(command, args, { cw
 
 console.log('=== Verificación de build, datos, guardas y regresiones ===\n');
 
-for (const file of ['data.js', 'app.js', 'admin.js', 'plantillas-promo.js', 'cfp-reglas.js']) {
+for (const file of ['data.js', 'app.js', 'admin.js', 'plantillas-promo.js', 'cfp-reglas.js', 'iconos.js']) {
   const full = path.join(SITE, file);
   try { run(process.execPath, ['--check', full]); pass(`Sintaxis JavaScript: site/${file}`); }
   catch (e) { errors++; console.error(`✗ Sintaxis JavaScript: site/${file}\n${e.stderr || e.message}`); }
@@ -38,13 +38,35 @@ try {
   check(Array.isArray(data.promociones || []), 'Catálogo de promociones con estructura de arreglo');
   const allowed = new Set(rules.ESTADOS_CUPO);
   check(data.courses.every(c => !c.estadoCupo || allowed.has(c.estadoCupo)), 'Estados de cupos dentro del catálogo permitido');
+  check(data.courses.every(c => !c.turnos || (Array.isArray(c.turnos) && c.turnos.every(t => rules.TURNOS.includes(t)))), 'Turnos de los cursos dentro de Mañana, Tarde y Noche');
+  const sinTurno = data.courses.filter(c => !rules.turnosDeCurso(c).length).map(c => c.curso);
+  check(!sinTurno.length, `Todos los cursos tienen turno para el filtro${sinTurno.length ? ` (faltan: ${sinTurno.join(', ')})` : ''}`);
+  const slugs = data.courses.flatMap(c => rules.slugsDeCurso(c));
+  check(new Set(slugs).size === slugs.length, 'Slugs de cursos (actuales y anteriores) sin repetir');
   run(process.execPath, [path.join(__dirname, 'verificar-reglas.js')]);
   pass('Regresiones de cupos, vencimiento, huella y vigencia ejecutadas');
 } catch (e) { errors++; console.error(`✗ Validación de datos/reglas: ${e.stderr || e.message}`); }
 
+// Fotos con perfil de color amplio (Rec. 2020, Display P3, Adobe RGB): Firefox en Windows puede pasar la ventana a
+// modo HDR al mostrarlas y apagar el brillo de todo lo demás (20/10/2026). La biblioteca tiene que estar en sRGB.
+{
+  const amplias = [];
+  const recorrer = dir => fs.readdirSync(dir, { withFileTypes: true }).forEach(item => {
+    const ruta = path.join(dir, item.name);
+    if (item.isDirectory()) return recorrer(ruta);
+    if (!/\.(jpe?g|png|webp)$/i.test(item.name)) return;
+    const cabecera = fs.readFileSync(ruta).subarray(0, 262144);
+    // La descripción del perfil ICC puede estar en ASCII (v2) o en UTF-16 (v4)
+    const marcas = ['Rec. 2020', 'Rec.2020', 'BT.2020', 'Display P3', 'Adobe RGB'];
+    if (marcas.some(m => cabecera.includes(Buffer.from(m, 'latin1')) || cabecera.includes(Buffer.from(m, 'utf16le').swap16()))) amplias.push(path.relative(SITE, ruta));
+  });
+  recorrer(path.join(SITE, 'assets'));
+  check(!amplias.length, `Fotos del sitio en sRGB, sin perfiles de color amplios${amplias.length ? ` (convertir: ${amplias.join(', ')})` : ''}`);
+}
+
 for (const file of ['admin.html', 'index.html']) {
   const html = fs.readFileSync(path.join(SITE, file), 'utf8');
-  for (const js of ['cfp-reglas.js', ...(file === 'admin.html' ? ['plantillas-promo.js', 'admin.js'] : ['_ds_bundle.js', 'plantillas-promo.js', 'app.js'])]) {
+  for (const js of ['cfp-reglas.js', 'iconos.js', ...(file === 'admin.html' ? ['plantillas-promo.js', 'admin.js'] : ['_ds_bundle.js', 'plantillas-promo.js', 'app.js'])]) {
     const reference = [...html.matchAll(/(?:src|href)=["']([^"']+)["']/gi)]
       .map(m => m[1]).find(url => path.posix.basename(url.split(/[?#]/)[0]) === js);
     const version = reference && (reference.match(/[?&]v=([a-f0-9]{12})(?:&|$)/i) || [])[1];

@@ -12,9 +12,9 @@
   
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" integrity="sha384-ieG+IKD0d/ZPXyCBTMVAbqsQdns8QGJR/e26WMw7M4fkaI/rHcS/YIoi+ah9WGge" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" integrity="sha384-ieG+IKD0d/ZPXyCBTMVAbqsQdns8QGJR/e26WMw7M4fkaI/rHcS/YIoi+ah9WGge" crossorigin="anonymous"></script><script src="iconos.js?v=1458b29a16ae"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-  <script src="cfp-reglas.js?v=5d6a045c06cb"></script>
+  <script src="cfp-reglas.js?v=74ebfa479304"></script>
   <script src="data.js"></script>
   <script src="plantillas-promo.js?v=ba835b37ed35"></script>
 
@@ -144,8 +144,8 @@
       height: fit-content;
       position: sticky;
       top: 80px;
-      /* Que nunca quede debajo de la barra de guardado: alto máximo y desplazamiento propio */
-      max-height: calc(100vh - 80px - 96px);
+      /* Alto máximo y desplazamiento propio (el guardado es una pastilla en la esquina, ya no una barra) */
+      max-height: calc(100vh - 80px - 24px);
       overflow-y: auto;
       overscroll-behavior: contain;
       scrollbar-width: thin;
@@ -206,6 +206,28 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+    }
+    /* En Promociones el guardado es una pastilla chica en la esquina, fuera del paso de las piezas */
+    .save-bar.save-bar-discreta {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      left: auto;
+      width: auto;
+      padding: 5px 5px 5px 12px;
+      border: 1px solid var(--border-subtle, #d2dae4);
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(0,40,120,.14);
+      gap: 8px;
+      flex-wrap: nowrap;
+      opacity: .92;
+    }
+    .save-bar.save-bar-discreta:hover,
+    .save-bar.save-bar-discreta:focus-within { opacity: 1; }
+    .save-bar.save-bar-discreta .btn {
+      padding: 5px 12px;
+      font-size: 12.5px;
+      border-radius: 999px;
     }
 
     /* Selector móvil de sección */
@@ -341,6 +363,16 @@
         font-size: 12px !important;
         white-space: normal !important;
         justify-content: center !important;
+      }
+      .save-bar.save-bar-discreta {
+        right: 10px !important;
+        bottom: 10px !important;
+        padding: 4px 4px 4px 10px !important;
+        gap: 6px !important;
+      }
+      .save-bar.save-bar-discreta .btn {
+        padding: 5px 10px !important;
+        white-space: nowrap !important;
       }
 
       /* Formularios en celular a 1 columna */
@@ -978,6 +1010,6 @@
 <body>
   <div id="root"></div>
 
-  <script src="admin.js?v=73a29c89089b"></script>
+  <script src="admin.js?v=791f3297a5ae"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 # =============================================================================
-# CFP N° 401 AVELLANEDA — SEGURIDAD, CABECERAS Y CONTROL DE CACHÉ
+# CFP Nº 401 AVELLANEDA — SEGURIDAD, CABECERAS Y CONTROL DE CACHÉ
 # =============================================================================
 
 # Desactivar listado de directorios
@@ -45,6 +45,16 @@ Options -Indexes
   </IfModule>
 </Files>
 
+# Permitir catálogo oficial para el panel de administración
+<FilesMatch "^catalogo-\d{4}\.json$">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Allow from all
+  </IfModule>
+</FilesMatch>
+
 # 4. CONTROL DE CACHÉ PARA DATOS DINÁMICOS
 # data.js debe revalidarse para que las modificaciones de cursos se vean de inmediato
 <Files "data.js">
@@ -54,3 +64,17 @@ Options -Indexes
     Header set Expires 0
   </IfModule>
 </Files>
+
+# 5. CACHÉ PARA EL RESTO DEL SITIO
+# Las páginas se revalidan siempre (respuesta 304 si no cambiaron): después de cada subida nadie queda con la versión vieja
+<FilesMatch "\.html$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache"
+  </IfModule>
+</FilesMatch>
+# Los scripts se piden con ?v=huella (versionar-assets.js): cada versión nueva cambia de dirección, así que pueden guardarse un año
+<FilesMatch "^(app|admin|plantillas-promo|_ds_bundle|cfp-reglas|iconos)\.js$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </IfModule>
+</FilesMatch>

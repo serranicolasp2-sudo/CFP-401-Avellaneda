@@ -1,6 +1,18 @@
 # Dependencies
 node_modules/
 
+# Local browser binaries (Playwright / Puppeteer)
+.local/
+*/.local/
+
+# Subrepositorios autónomos (tienen su propio repositorio Git)
+campus-semi/
+campus-semi-codex/
+
+# Configuración de agentes
+.claude/
+.gemini/
+
 # Secrets and server-side files (NEVER commit these)
 *.clave*.json
 .intentos.json
@@ -24,9 +36,6 @@ Desktop.ini
 *.tmp
 *.bak
 *.swp
-
-# Antigravity/AI agent scratch files
-.gemini/
 
 # Design System caches
 Sistema de Diseño/.thumbnail

@@ -16,12 +16,13 @@ const { useState, useEffect, useRef } = React;
     }
 
     /* Foto sugerida para un curso: primero las de ese curso (por cursoSlug o por el nombre de
-       archivo "{slug}-{n}.jpg"), después las de su familia */
+       archivo "{slug}-{n}.jpg", también con los slugs anteriores si se renombró), después las de su familia */
     function fotoSugeridaPromo(c, biblioteca) {
       if (!c) return null;
       const fotos = biblioteca || [];
-      const esDelCurso = f => (f.cursoSlug && f.cursoSlug === c.slug)
-        || (f.archivo || '').split('/').pop().replace(/-\d+\.\w+$/, '') === c.slug;
+      const slugs = window.CFPReglas.slugsDeCurso(c);
+      const esDelCurso = f => (f.cursoSlug && slugs.includes(f.cursoSlug))
+        || slugs.includes((f.archivo || '').split('/').pop().replace(/-\d+\.\w+$/, ''));
       return fotos.find(esDelCurso)
         || fotos.find(f => f.familia === c.familia)
         || null;
@@ -122,6 +123,41 @@ const { useState, useEffect, useRef } = React;
     /* Tipo de pieza según su plantilla: 'curso' o 'inscripciones' */
     function tipoDePromo(promo) {
       return plantillaDePromo(promo).tipo || 'curso';
+    }
+
+    /* Punto de enfoque de la foto: en el paso 3 y también en la vista previa (al elegir la foto se pasa
+       solo al paso 4, así que ahí se puede corregir viendo el resultado) */
+    const ENCUADRES = [
+      { label: 'Taller foco', val: '40% 45%' },
+      { label: 'Centro', val: '50% 50%' },
+      { label: 'Arriba', val: '50% 20%' },
+      { label: 'Abajo', val: '50% 80%' },
+      { label: 'Izquierda', val: '20% 50%' },
+      { label: 'Derecha', val: '80% 50%' }
+    ];
+    function SelectorEncuadre({ promo, setPromo }) {
+      return (
+        <div>
+          <label className="form-label" style={{ marginBottom: 6 }}>Punto de enfoque de la foto (encuadre):</label>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+            {ENCUADRES.map(pos => {
+              const activo = promo.encuadre === pos.val;
+              return (
+                <button
+                  key={pos.val}
+                  type="button"
+                  title={pos.val}
+                  aria-pressed={activo}
+                  onClick={() => setPromo(prev => ({ ...prev, encuadre: pos.val }))}
+                  style={{ padding: '4px 10px', borderRadius: 6, fontSize: 12, border: '1px solid', borderColor: activo ? 'var(--blue-900)' : '#cbd5e1', background: activo ? 'var(--blue-900)' : '#fff', color: activo ? '#fff' : 'var(--neutral-700)', cursor: 'pointer' }}
+                >
+                  {pos.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
     }
 
     /* Pasos del asistente que usa cada plantilla: el 2 (un curso, varios cursos o familias de oficios)
@@ -621,6 +657,294 @@ const { useState, useEffect, useRef } = React;
       }
     };
 
+    /* ---------- Catálogo oficial 2027 (DGCyE): alta de cursos ----------
+       Lista precargada de todos los trayectos del catálogo (site/catalogo/catalogo-2027.json, extraído del PDF
+       oficial con herramientas/catalogo/extraer.py). Desde acá se da de alta un curso en el sitio con los datos
+       del catálogo o se vincula a un curso que ya existe (un curso del sitio puede reunir varios trayectos). */
+    const SECTOR_A_FAMILIA = {
+      AC: 'Administración', SM: 'Administración', OC: 'Construcción', EE: 'Electricidad', ET: 'Informática',
+      IM: 'Informática', CS: 'Informática', IC: 'Informática', MT: 'Metalmecánica', EM: 'Climatización'
+    };
+    const normalizarNombre = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/\(.*?\)/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+    const nombreCertificado = t => (t.certificacion || '').split(/\s+seg[uú]n\s+/i)[0];
+
+    function familiaSugerida(t, familiasSitio) {
+      if (/solar|renovable/i.test(t.nombre) && familiasSitio.includes('Energías Renovables')) return 'Energías Renovables';
+      const f = SECTOR_A_FAMILIA[t.familia];
+      return f && familiasSitio.includes(f) ? f : (familiasSitio[0] || '');
+    }
+
+    function unificarDatosCatalogo(trayectos) {
+      if (!trayectos || !trayectos.length) return null;
+      const totalReloj = trayectos.reduce((acc, t) => acc + (Number(t.horasReloj) || 0), 0);
+      const totalCatedra = trayectos.reduce((acc, t) => acc + (Number(t.horasCatedra) || 0), 0);
+      const horasTotales = `${totalReloj} horas reloj` + (totalCatedra ? ` (${totalCatedra} hs cátedra)` : '');
+
+      let certificacion = '';
+      if (trayectos.length === 1) {
+        certificacion = trayectos[0].certificacion || trayectos[0].nombre;
+      } else {
+        const certs = trayectos.map(t => {
+          const res = (t.resJurisdiccional || '').trim();
+          return `• ${t.nombre}${res ? ` (Res. ${res})` : ''}`;
+        });
+        certificacion = `Se otorgan ${trayectos.length} certificaciones oficiales de la DGCyE:\n` + certs.join('\n');
+      }
+
+      let introduccion = '';
+      if (trayectos.length === 1) {
+        introduccion = trayectos[0].introduccion || '';
+      } else {
+        const nombres = trayectos.map(t => t.nombre);
+        introduccion = `Trayecto formativo integral que articula las especialidades y certificaciones oficiales de ${nombres.join(', ')}. Quienes completan la cursada obtienen ${trayectos.length} títulos oficiales de la Dirección General de Cultura y Educación.`;
+      }
+
+      let detalles = '';
+      if (trayectos.length === 1) {
+        detalles = trayectos[0].detalles || '';
+      } else {
+        const cods = trayectos.map(t => t.codigo).join(', ');
+        const encabezado = `Este trayecto formativo aúna los contenidos y prácticas de ${trayectos.length} diseños curriculares oficiales de la DGCyE (${cods}), permitiendo a los estudiantes capacitarse de forma integral y articulada en una sola cursada, obteniendo cada una de las certificaciones correspondientes al finalizar.`;
+        const bloques = trayectos.map(t => {
+          const horas = t.horasReloj ? ` (${t.horasReloj} hs reloj)` : '';
+          return `=== ${t.nombre.toUpperCase()}${horas} ===
+
+${t.detalles || 'Contenidos teóricos y prácticas según diseño curricular oficial de la DGCyE.'}`;
+        });
+        detalles = [encabezado, ...bloques].join('\n\n');
+      }
+
+      const pideSecundaria = trayectos.some(t => (t.requisitos || '').toLowerCase().includes('secundari'));
+      const requisitos = pideSecundaria ? 'Estudios secundarios completos' : 'Estudios primarios completos';
+
+      return {
+        horasTotales,
+        certificacion,
+        introduccion,
+        detalles,
+        requisitos
+      };
+    }
+
+    function buscarCoincidenciasCatalogo(curso, catalogo) {
+      if (!curso || !catalogo || !catalogo.trayectos) return [];
+      if (curso.trayectosCatalogo && curso.trayectosCatalogo.length) {
+        const map = Object.fromEntries(catalogo.trayectos.map(t => [t.codigo, t]));
+        const sel = curso.trayectosCatalogo.map(c => map[c]).filter(Boolean);
+        if (sel.length) return sel;
+      }
+      const partes = (curso.curso || '').split(/\s*\+\s*/).map(normalizarNombre).filter(Boolean);
+      const matches = [];
+      const normFull = normalizarNombre(curso.curso);
+      catalogo.trayectos.forEach(t => {
+        const nt = normalizarNombre(t.nombre);
+        const nc = normalizarNombre(nombreCertificado(t));
+        if (normFull === nt || normFull === nc) {
+          if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+        } else {
+          for (const p of partes) {
+            const pClean = p.replace(/\(.*?\)/g, '').trim();
+            if (p === nt || p === nc || pClean === nt || pClean === nc) {
+              if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+            } else if (pClean.length > 10 && (pClean.includes(nt) || nt.includes(pClean))) {
+              if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+            } else if (pClean.includes('sanitari') && pClean.includes('gas') && (t.codigo === 'OC32' || t.codigo === 'OC33')) {
+              if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+            } else if ((pClean.includes('termico') || pClean.includes('solar')) && t.codigo === 'OC42') {
+              if (!matches.some(m => m.codigo === t.codigo)) matches.push(t);
+            }
+          }
+        }
+      });
+      return matches;
+    }
+
+    function CatalogoOficial({ cursos, familiasSitio, catalogo: catalogoProp, onAlta, onEditar, onVincular, onDesvincular }) {
+      const [catalogoLocal, setCatalogoLocal] = useState(null);
+      const catalogo = catalogoProp || catalogoLocal;
+      const [error, setError] = useState('');
+      const [busqueda, setBusqueda] = useState('');
+      const [sector, setSector] = useState('');
+      const [estado, setEstado] = useState('todos');
+      const [abiertos, setAbiertos] = useState({});
+      const [visibles, setVisibles] = useState(40);
+      const [vinculando, setVinculando] = useState(null);
+
+      useEffect(() => {
+        fetch('catalogo/catalogo-2027.json', { cache: 'no-cache' })
+          .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(c => { if (!catalogoProp) setCatalogoLocal(c); })
+          .catch(err => setError('No se pudo cargar el catálogo (' + err.message + ').'));
+      }, []);
+      useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
+      useEffect(() => { setVisibles(40); }, [busqueda, sector, estado]);
+
+      if (error) return <div className="form-hint" style={{ color: '#b91c1c' }}>{error}</div>;
+      if (!catalogo) return <div className="form-hint">Cargando el catálogo oficial 2027…</div>;
+
+      // Cursos del sitio vinculados a cada trayecto, y posibles coincidencias por nombre
+      const vinculados = {};
+      cursos.forEach((c, i) => (c.trayectosCatalogo || []).forEach(cod => { (vinculados[cod] = vinculados[cod] || []).push({ curso: c, indice: i }); }));
+      const posibles = t => vinculados[t.codigo] ? [] : cursos
+        .map((c, i) => ({ curso: c, indice: i }))
+        .filter(({ curso }) => curso.curso.split(/\s*\+\s*/).map(normalizarNombre).some(p => p === normalizarNombre(t.nombre) || p === normalizarNombre(nombreCertificado(t))));
+
+      const q = normalizarNombre(busqueda);
+      const nombreSector = Object.fromEntries(catalogo.familias.map(f => [f.codigo, f.nombre]));
+      const filtrados = catalogo.trayectos.filter(t => {
+        if (sector && t.familia !== sector) return false;
+        if (estado === 'sitio' && !vinculados[t.codigo]) return false;
+        if (estado === 'no-listados' && vinculados[t.codigo]) return false;
+        if (estado === 'con-pagina' && !t.introduccion) return false;
+        if (estado === 'posibles' && !posibles(t).length) return false;
+        if (estado === 'observaciones' && !(t.observaciones || []).length) return false;
+        if (!q) return true;
+        const texto = normalizarNombre([t.codigo, t.nombre, t.certificacion, t.codigoDisenoCurricular,
+          ...t.modulos.map(m => m.codigoPlanificacion + ' ' + m.denominacion)].join(' '));
+        return q.split(' ').every(p => texto.includes(p));
+      });
+      const enSitio = catalogo.trayectos.filter(t => vinculados[t.codigo]).length;
+
+      return (
+        <div>
+          <div className="admin-course-header">
+            <div>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, margin: '0 0 4px', color: 'var(--blue-900)' }}>Catálogo oficial 2027 · Alta de cursos</h2>
+              <p style={{ margin: 0, fontSize: 14, color: 'var(--neutral-500)' }}>
+                {catalogo.trayectos.length} trayectos de la DGCyE precargados ({catalogo.familias.length} sectores). {enSitio} vinculados a cursos del sitio.
+                "Dar de alta" abre el editor de cursos con los datos del catálogo: después completás días, horarios y sede.
+              </p>
+            </div>
+          </div>
+
+          <div className="admin-course-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 10 }}>
+            <input type="text" className="form-input" style={{ flex: '2 1 280px' }} placeholder="Buscar por código, nombre, módulo, código de planificación o de diseño curricular…" value={busqueda} onChange={e => setBusqueda(e.target.value)} />
+            <select className="form-select" style={{ flex: '1 1 200px' }} value={sector} onChange={e => setSector(e.target.value)}>
+              <option value="">Todos los sectores</option>
+              {catalogo.familias.map(f => <option key={f.codigo} value={f.codigo}>{f.codigo} · {f.nombre}</option>)}
+            </select>
+            <select className="form-select" style={{ flex: '1 1 200px' }} value={estado} onChange={e => setEstado(e.target.value)}>
+              <option value="todos">Todos</option>
+              <option value="sitio">Ya están en el sitio</option>
+              <option value="no-listados">No listados</option>
+              <option value="con-pagina">Con página individual lista ({catalogo.trayectos.filter(t => t.introduccion).length})</option>
+              <option value="posibles">Posible coincidencia por nombre</option>
+              <option value="observaciones">Con observaciones para revisar</option>
+            </select>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'var(--neutral-500)', marginBottom: 12 }}>
+            Mostrando {Math.min(visibles, filtrados.length)} de {filtrados.length}. Fuente: {catalogo.fuente}.
+            {' '}<a href="catalogo/catalogo-2027.pdf" target="_blank" rel="noopener">Abrir el PDF</a>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {filtrados.slice(0, visibles).map(t => {
+              const vinc = vinculados[t.codigo] || [];
+              const sugeridos = posibles(t);
+              const abierto = !!abiertos[t.codigo];
+              const obs = t.observaciones || [];
+              return (
+                <div key={t.codigo} className="admin-course-card" style={{ alignItems: 'flex-start', borderLeft: vinc.length ? '4px solid #16a34a' : '4px solid transparent' }}>
+                  <div className="admin-course-info" style={{ flex: 1, minWidth: 0 }}>
+                    <div className="admin-course-title-row" style={{ flexWrap: 'wrap', gap: 6 }}>
+                      <span className="admin-course-badge-slug" style={{ fontWeight: 800 }}>{t.codigo}</span>
+                      <strong className="admin-course-title">{t.nombre}</strong>
+                      <span className="admin-course-badge-main" title={nombreSector[t.familia]}>{nombreSector[t.familia] || t.familia}</span>
+                      {t.tipoCertificacion && <span className="admin-course-badge-sub">{t.tipoCertificacion}</span>}
+                      {t.introduccion && <span style={{ fontSize: 11, fontWeight: 700, background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: 999 }} title="Tiene página individual precargada con introducción y detalles">Página lista</span>}
+                      {vinc.map(v => <span key={v.indice} style={{ fontSize: 11, fontWeight: 700, background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: 999 }}>En el sitio: {v.curso.curso}</span>)}
+                    </div>
+                    <div className="admin-course-details">
+                      <div><strong>Certificación:</strong> {t.certificacion || '—'}</div>
+                      <div>
+                        <strong>Código de diseño curricular:</strong> {t.codigoDisenoCurricular || '—'}
+                        {t.codigoDisenoCurricular && (
+                          <> · <a href={'https://www.google.com/search?q=' + encodeURIComponent('"' + t.codigoDisenoCurricular + '" diseño curricular formación profesional')} target="_blank" rel="noopener">buscar en internet</a></>
+                        )}
+                        {' '}· <strong>Horas:</strong> {t.horasReloj ?? '—'} reloj ({t.horasCatedra ?? '—'} cátedra) · <strong>Módulos:</strong> {t.modulos.length}
+                      </div>
+                      {t.requisitos && <div><strong>Requisitos / correlatividad:</strong> {t.requisitos}</div>}
+                      {obs.length > 0 && (
+                        <div style={{ marginTop: 6, padding: '6px 10px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 8, color: '#9a3412', fontSize: 12.5 }}>
+                          {obs.map((o, i) => <div key={i}>⚠ {o}</div>)}
+                          <a href={'catalogo/catalogo-2027.pdf#page=' + t.pagina} target="_blank" rel="noopener">Ver página {t.pagina} del catálogo</a>
+                        </div>
+                      )}
+                      {sugeridos.length > 0 && (
+                        <div style={{ marginTop: 6, fontSize: 12.5, color: 'var(--blue-900)' }}>
+                          Posible coincidencia con {sugeridos.map((s, i) => (
+                            <span key={s.indice}>{i > 0 && ', '}«{s.curso.curso}» <button type="button" className="btn btn-secondary btn-sm" style={{ padding: '2px 8px', fontSize: 11.5 }} onClick={() => onVincular(s.indice, t)}>Vincular</button></span>
+                          ))}
+                        </div>
+                      )}
+                      <button type="button" onClick={() => setAbiertos(p => ({ ...p, [t.codigo]: !abierto }))} style={{ marginTop: 6, background: 'none', border: 0, padding: 0, color: 'var(--blue-700)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        {abierto ? '▾ Ocultar módulos' : `▸ Ver los ${t.modulos.length} módulos`}
+                      </button>
+                      {abierto && (
+                        <div style={{ overflowX: 'auto', marginTop: 6 }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+                            <thead>
+                              <tr style={{ background: '#f1f5f9', textAlign: 'left' }}>
+                                <th style={{ padding: '6px 8px' }}>Código de planificación</th>
+                                <th style={{ padding: '6px 8px' }}>Denominación del módulo</th>
+                                <th style={{ padding: '6px 8px', textAlign: 'right' }}>Hs. cát.</th>
+                                <th style={{ padding: '6px 8px', textAlign: 'right' }}>Hs. reloj</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {t.modulos.map((m, i) => (
+                                <tr key={i} style={{ borderTop: '1px solid #e2e8f0' }}>
+                                  <td style={{ padding: '5px 8px', whiteSpace: 'nowrap', fontWeight: 700 }}>{m.codigoPlanificacion}</td>
+                                  <td style={{ padding: '5px 8px' }}>{m.denominacion || '—'}</td>
+                                  <td style={{ padding: '5px 8px', textAlign: 'right' }}>{m.horasCatedra ?? '—'}</td>
+                                  <td style={{ padding: '5px 8px', textAlign: 'right' }}>{m.horasReloj ?? '—'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="admin-course-actions" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6, minWidth: 190 }}>
+                    {vinc.map(v => (
+                      <React.Fragment key={v.indice}>
+                        <button className="btn btn-secondary btn-sm" onClick={() => onEditar(v.indice)}>
+                          <i data-lucide="edit-3" style={{ width: 14 }}></i> Editar «{v.curso.curso.length > 22 ? v.curso.curso.slice(0, 22) + '…' : v.curso.curso}»
+                        </button>
+                        <button className="btn btn-secondary btn-sm" style={{ fontSize: 11.5 }} onClick={() => onDesvincular(v.indice, t)}>Desvincular</button>
+                      </React.Fragment>
+                    ))}
+                    {!vinc.length && (
+                      <button className="btn btn-primary btn-sm" onClick={() => onAlta(t, familiaSugerida(t, familiasSitio))}>
+                        <i data-lucide="plus" style={{ width: 14 }}></i> Dar de alta en el sitio
+                      </button>
+                    )}
+                    {vinculando === t.codigo ? (
+                      <select className="form-select" autoFocus defaultValue="" onChange={e => { if (e.target.value !== '') onVincular(Number(e.target.value), t); setVinculando(null); }} onBlur={() => setVinculando(null)} style={{ fontSize: 12.5 }}>
+                        <option value="" disabled>Elegí el curso del sitio…</option>
+                        {cursos.map((c, i) => <option key={i} value={i}>{c.curso}</option>)}
+                      </select>
+                    ) : (
+                      <button className="btn btn-secondary btn-sm" onClick={() => setVinculando(t.codigo)}>
+                        <i data-lucide="link" style={{ width: 14 }}></i> Vincular a un curso existente
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {visibles < filtrados.length && (
+            <div style={{ textAlign: 'center', marginTop: 14 }}>
+              <button className="btn btn-secondary" onClick={() => setVisibles(v => v + 40)}>Mostrar 40 más ({filtrados.length - visibles} restantes)</button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     function AdminApp() {
       // Autenticación y registro de operador (§Auditoría)
       const [autenticado, setAutenticado] = useState(false);
@@ -633,8 +957,20 @@ const { useState, useEffect, useRef } = React;
       const [data, setData] = useState(null);
       const [activeTab, setActiveTab] = useState('cursos');
       const [dirty, setDirty] = useState(false);
+      // Copia de los datos tal como estaban al cargar el panel o en el último guardado (para "Revertir")
+      const guardadoRef = useRef(null);
       const [guardando, setGuardando] = useState(false);
+      const [registroCambios, setRegistroCambios] = useState(null); // null: sin cargar; [] o entradas
       const [toast, setToast] = useState(null);
+
+      // Catálogo oficial 2027 precargado globalmente
+      const [catalogoGlobal, setCatalogoGlobal] = useState(null);
+      useEffect(() => {
+        fetch('catalogo/catalogo-2027.json', { cache: 'no-cache' })
+          .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(setCatalogoGlobal)
+          .catch(() => {});
+      }, []);
 
       // Modales y filtros
       const [cursoModal, setCursoModal] = useState(null); // null o curso object
@@ -650,6 +986,9 @@ const { useState, useEffect, useRef } = React;
       // Promociones y Flyers
       const [promoModal, setPromoModal] = useState(null); // null o promo object
       const [promoStep, setPromoStep] = useState(1); // 1: modelo, 2: curso, 3: foto & encuadre, 4: preview & overrides
+      // Las elecciones únicas (modelo, curso, foto) pasan solas al paso siguiente; la pausa deja ver la marca de elegido.
+      // Solo avanza si se sigue en el paso donde se eligió (si ya se apretó "Continuar", no hace nada)
+      const avanzarPromo = (desde, hasta) => setTimeout(() => setPromoStep(actual => (actual === desde ? hasta : actual)), 250);
       const [promoPreviewFormat, setPromoPreviewFormat] = useState('feed'); // 'feed' | 'historia' | 'a4'
       // Plantillas de un solo formato (Aviso Primaria = solo Stories): la vista previa pasa a uno que admita
       useEffect(() => {
@@ -795,6 +1134,7 @@ const { useState, useEffect, useRef } = React;
         if (!initial.cintaEfemerides) {
           initial.cintaEfemerides = { activo: true };
         }
+        guardadoRef.current = JSON.stringify(initial);
         setData(initial);
       }, []);
 
@@ -904,7 +1244,9 @@ const { useState, useEffect, useRef } = React;
           if (sesionVencida(res)) return;
           const json = await res.json();
           if (json.success) {
+            guardadoRef.current = JSON.stringify(data);
             setDirty(false);
+            setRegistroCambios(null); // el registro de cambios se vuelve a pedir con la entrada nueva
             showToast(json.message || 'Datos guardados correctamente en el servidor.');
           } else {
             showToast(json.error || 'Error al guardar en el servidor', 'error');
@@ -915,6 +1257,33 @@ const { useState, useEffect, useRef } = React;
           setGuardando(false);
         }
       };
+
+      // Revertir: descarta los cambios sin guardar y vuelve a los datos del último guardado (o de cuando se abrió el panel)
+      const handleRevertir = () => {
+        if (!dirty || !guardadoRef.current) return;
+        if (!window.confirm('¿Descartar todos los cambios sin guardar y volver a como estaba en el último guardado?\n\nLas fotos o piezas que ya se subieron al servidor no se borran.')) return;
+        setData(JSON.parse(guardadoRef.current));
+        setDirty(false);
+        setCursoModal(null);
+        setPromoModal(null);
+        showToast('Cambios descartados: el panel volvió al último guardado.');
+      };
+
+      // Registro de cambios (quién guardó y cuándo), en Sistema y Seguridad
+      const cargarRegistroCambios = async () => {
+        setRegistroCambios('cargando');
+        try {
+          const res = await fetch('api/registro.php', { credentials: 'include' });
+          if (sesionVencida(res)) return;
+          const json = await res.json();
+          setRegistroCambios(json.success ? json.entradas : []);
+        } catch (err) {
+          setRegistroCambios('error');
+        }
+      };
+      useEffect(() => {
+        if (autenticado && activeTab === 'sistema' && registroCambios === null) cargarRegistroCambios();
+      }, [autenticado, activeTab, registroCambios]);
 
       // Descargar data.js manualmente
       const handleDescargarDataJs = () => {
@@ -1274,7 +1643,7 @@ const { useState, useEffect, useRef } = React;
                 <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--blue-900)', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <i data-lucide="menu" style={{ width: 14 }}></i> Sección a Gestionar:
                 </span>
-                <span style={{ fontSize: 11, color: 'var(--neutral-500)', fontWeight: 600 }}>10 secciones</span>
+                <span style={{ fontSize: 11, color: 'var(--neutral-500)', fontWeight: 600 }}>11 secciones</span>
               </div>
               <select
                 className="form-select admin-mobile-select"
@@ -1282,6 +1651,7 @@ const { useState, useEffect, useRef } = React;
                 onChange={e => handleTabChange(e.target.value)}
               >
                 <option value="cursos">📖 Gestión de Cursos ({cursos.length})</option>
+                <option value="catalogo">📚 Catálogo 2027 · Alta de cursos</option>
                 <option value="promociones">📢 Promociones y Flyers ({(data.promociones || []).length})</option>
                 <option value="inicio">🏠 Portada, Hero y Propuesta de Inicio</option>
                 <option value="cursos-avisos">🔔 Avisos e Inscripciones en Cursos</option>
@@ -1298,6 +1668,9 @@ const { useState, useEffect, useRef } = React;
             <aside className="admin-sidebar">
               <button className={`admin-nav-item ${activeTab === 'cursos' ? 'active' : ''}`} onClick={() => handleTabChange('cursos')}>
                 <i data-lucide="book-open" style={{ width: 18 }}></i> Cursos ({cursos.length})
+              </button>
+              <button className={`admin-nav-item ${activeTab === 'catalogo' ? 'active' : ''}`} onClick={() => handleTabChange('catalogo')}>
+                <i data-lucide="library" style={{ width: 18 }}></i> Catálogo 2027 · Alta
               </button>
               <button className={`admin-nav-item ${activeTab === 'promociones' ? 'active' : ''}`} onClick={() => handleTabChange('promociones')}>
                 <i data-lucide="megaphone" style={{ width: 18 }}></i> Promociones ({(data.promociones || []).length})
@@ -1395,15 +1768,66 @@ const { useState, useEffect, useRef } = React;
                             </div>
                             <div className="admin-course-details">
                               <div><strong>Horarios:</strong> {c.horarios}</div>
+                              <div><strong>Turnos:</strong> {window.CFPReglas.turnosDeCurso(c).join(', ') || 'sin definir'}</div>
                               <div><strong>Duración:</strong> {c.duracion} • <strong>Horas totales:</strong> {c.horasTotales || '360 horas reloj'} • <strong>Sede:</strong> {c.sede}</div>
                               <div><strong>Requisitos:</strong> {c.requisitos}</div>
                               <div><strong>Estado de cupos:</strong> {({ 'sin-confirmar': 'Sin confirmar', abierto: 'Abierto', 'ultimos-cupos': 'Últimos cupos', completo: 'Completo' })[c.estadoCupo || 'sin-confirmar']}
                                 {c.cupoConfirmadoEn ? ` · confirmado ${c.cupoConfirmadoEn}` : ' · requiere confirmación'}
                                 {c.estadoCupo === 'ultimos-cupos' && window.CFPReglas?.estadoCupoVencido(c) ? ' · VENCIDO: actualizar en el panel' : ''}
                               </div>
+                              {c.trayectosCatalogo && c.trayectosCatalogo.length > 0 && (
+                                <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                  <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af' }}>
+                                    {c.trayectosCatalogo.length > 1 ? '🔗 Curso articulado:' : '🔗 Trayecto oficial:'}
+                                  </span>
+                                  {c.trayectosCatalogo.map(cod => (
+                                    <span key={cod} style={{ fontSize: 11, fontWeight: 700, background: '#dbeafe', color: '#1e40af', padding: '1px 8px', borderRadius: 6 }}>
+                                      {cod}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div className="admin-course-actions">
+                            {(() => {
+                              const sugeridos = buscarCoincidenciasCatalogo(c, catalogoGlobal);
+                              if (!sugeridos || !sugeridos.length) return null;
+                              const yaVinculado = (c.trayectosCatalogo && c.trayectosCatalogo.length === sugeridos.length && sugeridos.every(s => c.trayectosCatalogo.includes(s.codigo)));
+                              return (
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary btn-sm"
+                                  style={{ background: yaVinculado ? '#f8fafc' : '#f0fdf4', borderColor: yaVinculado ? '#cbd5e1' : '#86efac', color: yaVinculado ? '#475569' : '#166534', fontSize: 11.5 }}
+                                  title={yaVinculado ? "Sincroniza horas, certificaciones y contenidos con los trayectos vinculados del catálogo" : `Asocia y actualiza horas, certificados y contenidos con ${sugeridos.map(s => s.codigo).join(' + ')}`}
+                                  onClick={() => {
+                                    const unificados = unificarDatosCatalogo(sugeridos);
+                                    if (!unificados) return;
+                                    const cods = sugeridos.map(s => s.codigo);
+                                    if ((c.introduccion || c.detalles) && !window.confirm(
+                                      `Se van a reemplazar las horas, la certificación, la introducción y los detalles de "${c.curso}" por los textos del catálogo (${cods.join(' + ')}).\n\nLo que hayas escrito a mano en esos campos se pierde (días, horarios, turnos y capacidades no cambian). ¿Continuar?`
+                                    )) return;
+                                    updateData(prev => {
+                                      const list = [...(prev.courses || [])];
+                                      list[realIndex] = {
+                                        ...list[realIndex],
+                                        trayectosCatalogo: cods,
+                                        horasTotales: unificados.horasTotales,
+                                        certificacion: unificados.certificacion,
+                                        introduccion: unificados.introduccion,
+                                        detalles: unificados.detalles,
+                                        requisitos: list[realIndex].requisitos ? list[realIndex].requisitos : unificados.requisitos
+                                      };
+                                      return { ...prev, courses: list };
+                                    });
+                                    showToast(`Curso "${c.curso}" sincronizado con ${cods.join(' + ')} (${unificados.horasTotales}). Guardá en el servidor para publicar.`);
+                                  }}
+                                >
+                                  <i data-lucide="refresh-cw" style={{ width: 13 }}></i>
+                                  {yaVinculado ? 'Sincronizar Catálogo' : `Actualizar con Catálogo (${sugeridos.map(s => s.codigo).join('+')})`}
+                                </button>
+                              );
+                            })()}
                             {c.slug && (
                               <a
                                 href={`index.html#/curso/${c.slug}`}
@@ -1443,6 +1867,54 @@ const { useState, useEffect, useRef } = React;
               )}
 
               {/* TAB: PROMOCIONES Y FLYERS */}
+              {activeTab === 'catalogo' && (
+                <CatalogoOficial
+                  catalogo={catalogoGlobal}
+                  cursos={cursos}
+                  familiasSitio={(data.familias || []).map(f => f.nombre)}
+                  onAlta={(t, familia) => {
+                    setCursoIndex(-1);
+                    setCursoModal({
+                      curso: t.nombre,
+                      slug: '',
+                      familia,
+                      horarios: '',
+                      duracion: '',
+                      horasTotales: t.horasReloj ? t.horasReloj + ' horas reloj' : '',
+                      requisitos: t.requisitos || '',
+                      estadoCupo: 'sin-confirmar',
+                      cupoConfirmadoEn: '',
+                      sede: data.sedePrincipal || 'Sede Juan Pablo Angulo 1272, Dock Sud',
+                      tambien: [],
+                      introduccion: t.introduccion || '',
+                      detalles: t.detalles || '',
+                      certificacion: t.certificacion || '',
+                      trayectosCatalogo: [t.codigo]
+                    });
+                  }}
+                  onEditar={i => { setCursoIndex(i); setCursoModal({ ...cursos[i] }); }}
+                  onVincular={(i, t) => {
+                    updateData(prev => {
+                      const list = [...(prev.courses || [])];
+                      const c = { ...list[i] };
+                      c.trayectosCatalogo = Array.from(new Set([...(c.trayectosCatalogo || []), t.codigo]));
+                      if (!c.certificacion && t.certificacion) c.certificacion = t.certificacion;
+                      list[i] = c;
+                      return { ...prev, courses: list };
+                    });
+                    showToast(`«${t.codigo} · ${t.nombre}» vinculado a «${cursos[i].curso}». Guardá en el servidor para publicarlo.`);
+                  }}
+                  onDesvincular={(i, t) => {
+                    updateData(prev => {
+                      const list = [...(prev.courses || [])];
+                      list[i] = { ...list[i], trayectosCatalogo: (list[i].trayectosCatalogo || []).filter(cod => cod !== t.codigo) };
+                      return { ...prev, courses: list };
+                    });
+                    showToast(`«${t.codigo}» desvinculado de «${cursos[i].curso}».`);
+                  }}
+                />
+              )}
+
               {activeTab === 'promociones' && (
                 <div>
                   <div className="admin-course-header">
@@ -1855,11 +2327,11 @@ const { useState, useEffect, useRef } = React;
                           </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 8 }}>
                           <div style={{ width: 230, height: 58, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffd100', border: '1px solid #f5c400', borderRadius: 8, padding: '6px 10px', flex: 'none' }}>
-                            <img src={data.home?.cintaAmarilla?.logoAmarilla || 'assets/logo-provincia-ba.png'} alt="" style={{ maxHeight: 44, maxWidth: '100%', display: 'block' }} />
+                            <img src={data.home?.cintaAmarilla?.logoAmarilla || 'assets/logo-provincia-ba-azul.png'} alt="" style={{ maxHeight: 44, maxWidth: '100%', display: 'block' }} />
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--blue-900)' }}>Logo para la cinta amarilla</span>
-                            <span style={{ fontSize: 12, color: 'var(--neutral-500)' }}>{data.home?.cintaAmarilla?.logoAmarilla ? 'Logo propio: ' + data.home.cintaAmarilla.logoAmarilla : 'Logo original'}</span>
+                            <span style={{ fontSize: 12, color: 'var(--neutral-500)' }}>{data.home?.cintaAmarilla?.logoAmarilla ? 'Logo propio: ' + data.home.cintaAmarilla.logoAmarilla : 'Logo original en azul institucional (contrasta con el amarillo)'}</span>
                             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                               <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
                                 <i data-lucide="upload" style={{ width: 14 }}></i> Subir otro logo
@@ -1867,7 +2339,7 @@ const { useState, useEffect, useRef } = React;
                               </label>
                               {data.home?.cintaAmarilla?.logoAmarilla && (
                                 <button type="button" className="btn btn-secondary btn-sm" onClick={() => updateData(prev => ({ ...prev, home: { ...prev.home, cintaAmarilla: { ...(prev.home?.cintaAmarilla || {}), logoAmarilla: '' } } }))}>
-                                  Volver al original
+                                  Volver al original (azul)
                                 </button>
                               )}
                             </div>
@@ -3262,7 +3734,50 @@ const { useState, useEffect, useRef } = React;
                           Restaurar Backup
                           <input type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportarBackup} />
                         </label>
+                        <button className="btn btn-secondary btn-sm" onClick={handleDescargarDataJs} title="Archivo data.js listo para subir por FTP, por si el guardado en el servidor no funcionara">
+                          <i data-lucide="download" style={{ width: 14 }}></i> Descargar data.js
+                        </button>
                       </div>
+                    </div>
+
+                    {/* Registro de cambios: quién guardó y cuándo (api/backups/registro-cambios.log) */}
+                    <div style={{ padding: 20, border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', gridColumn: '1 / -1' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
+                        <h3 style={{ fontSize: 16, margin: 0, color: 'var(--blue-900)' }}>Registro de cambios</h3>
+                        <button className="btn btn-secondary btn-sm" onClick={cargarRegistroCambios} disabled={registroCambios === 'cargando'}>
+                          <i data-lucide="refresh-cw" style={{ width: 14 }}></i> Actualizar
+                        </button>
+                      </div>
+                      <p style={{ fontSize: 13, color: 'var(--neutral-600)', margin: '0 0 12px' }}>
+                        Cada vez que alguien guarda en el servidor queda anotado el nombre con el que ingresó al panel y la hora. Se muestran los últimos 50 guardados, del más reciente al más antiguo.
+                      </p>
+                      {registroCambios === 'cargando' && <p style={{ fontSize: 13, color: 'var(--neutral-500)', margin: 0 }}>Cargando…</p>}
+                      {registroCambios === 'error' && <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>No se pudo leer el registro (el servidor no respondió).</p>}
+                      {Array.isArray(registroCambios) && registroCambios.length === 0 && <p style={{ fontSize: 13, color: 'var(--neutral-500)', margin: 0 }}>Todavía no hay guardados registrados.</p>}
+                      {Array.isArray(registroCambios) && registroCambios.length > 0 && (
+                        <div style={{ maxHeight: 320, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8 }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                            <thead>
+                              <tr style={{ background: '#f1f5f9', textAlign: 'left', position: 'sticky', top: 0 }}>
+                                <th style={{ padding: '6px 10px' }}>Fecha y hora</th>
+                                <th style={{ padding: '6px 10px' }}>Operador</th>
+                                <th style={{ padding: '6px 10px' }}>Cursos</th>
+                                <th style={{ padding: '6px 10px' }}>IP</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {registroCambios.map((e, i) => (
+                                <tr key={i} style={{ borderTop: '1px solid #e2e8f0' }}>
+                                  <td style={{ padding: '5px 10px', whiteSpace: 'nowrap' }}>{e.fecha.slice(8, 10)}/{e.fecha.slice(5, 7)}/{e.fecha.slice(0, 4)} {e.fecha.slice(11, 16)} hs</td>
+                                  <td style={{ padding: '5px 10px', fontWeight: 700, color: 'var(--blue-900)' }}>{e.operador}</td>
+                                  <td style={{ padding: '5px 10px' }}>{e.cursos}</td>
+                                  <td style={{ padding: '5px 10px', color: 'var(--neutral-500)' }}>{e.ip}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -3270,30 +3785,21 @@ const { useState, useEffect, useRef } = React;
             </main>
           </div>
 
-          {/* Barra de Guardado Inferior */}
-          <div className="save-bar">
-            <div className="save-bar-status">
-              {dirty ? (
-                <>
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--brand-accent)', flexShrink: 0 }}></span>
-                  <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--blue-900)' }}>Tenés cambios sin guardar</span>
-                </>
-              ) : (
-                <>
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--green-600)', flexShrink: 0 }}></span>
-                  <span style={{ fontSize: 13.5, color: 'var(--neutral-600)' }}>Todos los datos sincronizados</span>
-                </>
-              )}
-            </div>
-
-            <div className="save-bar-actions">
-              <button className="btn btn-secondary" onClick={handleDescargarDataJs} title="Descargar archivo data.js listo para FTP">
-                <i data-lucide="download" style={{ width: 16 }}></i> Descargar data.js
+          {/* Guardado: pastilla discreta en la esquina, igual en todas las secciones. "Revertir" aparece con
+              cambios sin guardar; "Descargar data.js" quedó solo en Sistema y Seguridad */}
+          <div className="save-bar save-bar-discreta" role="region" aria-label="Guardado en el servidor">
+            <span title={dirty ? 'Hay cambios sin guardar en el servidor' : 'Todos los datos sincronizados'} style={{ width: 9, height: 9, borderRadius: '50%', background: dirty ? 'var(--brand-accent)' : 'var(--green-600)', flexShrink: 0 }}></span>
+            <span style={{ fontSize: 12.5, color: dirty ? 'var(--blue-900)' : 'var(--neutral-600)', fontWeight: dirty ? 700 : 500, whiteSpace: 'nowrap' }}>
+              {dirty ? 'Sin guardar' : 'Guardado'}
+            </span>
+            {dirty && (
+              <button className="btn btn-secondary btn-sm" data-accion="revertir" onClick={handleRevertir} disabled={guardando} title="Descartar los cambios sin guardar y volver al último guardado">
+                <i data-lucide="undo-2" style={{ width: 14 }}></i> Revertir
               </button>
-              <button className="btn btn-primary" onClick={handleGuardarServidor} disabled={guardando}>
-                <i data-lucide="save" style={{ width: 16 }}></i> {guardando ? 'Guardando en PHP...' : '💾 Guardar en Servidor (PHP)'}
-              </button>
-            </div>
+            )}
+            <button className={`btn ${dirty ? 'btn-primary' : 'btn-secondary'} btn-sm`} data-accion="guardar-servidor" onClick={handleGuardarServidor} disabled={guardando} title="Guardar los cambios en el servidor para publicarlos en el sitio">
+              <i data-lucide="save" style={{ width: 14 }}></i> {guardando ? 'Guardando…' : 'Guardar'}
+            </button>
           </div>
 
           {/* Modal de Crear / Editar Curso */}
@@ -3412,7 +3918,34 @@ const { useState, useEffect, useRef } = React;
                       onChange={e => setCursoModal({ ...cursoModal, horarios: e.target.value })}
                       placeholder="Ej: Lunes, miércoles y viernes de 18:00 a 21:50 hs"
                     />
-                    <div className="form-hint">Cualquier cambio aquí se refleja inmediatamente en el recuadro "Días y horarios" de la página propia del curso.</div>
+                    <div className="form-hint">Separá cada turno con " · " (ej.: "Mañana: martes y jueves de 9:10 a 12:30 hs · Noche: lunes y jueves de 18:00 a 21:40 hs"). En la página del curso se muestra uno por renglón.</div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Turnos (para el filtro "Turno" de la página de cursos)</label>
+                    <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
+                      {window.CFPReglas.TURNOS.map(t => {
+                        const marcados = window.CFPReglas.turnosDeCurso(cursoModal);
+                        return (
+                          <label key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, cursor: 'pointer' }}>
+                            <input
+                              type="checkbox"
+                              checked={marcados.includes(t)}
+                              onChange={e => {
+                                const nuevos = e.target.checked ? [...marcados, t] : marcados.filter(x => x !== t);
+                                setCursoModal({ ...cursoModal, turnos: window.CFPReglas.TURNOS.filter(x => nuevos.includes(x)) });
+                              }}
+                            />
+                            {t}
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <div className="form-hint">
+                      {Array.isArray(cursoModal.turnos) && cursoModal.turnos.length
+                        ? 'Marcados a mano.'
+                        : 'Sin marcar: se deducen de los horarios (las casillas tildadas muestran lo que se deduce).'}
+                    </div>
                   </div>
 
                   <div className="form-group">
@@ -3473,6 +4006,140 @@ const { useState, useEffect, useRef } = React;
                     <div className="form-hint">Última confirmación: {cursoModal.cupoConfirmadoEn || 'sin fecha'}. Los avisos de últimos cupos vencen a los 30 días y se bloquean si el curso está completo o sin confirmar.</div>
                   </div>
 
+                  {/* Gestión Interactiva de Trayectos del Catálogo 2027 (cursos articulados) */}
+                  <div className="form-group" style={{ padding: 14, border: '1px solid #bfdbfe', borderRadius: 10, background: '#eff6ff', marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                      <div>
+                        <strong style={{ fontSize: 13, color: '#1e3a8a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          Trayectos del Catálogo 2027 vinculados
+                        </strong>
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, background: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: 999 }}>
+                          {(cursoModal.trayectosCatalogo || []).length} { (cursoModal.trayectosCatalogo || []).length === 1 ? 'trayecto oficial' : 'trayectos articulados' }
+                        </span>
+                      </div>
+                      {(cursoModal.trayectosCatalogo || []).length > 0 && catalogoGlobal && (
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          style={{ padding: '3px 10px', fontSize: 11.5 }}
+                          title="Autosuma las horas, combina certificaciones oficiales y aúna los contenidos de los diseños curriculares"
+                          onClick={() => {
+                            const map = Object.fromEntries(catalogoGlobal.trayectos.map(t => [t.codigo, t]));
+                            const selected = (cursoModal.trayectosCatalogo || []).map(cod => map[cod]).filter(Boolean);
+                            const unificados = unificarDatosCatalogo(selected);
+                            if (unificados) {
+                              setCursoModal(prev => ({
+                                ...prev,
+                                horasTotales: unificados.horasTotales,
+                                certificacion: unificados.certificacion,
+                                introduccion: unificados.introduccion,
+                                detalles: unificados.detalles,
+                                requisitos: prev.requisitos ? prev.requisitos : unificados.requisitos
+                              }));
+                              showToast(`Datos unificados con ${selected.length} trayecto(s). Podés editar las horas y textos a mano.`);
+                            }
+                          }}
+                        >
+                          ⚡ Unificar datos desde el Catálogo
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Badges de trayectos vinculados con botón eliminar */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                      {(cursoModal.trayectosCatalogo || []).map(cod => {
+                        const t = catalogoGlobal ? catalogoGlobal.trayectos.find(x => x.codigo === cod) : null;
+                        return (
+                          <span key={cod} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ffffff', border: '1px solid #bfdbfe', color: '#1e3a8a', padding: '3px 8px', borderRadius: 6, fontSize: 12 }}>
+                            <strong>{cod}</strong>: {t ? t.nombre : cod} {t && t.horasReloj ? `(${t.horasReloj} hs)` : ''}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const nuevos = (cursoModal.trayectosCatalogo || []).filter(c => c !== cod);
+                                let unif = null;
+                                if (catalogoGlobal && nuevos.length > 0) {
+                                  const map = Object.fromEntries(catalogoGlobal.trayectos.map(x => [x.codigo, x]));
+                                  const sel = nuevos.map(c => map[c]).filter(Boolean);
+                                  unif = unificarDatosCatalogo(sel);
+                                }
+                                setCursoModal(prev => ({
+                                  ...prev,
+                                  trayectosCatalogo: nuevos,
+                                  horasTotales: unif ? unif.horasTotales : prev.horasTotales
+                                }));
+                              }}
+                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 800, padding: '0 2px' }}
+                              title="Quitar este trayecto"
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        );
+                      })}
+                      {!(cursoModal.trayectosCatalogo || []).length && (
+                        <span style={{ fontSize: 12.5, color: '#64748b', fontStyle: 'italic' }}>
+                          No hay trayectos oficiales asociados a este curso todavía.
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Selector para asociar trayectos del catálogo */}
+                    {catalogoGlobal && (
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <select
+                          className="form-select"
+                          style={{ fontSize: 12, flex: 1, background: '#ffffff' }}
+                          value=""
+                          onChange={e => {
+                            const cod = e.target.value;
+                            if (!cod) return;
+                            if ((cursoModal.trayectosCatalogo || []).includes(cod)) return;
+                            const nuevos = [...(cursoModal.trayectosCatalogo || []), cod];
+                            const map = Object.fromEntries(catalogoGlobal.trayectos.map(x => [x.codigo, x]));
+                            const sel = nuevos.map(c => map[c]).filter(Boolean);
+                            const unificados = unificarDatosCatalogo(sel);
+                            setCursoModal(prev => ({
+                              ...prev,
+                              trayectosCatalogo: nuevos,
+                              // Autosuma las horas automáticamente, pero permitiendo modificarlas libremente
+                              horasTotales: unificados ? unificados.horasTotales : prev.horasTotales,
+                              // Si antes no tenía certificación ni intro, precarga
+                              certificacion: (!prev.certificacion && unificados) ? unificados.certificacion : prev.certificacion,
+                              introduccion: (!prev.introduccion && unificados) ? unificados.introduccion : prev.introduccion
+                            }));
+                            showToast(`Trayecto ${cod} asociado. Horas recalculadas automáticamente.`);
+                          }}
+                        >
+                          <option value="">+ Asociar otro trayecto del Catálogo 2027 (para articular cursos)...</option>
+                          {catalogoGlobal.trayectos
+                            .filter(t => !(cursoModal.trayectosCatalogo || []).includes(t.codigo))
+                            .map(t => (
+                              <option key={t.codigo} value={t.codigo}>
+                                {t.codigo} — {t.nombre} ({t.horasReloj} hs reloj · {t.familia})
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+                    <div className="form-hint" style={{ marginTop: 6, color: '#1e40af' }}>
+                      💡 Podés asociar varios trayectos para formar un curso articulado. Las horas se autosuman y podés cambiarlas a mano. El botón "⚡ Unificar datos" aúna las certificaciones oficiales y todos los programas curriculares.
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Certificación (se muestra en la página individual del curso)</label>
+                    <textarea
+                      className="form-textarea"
+                      rows={3}
+                      value={cursoModal.certificacion || ''}
+                      onChange={e => setCursoModal({ ...cursoModal, certificacion: e.target.value })}
+                      placeholder="Ej: Soldador Básico según Resolución Nro. … (del Catálogo oficial 2027)"
+                    />
+                    <div className="form-hint">
+                      Se muestra en el recuadro "Certificación que se obtiene" de la página individual. Para cursos articulados se listan todas las certificaciones otorgadas.
+                    </div>
+                  </div>
+
                   <div className="form-group">
                     <label className="form-label">Introducción del Curso (Página Individual)</label>
                     <textarea
@@ -3483,6 +4150,18 @@ const { useState, useEffect, useRef } = React;
                       placeholder="Resumen introductorio del curso que describe las competencias fundamentales y alcance formativo..."
                     />
                     <div className="form-hint">Aparece en la sección destacada "Introducción" de la página individual del curso.</div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Capacidades profesionales (Página Individual)</label>
+                    <textarea
+                      className="form-textarea"
+                      rows={6}
+                      value={cursoModal.capacidades || ''}
+                      onChange={e => setCursoModal({ ...cursoModal, capacidades: e.target.value })}
+                      placeholder="Qué está capacitado para hacer quien egresa. Para una lista, empezá cada renglón con •"
+                    />
+                    <div className="form-hint">Aparece en la sección "Capacidades profesionales", debajo de la introducción. Si queda vacío, la sección no se muestra. Separá párrafos con un renglón en blanco; los renglones que empiezan con • se muestran como lista.</div>
                   </div>
 
                   <div className="form-group">
@@ -3680,6 +4359,7 @@ const { useState, useEffect, useRef } = React;
                       <h4 style={{ margin: '0 0 8px', fontSize: 15, color: 'var(--blue-900)' }}>Elegí el modelo de diseño:</h4>
                       <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--neutral-600)' }}>
                         Los modelos de curso toman los datos del curso que elijas. El de inscripciones es un aviso general con las familias de oficios.
+                        {' '}Al elegir el modelo, el curso o la foto se pasa solo al paso siguiente; para volver, tocá el paso en la barra de arriba.
                       </p>
 
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 16 }}>
@@ -3765,6 +4445,7 @@ const { useState, useEffect, useRef } = React;
                                 } else {
                                   setPromoModal(prev => ({ ...prev, modelo: plt.id }));
                                 }
+                                avanzarPromo(1, pasoSiguiente({ modelo: plt.id }, 1));
                               }}
                               style={{
                                 borderRadius: 14,
@@ -3926,6 +4607,7 @@ const { useState, useEffect, useRef } = React;
                                     huellaCurso: window.CFPReglas?.huellaCurso(c) || '',
                                     popupActivo: promoModal.popupActivo === true
                                   });
+                                  avanzarPromo(2, pasoSiguiente(promoModal, 2));
                                 }}
                                 style={{
                                   padding: '12px 16px',
@@ -4066,6 +4748,7 @@ const { useState, useEffect, useRef } = React;
                                     imagen: foto.archivo,
                                     encuadre: foto.encuadre || prev.encuadre || '40% 45%'
                                   }));
+                                  avanzarPromo(3, 4);
                                 }}
                                 style={{
                                   position: 'relative',
@@ -4128,35 +4811,7 @@ const { useState, useEffect, useRef } = React;
 
                       {/* Ajuste de Encuadre */}
                       <div style={{ marginTop: 16, padding: '12px 16px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                        <label className="form-label" style={{ marginBottom: 6 }}>Punto de enfoque de la foto (Encuadre):</label>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                          {[
-                            { label: 'Taller foco (40% 45%)', val: '40% 45%' },
-                            { label: 'Centro (50% 50%)', val: '50% 50%' },
-                            { label: 'Arriba (50% 20%)', val: '50% 20%' },
-                            { label: 'Abajo (50% 80%)', val: '50% 80%' },
-                            { label: 'Izquierda (20% 50%)', val: '20% 50%' },
-                            { label: 'Derecha (80% 50%)', val: '80% 50%' }
-                          ].map(pos => (
-                            <button
-                              key={pos.val}
-                              type="button"
-                              onClick={() => setPromoModal(prev => ({ ...prev, encuadre: pos.val }))}
-                              style={{
-                                padding: '4px 10px',
-                                borderRadius: 6,
-                                fontSize: 12,
-                                border: '1px solid',
-                                borderColor: promoModal.encuadre === pos.val ? 'var(--blue-900)' : '#cbd5e1',
-                                background: promoModal.encuadre === pos.val ? 'var(--blue-900)' : '#fff',
-                                color: promoModal.encuadre === pos.val ? '#fff' : 'var(--neutral-700)',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              {pos.label}
-                            </button>
-                          ))}
-                        </div>
+                        <SelectorEncuadre promo={promoModal} setPromo={setPromoModal} />
                       </div>
 
                       <div className="promo-step-actions" style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', gap: 12 }}>
@@ -4216,6 +4871,11 @@ const { useState, useEffect, useRef } = React;
                         <span style={{ fontSize: 11, color: 'var(--neutral-500)', marginTop: 8 }}>
                           Previsualización dinámica a escala real ({promoPreviewFormat.toUpperCase()})
                         </span>
+                        {pasoHabilitado(promoModal, 3) && promoModal.imagen && (
+                          <div style={{ marginTop: 12, width: '100%', maxWidth: 340 }}>
+                            <SelectorEncuadre promo={promoModal} setPromo={setPromoModal} />
+                          </div>
+                        )}
                       </div>
 
                       {/* Columna Derecha: Campos editables (Overrides) */}

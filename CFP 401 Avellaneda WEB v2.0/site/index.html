@@ -27,8 +27,8 @@
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" integrity="sha384-ieG+IKD0d/ZPXyCBTMVAbqsQdns8QGJR/e26WMw7M4fkaI/rHcS/YIoi+ah9WGge" crossorigin="anonymous"></script>
-<script src="_ds_bundle.js?v=4b3021b2ac6c"></script><script src="cfp-reglas.js?v=5d6a045c06cb"></script><script src="data.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" integrity="sha384-ieG+IKD0d/ZPXyCBTMVAbqsQdns8QGJR/e26WMw7M4fkaI/rHcS/YIoi+ah9WGge" crossorigin="anonymous"></script><script src="iconos.js?v=1458b29a16ae"></script>
+<script src="_ds_bundle.js?v=4b3021b2ac6c"></script><script src="cfp-reglas.js?v=74ebfa479304"></script><script src="data.js"></script>
 
 <script type="application/ld+json">
 {
@@ -62,11 +62,12 @@ img{max-width:100%}
    su proporción real es 1,34:1). Sólo se nota en pantallas angostas. */
 .cfp-arc-stage img, .cfp-vuelo img{max-width:none}
 
-/* Superposición de fotos sobre el isotipo del hero solo en escritorio (§Pedido Directora) */
-@media (min-width: 981px){
-  .cfp-lens{z-index:2!important}
-  .cfp-arc-stage{z-index:1!important}
-}
+/* Las fotos del hero van por encima del isotipo en todos los tamaños, como en la PC (§Pedido Directora;
+   antes solo regía desde 981 px y en tablet y celular los arcos del isotipo se dibujaban sobre la foto) */
+.cfp-lens{z-index:2!important}
+.cfp-arc-stage{z-index:1!important}
+/* ...y el texto del hero siempre por encima de la foto (en tablet el círculo llega a pasar por detrás del título) */
+section:has(.cfp-lens)>div:last-child{position:relative;z-index:3}
 
 /* Tipografía de footer ligeramente más grande en PC (§Pedido Directora) */
 @media (min-width: 900px){
@@ -133,10 +134,12 @@ header nav a, header nav div>a{white-space:nowrap}
       de este bloque, así que hace falta ganarle en especificidad (div.cfp-lens)
       y no solo con !important. */
 @media (max-width:980px){
-  div.cfp-lens{opacity:.85!important;width:min(62vw,420px)!important;right:-12%!important}
+  div.cfp-lens{opacity:1!important;width:min(62vw,420px)!important;right:-12%!important}
+  /* La foto tapa por completo al isotipo, como en la PC; el isotipo queda un poco más tenue */
+  .cfp-arc-stage{opacity:.75}
 }
 @media (max-width:760px){
-  div.cfp-lens{opacity:.68!important;width:min(78vw,340px)!important;right:-24%!important;top:50%!important}
+  div.cfp-lens{opacity:1!important;width:min(78vw,340px)!important;right:-24%!important;top:50%!important}
 }
 
 /* 4b. Franja amarilla de avisos: en celular el botón quedaba colgado a la
@@ -497,4 +500,4 @@ div[style*="z-index: 60"][style*="position: fixed"] div[style*="max-height: 420p
   </div>
 </noscript>
 
-<script src="plantillas-promo.js?v=ba835b37ed35"></script><script src="app.js?v=bf9fb48b9036"></script></body></html>
+<script src="plantillas-promo.js?v=ba835b37ed35"></script><script src="app.js?v=294b41f165bf"></script></body></html>

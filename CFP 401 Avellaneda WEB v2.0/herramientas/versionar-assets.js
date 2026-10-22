@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 const root = path.resolve(__dirname, '..');
 const publicDir = path.join(root, 'site');
-const bundles = new Set(['admin.js', 'app.js', 'plantillas-promo.js', '_ds_bundle.js', 'cfp-reglas.js']);
+const bundles = new Set(['admin.js', 'app.js', 'plantillas-promo.js', '_ds_bundle.js', 'cfp-reglas.js', 'iconos.js']);
 const htmlFiles = ['admin.html', 'index.html'];
 
 function hash(file) {

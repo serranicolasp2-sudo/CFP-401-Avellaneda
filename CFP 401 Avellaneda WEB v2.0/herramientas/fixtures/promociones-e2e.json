@@ -1,0 +1,49 @@
+[
+  {
+    "id": "promo-soldador-basico",
+    "modelo": "flyer-curso-v1",
+    "tipo": "curso",
+    "cursoSlug": "soldador-basico",
+    "cursoNombre": "SOLDADOR BÁSICO",
+    "imagen": "assets/promociones/soldadura-1.webp",
+    "encuadre": "40% 45%",
+    "tituloOverride": "",
+    "diasOverride": "Martes y jueves",
+    "horarioOverride": "17:50 a 21:50 hs",
+    "requisitoOverride": "Constancia de estudios primarios o superiores",
+    "sedeOverride": "Juan Pablo Angulo 1272, Dock Sud",
+    "certificacionOverride": "Oficial DGCyE",
+    "fondo": "cuadriculado",
+    "popupActivo": true,
+    "fechaCreacion": "2026-09-27"
+  },
+  {
+    "id": "promo-auxiliar-contable-muk2l4n6",
+    "modelo": "flyer-curso-v2",
+    "tipo": "curso",
+    "cursoSlug": "auxiliar-contable",
+    "cursoNombre": "AUXILIAR CONTABLE",
+    "cursoTitulo": "Auxiliar Contable",
+    "familiaNombre": "Administración",
+    "bajadaCurso": "Tiene por objeto formar profesionales capacitados en la gestión administrativa y contable básica de empresas, cooperativas y comercios, manejando registros de compras, ventas, cobros, pagos y…",
+    "duracionCurso": "Cuatrimestral — se dicta en el 1° cuatrimestre",
+    "datosCurso": {
+      "dias": "Lunes a viernes",
+      "horario": "9:10 a 12:30 hs",
+      "requisito": "Constancia de estudios secundarios o superiores",
+      "sede": "Juan Pablo Angulo 1272, Dock Sud"
+    },
+    "textos": [],
+    "imagen": "assets/promociones/auxiliar-contable-1.jpg",
+    "encuadre": "40% 45%",
+    "diasOverride": "Lunes a viernes",
+    "horarioOverride": "9:10 a 12:30 hs",
+    "requisitoOverride": "Constancia de estudios secundarios o superiores",
+    "sedeOverride": "Juan Pablo Angulo 1272, Dock Sud",
+    "certificacionOverride": "Oficial DGCyE",
+    "fondo": "cuadriculado",
+    "popupActivo": true,
+    "fechaCreacion": "2026-09-27",
+    "fechaActualizacion": "2026-09-27"
+  }
+]

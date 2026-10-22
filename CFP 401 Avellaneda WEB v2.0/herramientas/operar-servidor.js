@@ -8,7 +8,7 @@ const ROOT = path.resolve(__dirname, '..');
 const SITE = path.join(ROOT, 'site');
 const CACHE = path.join(ROOT, '.local');
 const BLOCKED = /(^|\/)(?:data\.js|data\.backup\.js|\.clave[^/]*|\.intentos\.json|sesiones|backups|guardadas|\.env[^/]*|node_modules|\.git)(?:\/|$)|(?:\.pem|\.key|\.p12|\.pfx|\.bak|\.backup|\.tmp)$/i;
-const ALLOWED = /^(?:site\/(?:admin\.html|index\.html|admin\.js|app\.js|plantillas-promo\.js|_ds_bundle\.js|cfp-reglas\.js|styles\.css|curso\.php|robots\.txt|\.htaccess|tokens\/[A-Za-z0-9._-]+\.css|api\/[A-Za-z0-9._-]+\.php|api\/\.htaccess|api\/\.user\.ini|assets\/promociones\/guardadas\/\.htaccess|assets\/[A-Za-z0-9._/-]+\.(?:png|jpe?g|webp|svg|woff2?|ttf|ico)))$/i;
+const ALLOWED = /^(?:site\/(?:admin\.html|index\.html|admin\.js|app\.js|plantillas-promo\.js|_ds_bundle\.js|cfp-reglas\.js|iconos\.js|styles\.css|curso\.php|robots\.txt|\.htaccess|tokens\/[A-Za-z0-9._-]+\.css|catalogo\/catalogo-\d{4}\.(?:json|pdf)|api\/[A-Za-z0-9._-]+\.php|api\/\.htaccess|api\/\.user\.ini|assets\/promociones\/guardadas\/\.htaccess|assets\/[A-Za-z0-9._/-]+\.(?:png|jpe?g|webp|svg|woff2?|ttf|ico)))$/i;
 
 function sha(buffer) { return crypto.createHash('sha256').update(buffer).digest('hex'); }
 function fail(message) { console.error(`ERROR: ${message}`); process.exitCode = 1; }

@@ -57,7 +57,34 @@
     return !curso || huellaCurso(curso) !== promo.huellaCurso;
   }
 
-  const api = { ESTADOS_CUPO: Array.from(ESTADOS_CUPO), ZONA_HORARIA, VIGENCIA_CUPO_DIAS, estadoCupoValido, estadoCupoVencido, puedePublicarUltimosCupos, huellaCurso, fechaLocal, popupVigente, promoDesactualizada };
+  // Turnos del curso: los marcados en el panel o, si no hay, los que surgen de los horarios
+  // ("Mañana: …", "Tarde: …", "Noche: …" o la hora de inicio de cada franja).
+  const TURNOS = ['Mañana', 'Tarde', 'Noche'];
+  function turnoPorHora(horaInicio) {
+    const [h, m] = horaInicio.split(':').map(Number);
+    const minutos = h * 60 + (m || 0);
+    if (minutos < 12 * 60) return 'Mañana';
+    return minutos < 17 * 60 + 30 ? 'Tarde' : 'Noche';
+  }
+  function turnosDeCurso(curso) {
+    if (!curso) return [];
+    if (Array.isArray(curso.turnos) && curso.turnos.length) return TURNOS.filter(t => curso.turnos.includes(t));
+    const encontrados = new Set();
+    String(curso.horarios || '').split(/\s+·\s+/).forEach(franja => {
+      const etiqueta = franja.match(/^\s*(mañana|tarde|noche)\b/i);
+      if (etiqueta) { encontrados.add(etiqueta[1][0].toUpperCase() + etiqueta[1].slice(1).toLowerCase()); return; }
+      const hora = franja.match(/\bde\s+(\d{1,2}(?::\d{2})?)\s+a\s+\d/i);
+      if (hora) encontrados.add(turnoPorHora(hora[1]));
+    });
+    return TURNOS.filter(t => encontrados.has(t));
+  }
+
+  // Un curso responde a su slug y a los anteriores (cuando se renombra, los enlaces ya compartidos siguen andando)
+  function slugsDeCurso(curso) {
+    return curso ? [curso.slug, ...(curso.slugsAnteriores || [])].filter(Boolean) : [];
+  }
+
+  const api = { ESTADOS_CUPO: Array.from(ESTADOS_CUPO), ZONA_HORARIA, VIGENCIA_CUPO_DIAS, TURNOS, estadoCupoValido, estadoCupoVencido, puedePublicarUltimosCupos, huellaCurso, fechaLocal, popupVigente, promoDesactualizada, turnosDeCurso, slugsDeCurso };
   root.CFPReglas = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
