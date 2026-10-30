@@ -10,12 +10,16 @@ Plantilla editorial fotográfica adaptativa para convocar a la comunidad a la **
 - `invitaciones.css`: Sistema de diseño, tokens, tipografías Google Fonts (`Poppins` y `Source Sans 3`), tratamiento fotográfico y media queries.
 - `invitaciones.js`: Motor adaptativo de auto-fit tipográfico (`--fit`), selector interactivo de talleres reales y visor en vivo.
 - `assets/fotos/`: Colección curada de fotografías auténticas del CFP 401:
-  - `taller-domotica-integral.jpg`: Taller de Domótica y Energías con estudiantes en tableros y paneles.
+  - `taller-domotica-integral.jpg`: alumnos de Reparadora/or de Refrigeradores Domésticos (el nombre del archivo quedó de una identificación anterior; no renombrarlo: lo usan las piezas guardadas).
   - `taller-soldadura-chispas.jpg`: Taller de Herrería y Soldadura con chispas reales y equipo de protección.
   - `muestra-proyectos-diseno.jpg`: Exposición de proyectos de alumnos, manuales de marca y computadoras.
   - `comunidad-egresados.jpg`: Acto de colación, familias y egresados.
   - `capacitacion-alumnos.jpg`: Capacitación técnica en aula taller con equipamiento industrial.
   - `fachada-sede-docksud.jpg`: Sede central de la escuela en Juan Pablo Angulo 1272, Dock Sud.
+
+## Pie de foto
+
+El texto blanco sobre la foto se edita con un clic en el template y con el campo **Pie de foto** en el panel, donde también se puede ocultar. Confirmá que nombre al taller que realmente se ve.
 
 ## Tratamiento Fotográfico Profesional Aplicado (Color & Profundidad)
 

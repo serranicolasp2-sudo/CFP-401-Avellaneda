@@ -57,13 +57,17 @@
   const photoCaption = document.getElementById("photo-caption");
 
   const captions = {
-    "assets/fotos/taller-domotica-integral.jpg": "Taller de Domótica y Energías Renovables · Estudiantes en práctica",
+    "assets/fotos/taller-domotica-integral.jpg": "Reparadora/or de Refrigeradores Domésticos · Estudiantes en práctica",
     "assets/fotos/taller-soldadura-chispas.jpg": "Taller de Soldadura y Metalmecánica · Práctica con equipo completo",
     "assets/fotos/muestra-proyectos-diseno.jpg": "Exposición de Proyectos y Diseño · Producción de los estudiantes",
     "assets/fotos/comunidad-egresados.jpg": "Comunidad institucional y egresados de Formación Profesional",
     "assets/fotos/capacitacion-alumnos.jpg": "Jornadas de capacitación técnica y nuevas tecnologías",
     "assets/fotos/fachada-sede-docksud.jpg": "Sede Central CFP N° 401 · Juan Pablo Angulo 1272, Dock Sud"
   };
+
+  // Si la persona escribió su propio pie, cambiar de foto no se lo pisa
+  let pieEditado = false;
+  photoCaption?.addEventListener("input", () => { pieEditado = true; });
 
   if (photoSelect && photoImg) {
     photoSelect.addEventListener("change", (e) => {
@@ -74,7 +78,7 @@
         photoImg.onload = () => {
           photoImg.style.opacity = "1";
         };
-        if (photoCaption && captions[src]) {
+        if (photoCaption && captions[src] && !pieEditado) {
           photoCaption.textContent = captions[src];
         }
       }, 150);
@@ -90,7 +94,7 @@
         const reader = new FileReader();
         reader.onload = (event) => {
           photoImg.src = event.target.result;
-          if (photoCaption) photoCaption.textContent = "Fotografía de taller institucional";
+          if (photoCaption && !pieEditado) photoCaption.textContent = "Fotografía de taller institucional";
         };
         reader.readAsDataURL(file);
       }

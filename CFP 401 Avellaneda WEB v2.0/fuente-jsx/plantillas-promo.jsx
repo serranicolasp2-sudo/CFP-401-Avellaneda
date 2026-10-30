@@ -1331,8 +1331,8 @@ const CSS_PLANTILLAS_DISENO = {
 .pz-invitaciones,.pz-invitaciones *{box-sizing: border-box}
 .pz-invitaciones.board{position:absolute;inset:0;overflow: hidden;isolation: isolate;background-color: var(--blue-darkest);background-image: radial-gradient(circle at 50% 15%, #003487 0%, #001f5c 55%, var(--blue-darkest) 100%);background-size: 100% 100%;color: var(--white);box-shadow: 0 calc(30 * var(--u)) calc(80 * var(--u)) rgba(0, 0, 0, 0.6);transition: background 0.25s ease}
 .pz-invitaciones.board.con-cuadricula{background-image:
-    linear-gradient(rgba(192, 208, 240, 0.14) calc(1 * var(--u)), transparent calc(1 * var(--u))),
-    linear-gradient(90deg, rgba(192, 208, 240, 0.14) calc(1 * var(--u)), transparent calc(1 * var(--u))),
+    linear-gradient(rgba(192, 208, 240, 0.14) max(.0625rem, calc(1 * var(--u))), transparent max(.0625rem, calc(1 * var(--u)))),
+    linear-gradient(90deg, rgba(192, 208, 240, 0.14) max(.0625rem, calc(1 * var(--u))), transparent max(.0625rem, calc(1 * var(--u)))),
     radial-gradient(circle at 50% 15%, #003487 0%, #001f5c 55%, var(--blue-darkest) 100%);background-size: calc(48 * var(--u)) calc(48 * var(--u)), calc(48 * var(--u)) calc(48 * var(--u)), 100% 100%;background-repeat: repeat, repeat, no-repeat}
 .pz-invitaciones .top-accent,.pz-invitaciones .bottom-accent{position: absolute;z-index: 20;left: 0;width: 100%;height: calc(12 * var(--u));background: var(--yellow-accent)}
 .pz-invitaciones .top-accent{top: 0}
@@ -1343,7 +1343,7 @@ const CSS_PLANTILLAS_DISENO = {
 .pz-invitaciones .eyebrow{position: absolute;z-index: 10;color: var(--yellow-accent);font: 700 calc(24 * var(--u))/1.2 var(--font-display);letter-spacing: .14em;text-transform: uppercase;display: flex;align-items: center;gap: calc(14 * var(--u))}
 .pz-invitaciones .eyebrow::before{content: "";display: inline-block;width: calc(48 * var(--u));height: calc(5 * var(--u));border-radius: calc(3 * var(--u));background: var(--yellow-accent)}
 .pz-invitaciones .title-zone{position: absolute;z-index: 10}
-.pz-invitaciones .headline{margin: 0;color: #fff;font: 900 calc(var(--headline-size) * var(--fit, 1)) / 1.04 var(--font-display);letter-spacing: -.03em;text-transform: uppercase;text-wrap: balance;overflow-wrap: anywhere;text-shadow: 0 calc(4 * var(--u)) calc(18 * var(--u)) rgba(0, 20, 60, 0.5)}
+.pz-invitaciones .headline{margin: 0;color: #fff;font: 800 calc(var(--headline-size) * var(--fit, 1)) / 1.04 var(--font-display);letter-spacing: -.03em;text-transform: uppercase;text-wrap: balance;overflow-wrap: anywhere;text-shadow: 0 calc(4 * var(--u)) calc(18 * var(--u)) rgba(0, 20, 60, 0.5)}
 .pz-invitaciones .subhead-pill{display: inline-block;margin-top: calc(10 * var(--u));padding: calc(6 * var(--u)) calc(18 * var(--u));border-radius: calc(999 * var(--u));background: rgba(255, 255, 255, 0.12);border: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.25);backdrop-filter: blur(calc(8 * var(--u)));color: var(--text-dim);font: 700 calc(var(--subhead-size, calc(20 * var(--u))) * var(--fit, 1)) / 1.2 var(--font-body);letter-spacing: .08em;text-transform: uppercase}
 .pz-invitaciones .photo-frame{position: absolute;z-index: 10;border-radius: calc(26 * var(--u));overflow: hidden;box-shadow: 0 calc(24 * var(--u)) calc(50 * var(--u)) rgba(0, 10, 30, 0.65), 0 0 0 calc(3 * var(--u)) rgba(255, 209, 0, 0.75);background: #001230}
 .pz-invitaciones .photo-img{width: 100%;height: 100%;object-fit: cover;object-position: center 30%;display: block;filter: contrast(1.06) saturate(0.97) brightness(0.98);transition: opacity 0.3s ease}
@@ -1352,9 +1352,9 @@ const CSS_PLANTILLAS_DISENO = {
     linear-gradient(180deg, rgba(0, 40, 120, 0.22) 0%, transparent 45%, rgba(0, 15, 45, 0.55) 100%);mix-blend-mode: multiply}
 .pz-invitaciones .photo-depth-overlay{position: absolute;inset: 0;pointer-events: none;box-shadow: inset 0 0 calc(60 * var(--u)) rgba(0, 15, 50, 0.45)}
 .pz-invitaciones .photo-badge{position: absolute;z-index: 12;top: calc(20 * var(--u));right: calc(22 * var(--u));padding: calc(9 * var(--u)) calc(20 * var(--u));border-radius: calc(999 * var(--u));background: var(--yellow-accent);color: var(--blue-deep);font: 800 calc(18 * var(--u)) / 1 var(--font-display);letter-spacing: .04em;text-transform: uppercase;box-shadow: calc(5 * var(--u)) calc(5 * var(--u)) 0 var(--blue-deep)}
-.pz-invitaciones .photo-caption{position: absolute;z-index: 12;bottom: calc(14 * var(--u));left: calc(20 * var(--u));right: calc(20 * var(--u));color: rgba(255, 255, 255, 0.92);font: 600 calc(19 * var(--u)) / 1.2 var(--font-body);font-style: italic;text-shadow: 0 calc(2 * var(--u)) calc(8 * var(--u)) rgba(0, 0, 0, 0.85);pointer-events: none}
+.pz-invitaciones .photo-caption{position: absolute;z-index: 12;bottom: calc(14 * var(--u));left: calc(20 * var(--u));right: calc(20 * var(--u));color: rgba(255, 255, 255, 0.92);font: 600 calc(19 * var(--u)) / 1.2 var(--font-body);font-style: italic;text-shadow: 0 calc(2 * var(--u)) calc(8 * var(--u)) rgba(0, 0, 0, 0.85)}
 .pz-invitaciones .event-card{position: absolute;z-index: 10;display: flex;flex-direction: column;align-items: center;justify-content: center;border-radius: calc(24 * var(--u));background: var(--yellow-accent);color: var(--blue-deep);text-align: center;box-shadow: calc(10 * var(--u)) calc(10 * var(--u)) 0 var(--blue-darkest)}
-.pz-invitaciones .event-date,.pz-invitaciones .event-time{font-family: var(--font-display);font-weight: 900;line-height: 1.05;letter-spacing: -.02em;text-wrap: balance}
+.pz-invitaciones .event-date,.pz-invitaciones .event-time{font-family: var(--font-display);font-weight: 800;line-height: 1.05;letter-spacing: -.02em;text-wrap: balance}
 .pz-invitaciones .event-date{font-size: calc(var(--date-size) * var(--fit, 1));text-transform: uppercase}
 .pz-invitaciones .event-time{margin-top: calc(8 * var(--u));font-size: calc(var(--time-size) * var(--fit, 1))}
 .pz-invitaciones .location{position: absolute;z-index: 10;display: flex;align-items: center;gap: calc(18 * var(--u))}
@@ -1891,13 +1891,19 @@ function ActividadInstitucionalV1({ promo, formato = 'feed', customRef }) {
 
 /* ---------- Invitaciones institucionales (muestra de talleres, jornadas, convocatorias) ---------- */
 const FOTOS_INVITACIONES = [
-  { id: 'invitacion-domotica', familia: 'Eventos', archivo: 'assets/promociones/tematicas/invitaciones/taller-domotica-integral.jpg', nombre: 'Taller Domótica y Energías', encuadre: 'center 30%', leyenda: 'Taller de Domótica y Energías Renovables · Estudiantes en práctica' },
+  { id: 'invitacion-domotica', familia: 'Eventos', archivo: 'assets/promociones/tematicas/invitaciones/taller-domotica-integral.jpg', nombre: 'Taller de Refrigeradores Domésticos', encuadre: 'center 30%', leyenda: 'Reparadora/or de Refrigeradores Domésticos · Estudiantes en práctica' },
   { id: 'invitacion-soldadura', familia: 'Eventos', archivo: 'assets/promociones/tematicas/invitaciones/taller-soldadura-chispas.jpg', nombre: 'Taller Soldadura (chispas)', encuadre: 'center 35%', leyenda: 'Taller de Soldadura y Metalmecánica · Práctica en banco' },
   { id: 'invitacion-muestra', familia: 'Eventos', archivo: 'assets/promociones/tematicas/invitaciones/muestra-proyectos-diseno.jpg', nombre: 'Muestra de Proyectos y Diseño', encuadre: 'center 35%', leyenda: 'Muestra de Diseño Gráfico y Proyectos · Alumnos' },
   { id: 'invitacion-comunidad', familia: 'Eventos', archivo: 'assets/promociones/tematicas/invitaciones/comunidad-egresados.jpg', nombre: 'Comunidad y Egresados', encuadre: 'center 30%', leyenda: 'Comunidad Educativa CFP 401 · Egresados' },
   { id: 'invitacion-capacitacion', familia: 'Eventos', archivo: 'assets/promociones/tematicas/invitaciones/capacitacion-alumnos.jpg', nombre: 'Capacitación Alumnos', encuadre: 'center 30%', leyenda: 'Capacitación Técnica y Nuevas Tecnologías' },
   { id: 'invitacion-fachada', familia: 'Eventos', archivo: 'assets/promociones/tematicas/invitaciones/fachada-sede-docksud.jpg', nombre: 'Fachada Sede Central Dock Sud', encuadre: 'center 40%', leyenda: 'Sede Central Juan Pablo Angulo 1272 · Dock Sud' }
 ];
+
+/* Pie automático: solo para las fotos propias; en una foto subida o de otra categoría sería falso */
+function leyendaFotoInvitacion(promo) {
+  const foto = promo.imagen ? FOTOS_INVITACIONES.find(f => f.archivo === promo.imagen) : FOTOS_INVITACIONES[0];
+  return foto ? foto.leyenda : '';
+}
 
 function InvitacionInstitucionalV1({ promo, formato = 'historia', customRef }) {
   const T = promo ? textosPromo(promo) : {};
@@ -1919,9 +1925,8 @@ function InvitacionInstitucionalV1({ promo, formato = 'historia', customRef }) {
 
   if (!promo) return null;
 
-  const fotoActual = FOTOS_INVITACIONES.find(f => f.archivo === promo.imagen) || FOTOS_INVITACIONES[0];
-  const srcFoto = fotoDePromo(promo, fotoActual.archivo);
-  const caption = T.leyendaFoto || (fotoActual ? fotoActual.leyenda : 'Taller del CFP 401');
+  const srcFoto = fotoDePromo(promo, FOTOS_INVITACIONES[0].archivo);
+  const caption = promo.mostrarLeyenda === false ? '' : T.leyendaFoto;
   const conCuadricula = promo.conCuadricula === true || promo.mostrarCuadricula === true;
 
   const clasesBoard = [
@@ -2412,7 +2417,7 @@ const CATALOGO_PLANTILLAS = {
       { clave: 'titulo', etiqueta: 'Titular (evento)', grupo: 'Titular', multilinea: true, defecto: 'MUESTRA DE\nTALLERES ABIERTOS' },
       { clave: 'subtitulo', etiqueta: 'Subtítulo / Bajada', grupo: 'Titular', defecto: 'JORNADA INSTITUCIONAL · ENTRADA LIBRE Y GRATUITA' },
       { clave: 'insignia', etiqueta: 'Sello sobre la foto', grupo: 'Foto', defecto: '100% GRATUITO' },
-      { clave: 'leyendaFoto', etiqueta: 'Pie de foto', grupo: 'Foto', defecto: '' },
+      { clave: 'leyendaFoto', etiqueta: 'Pie de foto (texto blanco sobre la foto)', grupo: 'Foto', defecto: leyendaFotoInvitacion },
       { clave: 'fecha', etiqueta: 'Fecha destacada', grupo: 'Día y Horario', defecto: '5 DE NOVIEMBRE' },
       { clave: 'horario', etiqueta: 'Horario', grupo: 'Día y Horario', defecto: '10:00 a 20:00 hs' },
       { clave: 'direccion', etiqueta: 'Dirección de la sede', grupo: 'Ubicación', defecto: 'Juan Pablo Angulo 1272' },

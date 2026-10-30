@@ -112,11 +112,13 @@ body { font-family: var(--font-body); }
   transition: background 0.25s ease;
 }
 
-/* Trama cuadriculada técnica CFP sobre el degradé institucional */
+/* Trama cuadriculada técnica CFP sobre el degradé institucional.
+   max(.0625rem, 1px): la línea nunca baja de 1 px real; en el panel el px pasa a escalar con el lienzo
+   y en la vista previa chica quedaría por debajo de 1 px y no se vería. */
 .board.con-cuadricula {
   background-image:
-    linear-gradient(rgba(192, 208, 240, 0.14) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(192, 208, 240, 0.14) 1px, transparent 1px),
+    linear-gradient(rgba(192, 208, 240, 0.14) max(.0625rem, 1px), transparent max(.0625rem, 1px)),
+    linear-gradient(90deg, rgba(192, 208, 240, 0.14) max(.0625rem, 1px), transparent max(.0625rem, 1px)),
     radial-gradient(circle at 50% 15%, #003487 0%, #001f5c 55%, var(--blue-darkest) 100%);
   background-size: 48px 48px, 48px 48px, 100% 100%;
   background-repeat: repeat, repeat, no-repeat;
@@ -180,7 +182,7 @@ body { font-family: var(--font-body); }
 .headline {
   margin: 0;
   color: #fff;
-  font: 900 calc(var(--headline-size) * var(--fit, 1)) / 1.04 var(--font-display);
+  font: 800 calc(var(--headline-size) * var(--fit, 1)) / 1.04 var(--font-display);
   letter-spacing: -.03em;
   text-transform: uppercase;
   text-wrap: balance;
@@ -262,7 +264,6 @@ body { font-family: var(--font-body); }
   font: 600 19px / 1.2 var(--font-body);
   font-style: italic;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
-  pointer-events: none;
 }
 
 /* Tarjeta destacada de fecha y horario */
@@ -281,7 +282,7 @@ body { font-family: var(--font-body); }
 }
 .event-date, .event-time {
   font-family: var(--font-display);
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.05;
   letter-spacing: -.02em;
   text-wrap: balance;

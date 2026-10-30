@@ -269,6 +269,56 @@ async function main() {
     guardado = await espera;
     const p3b = guardado.promociones.find(p => p.modelo === 'actividad-institucional-v1');
     ok(p3b && p3b.textos && p3b.textos.titulo === 'Charla de prueba' && /tematicas\/actividades\//.test(p3b.imagen || '') && p3b.mostrarArco === false && !p3b.cursoSlug, 'Actividades: se guarda con su titular, su foto, sin arco y sin curso', p3b && JSON.stringify({ titulo: p3b.textos && p3b.textos.titulo, imagen: p3b.imagen, arco: p3b.mostrarArco }));
+    // Caso 3c: Invitación institucional (sin curso, Historia y Feed, cuadrícula opcional).
+    // La casilla y la pieza tienen que decir lo mismo, en la vista previa y en el PNG descargado.
+    await page.getByRole('button', { name: /Nueva Promoción/ }).click();
+    await page.locator('strong', { hasText: 'Invitación Institucional' }).click();
+    ok(await page.locator('.promo-stepper-bar [aria-disabled]').nth(1).getAttribute('aria-disabled') === 'true', 'Invitación: el paso 2 (curso) queda bloqueado');
+    await page.getByRole('button', { name: /^Continuar/ }).first().click();
+    ok(await page.locator('img[src*="tematicas/invitaciones/"]').count() >= 1, 'Invitación: el paso 3 ofrece las fotos propias de la plantilla');
+    await page.getByRole('button', { name: /^Continuar/ }).first().click();
+    const casillaTrama = page.locator('label', { hasText: 'Trama cuadriculada' }).locator('input[type="checkbox"]');
+    const vistaConTrama = () => page.locator('.promo-preview-col .pz-invitaciones.con-cuadricula').count();
+    ok((await casillaTrama.isChecked()) === ((await vistaConTrama()) >= 1), 'Invitación: al abrir, la casilla de cuadrícula coincide con la vista previa', `casilla ${await casillaTrama.isChecked()} · trama ${await vistaConTrama()}`);
+    await casillaTrama.uncheck();
+    ok((await vistaConTrama()) === 0, 'Invitación: al destildar la cuadrícula, la vista previa queda lisa');
+    await casillaTrama.check();
+    ok((await vistaConTrama()) >= 1, 'Invitación: al tildar la cuadrícula, la vista previa la muestra');
+    // Líneas verticales de la trama en la franja vacía de abajo: tienen que verse también a escala chica
+    const lineasTrama = png => {
+      const y = Math.round(png.height * 0.975);
+      const brillo = x => { const i = (y * png.width + x) * 4; return png.data[i] + png.data[i + 1] + png.data[i + 2]; };
+      let lineas = 0;
+      for (let x = 2; x < png.width - 2; x++) if (brillo(x) > brillo(x - 2) + 12 && brillo(x) >= brillo(x + 1)) lineas++;
+      return lineas;
+    };
+    const capturaVista = path.join(V2, '.local', 'visual-results', 'invitacion-vista-previa.png');
+    await page.locator('.promo-preview-col .flyer-canvas').first().screenshot({ path: capturaVista });
+    const lineasVista = lineasTrama(PNG.sync.read(fs.readFileSync(capturaVista)));
+    ok(lineasVista >= 10, 'Invitación: la trama se ve en la vista previa', `${lineasVista} líneas`);
+    const campoPie = page.locator('.form-group:has(> label:has-text("Pie de foto")) input').first();
+    ok(/Refrigeradores/.test(await campoPie.inputValue()), 'Invitación: el campo Pie de foto muestra el texto de la foto', await campoPie.inputValue());
+    await campoPie.fill('Pie de prueba');
+    ok(await page.locator('.promo-preview-col .photo-caption').first().innerText() === 'Pie de prueba', 'Invitación: el pie de foto editado aparece en la vista previa');
+    const casillaPie = page.locator('label', { hasText: /^Pie de foto$/ }).locator('input[type="checkbox"]');
+    await casillaPie.uncheck();
+    ok(await page.locator('.promo-preview-col .photo-caption').count() === 0, 'Invitación: el pie de foto se puede ocultar');
+    await casillaPie.check();
+    const pieInvitacion = page.locator('.promo-footer-descargas');
+    for (const [formato, boton] of [['historia', /Historia/], ['feed', /Feed/]]) {
+      const [descarga] = await Promise.all([page.waitForEvent('download', { timeout: 60000 }), pieInvitacion.getByRole('button', { name: boton }).click()]);
+      const destino = path.join(V2, '.local', 'visual-results', `invitacion-${formato}.png`);
+      fs.mkdirSync(path.dirname(destino), { recursive: true });
+      await descarga.saveAs(destino);
+      const lineasPng = lineasTrama(PNG.sync.read(fs.readFileSync(destino)));
+      ok(lineasPng >= 15, `Invitación: el PNG ${formato} sale con la trama`, `${lineasPng} líneas`);
+    }
+    await page.getByRole('button', { name: /Guardar Promoción/ }).click();
+    espera = enviado();
+    await page.locator('[data-accion="guardar-servidor"]').click();
+    guardado = await espera;
+    const p3c = guardado.promociones.find(p => p.modelo === 'invitacion-institucional-v1');
+    ok(p3c && p3c.tipo === 'evento' && !p3c.cursoSlug && /tematicas\/invitaciones\//.test(p3c.imagen || '') && p3c.mostrarCuadricula === true, 'Invitación: se guarda como evento, sin curso, con su foto y con cuadrícula', p3c && JSON.stringify({ tipo: p3c.tipo, curso: p3c.cursoSlug, imagen: p3c.imagen, trama: p3c.mostrarCuadricula }));
     // Caso 4: logo propio para la cinta amarilla (PNG transparente subido desde el panel)
     {
       const logo = new PNG({ width: 300, height: 48 });

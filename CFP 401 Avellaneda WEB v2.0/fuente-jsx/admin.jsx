@@ -388,17 +388,19 @@ const { useState, useEffect, useRef } = React;
         'aviso-primaria-v1': [['mostrarSello', 'Sello de fecha límite'], ['mostrarExtranjero', 'Recuadro para extranjeros']],
         'actividad-institucional-v1': [['mostrarArco', 'Arco de fondo (marca de agua)']],
         'invitacion-institucional-v1': [
-          ['mostrarCuadricula', 'Trama cuadriculada (desmarcar para degradé liso)'],
-          ['mostrarArco', 'Arco de fondo (marca de agua)']
+          // Tercer valor: estado inicial. Esta plantilla arranca lisa, como su diseño de referencia
+          ['mostrarCuadricula', 'Trama cuadriculada (sin tildar: degradé liso)', false],
+          ['mostrarArco', 'Arco de fondo (marca de agua)'],
+          ['mostrarLeyenda', 'Pie de foto']
         ]
       }[promo.modelo] || [['mostrarSello', 'Círculo (Oficial y gratuito)']];
       return (
         <div>
           <label className="form-label" style={{ marginBottom: 4 }}>Mostrar</label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {opciones.map(([clave, etiqueta]) => (
+            {opciones.map(([clave, etiqueta, porDefecto = true]) => (
               <label key={clave} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer' }}>
-                <input type="checkbox" checked={promo[clave] !== false} onChange={e => setPromo(prev => ({ ...prev, [clave]: e.target.checked }))} />
+                <input type="checkbox" checked={promo[clave] === undefined ? porDefecto : promo[clave] !== false} onChange={e => setPromo(prev => ({ ...prev, [clave]: e.target.checked }))} />
                 {etiqueta}
               </label>
             ))}
@@ -415,7 +417,7 @@ const { useState, useEffect, useRef } = React;
     function obtenerFontCSSFlyer() {
       if (!flyerFontCSSPromesa) {
         flyerFontCSSPromesa = (async () => {
-          const url = 'https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap';
+          const url = 'https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,600&display=swap';
           const css = await (await fetch(url)).text();
           const bloques = css.match(/\/\*\s*(latin|latin-ext)\s*\*\/\s*@font-face\s*\{[^}]*\}/g) || [];
           const archivos = new Map();
@@ -4441,14 +4443,14 @@ ${t.detalles || 'Contenidos teóricos y prácticas según diseño curricular ofi
                                     fechaCreacion: new Date().toISOString().split('T')[0]
                                   }));
                                   setFiltroFotoFamilia(esCaptacion ? 'Captación de Oficios' : 'Días Patrios y Conmemoraciones');
-                                } else if (plt.tipo === 'aviso') {
+                                } else if (plt.tipo === 'aviso' || plt.tipo === 'evento') {
                                   setPromoModal(prev => ({
-                                    id: 'promo-aviso-' + Date.now().toString(36),
+                                    id: 'promo-' + plt.tipo + '-' + Date.now().toString(36),
                                     modelo: plt.id,
-                                    tipo: 'aviso',
+                                    tipo: plt.tipo,
                                     cursoSlug: '',
                                     imagen: ((plt.fotos || [])[0] || {}).archivo || 'assets/hero-egresados.jpg',
-                                    encuadre: 'center',
+                                    encuadre: ((plt.fotos || [])[0] || {}).encuadre || 'center',
                                     textos: {},
                                     popupActivo: prev.popupActivo === true,
                                     fechaCreacion: new Date().toISOString().split('T')[0]
