@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Invitación Fotográfica Institucional · Feed 4:5 · CFP N° 401</title>
+  <link rel="stylesheet" href="invitaciones.css">
+</head>
+<body>
+  <nav class="editor" aria-label="Herramientas de edición y formato">
+    <strong>PLANTILLA INVITACIÓN · FEED 4:5</strong>
+    <span class="hint">Fotografía auténtica de talleres CFP 401. Clic en los textos para editar.</span>
+    
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;">
+      Foto del taller:
+      <select id="photo-select" aria-label="Seleccionar foto auténtica del taller">
+        <option value="assets/fotos/taller-domotica-integral.jpg" selected>Taller Domótica y Energías (alumnos en vivo)</option>
+        <option value="assets/fotos/taller-soldadura-chispas.jpg">Taller Soldadura y Metalmecánica (chispas)</option>
+        <option value="assets/fotos/muestra-proyectos-diseno.jpg">Muestra de Proyectos y Diseño (alumnos)</option>
+        <option value="assets/fotos/comunidad-egresados.jpg">Comunidad y Egresados</option>
+        <option value="assets/fotos/capacitacion-alumnos.jpg">Capacitación y Nuevas Tecnologías</option>
+        <option value="assets/fotos/fachada-sede-docksud.jpg">Fachada Sede Central Dock Sud</option>
+      </select>
+    </label>
+
+    <input type="file" id="custom-file-input" accept="image/*" style="display:none;">
+    <button class="secondary" type="button" onclick="document.getElementById('custom-file-input').click()">Subir foto propia</button>
+
+    <a href="feed.html" aria-current="page">Feed 4:5</a>
+    <a class="secondary" href="stories.html">Stories 9:16</a>
+    <button class="secondary" type="button" data-grid-toggle aria-pressed="false" title="Alternar entre fondo cuadriculado y degradé">Fondo: Degradé</button>
+    <button class="secondary" type="button" data-arc-toggle aria-pressed="true">Quitar arco</button>
+    <a class="secondary" href="feed-vector.html" title="Ver versión vectorial anterior">Versión Plana</a>
+    <button class="secondary" type="button" data-reset>Restablecer</button>
+  </nav>
+
+  <main class="stage" id="stage">
+    <article class="board feed" id="artboard" aria-label="Invitación a la Muestra de Talleres Abiertos del CFP 401">
+      <div class="top-accent"></div>
+      
+      <!-- Marca de agua institucional del arco -->
+      <img class="watermark" src="assets/isotipo-arco-blanco.png" alt="" aria-hidden="true">
+      
+      <!-- Cabecera institucional -->
+      <img class="logo" src="assets/logo-cfp401-horizontal-blanco.png" alt="Centro de Formación Profesional N° 401 Avellaneda">
+      <div class="eyebrow" contenteditable="true" spellcheck="false">TE INVITAMOS A LA</div>
+      
+      <!-- Titular dominante -->
+      <section class="title-zone fit-zone" data-fit-zone>
+        <div class="fit-inner">
+          <h1 class="headline" contenteditable="true" spellcheck="false">MUESTRA DE TALLERES ABIERTOS</h1>
+          <div class="subhead-pill" contenteditable="true" spellcheck="false">JORNADA INSTITUCIONAL · ENTRADA LIBRE Y GRATUITA</div>
+        </div>
+      </section>
+
+      <!-- Ventana fotográfica con grading profesional (especificación JSON) -->
+      <section class="photo-frame" aria-label="Fotografía del taller institucional">
+        <img class="photo-img" id="taller-photo" src="assets/fotos/taller-domotica-integral.jpg" alt="Estudiantes en el taller del CFP 401">
+        <div class="photo-grading-overlay" aria-hidden="true"></div>
+        <div class="photo-depth-overlay" aria-hidden="true"></div>
+        <div class="photo-badge" contenteditable="true" spellcheck="false">100% GRATUITO</div>
+        <div class="photo-caption" id="photo-caption">Taller de Domótica y Energías Renovables · Estudiantes en práctica</div>
+      </section>
+
+      <!-- Tarjeta destacada de fecha y horario -->
+      <section class="event-card fit-zone" data-fit-zone aria-label="Fecha y horario del evento">
+        <div class="fit-inner">
+          <div class="event-date fit-width" contenteditable="true" spellcheck="false">5 DE NOVIEMBRE</div>
+          <div class="event-time fit-width" contenteditable="true" spellcheck="false">10:00 a 20:00 hs</div>
+        </div>
+      </section>
+
+      <!-- Ubicación de la sede -->
+      <section class="location fit-zone" data-fit-zone aria-label="Sede del evento">
+        <span class="pin" aria-hidden="true"></span>
+        <div class="fit-inner">
+          <div class="address fit-width" contenteditable="true" spellcheck="false">Juan Pablo Angulo 1272</div>
+          <div class="district fit-width" contenteditable="true" spellcheck="false">Dock Sud · Avellaneda</div>
+        </div>
+      </section>
+
+      <!-- Cita institucional de la escuela -->
+      <section class="quote-card fit-zone" data-fit-zone aria-label="Cita inspiradora">
+        <div class="quote-mark open" aria-hidden="true">“</div>
+        <div class="fit-inner">
+          <p class="quote" contenteditable="true" spellcheck="false">Cada puerta que se abre en la formación profesional es una oportunidad para incluir, transformar y construir un futuro.</p>
+        </div>
+        <div class="quote-mark close" aria-hidden="true">”</div>
+      </section>
+
+      <!-- Cierre institucional -->
+      <div class="closing" contenteditable="true" spellcheck="false">¡TE ESPERAMOS!</div>
+      
+      <div class="bottom-accent"></div>
+    </article>
+  </main>
+
+  <script src="invitaciones.js"></script>
+</body>
+</html>

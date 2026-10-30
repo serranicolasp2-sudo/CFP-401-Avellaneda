@@ -17,11 +17,12 @@ const BASELINES = path.join(__dirname, 'referencias-visuales');
 const modelos = [
   'flyer-curso-v1', 'flyer-curso-v2', 'apertura-inscripciones-v1',
   'captacion-oficios-v1', 'ultimos-cupos-v1', 'conmemoraciones-patrias-v1', 'grilla-cursos-v1', 'aviso-primaria-v1',
-  'actividad-institucional-v1'
+  'actividad-institucional-v1',
+  'invitacion-institucional-v1'
 ];
 const formatos = ['feed', 'historia', 'a4'];
 // Plantillas de un solo formato: solo se prueban en el suyo
-const formatosModelo = { 'aviso-primaria-v1': ['historia'] };
+const formatosModelo = { 'aviso-primaria-v1': ['historia'], 'invitacion-institucional-v1': ['historia', 'feed'] };
 const formatosDe = model => formatosModelo[model] || formatos;
 // Textos largos propios del Aviso Primaria (titular en dos líneas, extranjeros, sede y sello)
 const copiaLargaPrimaria = {

@@ -29,7 +29,8 @@ const PLANTILLAS = [
   { id: 'cupos', css: 'ultimos-cupos/ultimos-cupos.css' },
   { id: 'patrias', css: 'conmemoraciones-patrias/conmemoraciones.css' },
   { id: 'grilla', css: 'grilla-cursos-inicio/grilla-cursos.css' },
-  { id: 'actividad', css: 'actividades-institucionales/actividades.css' }
+  { id: 'actividad', css: 'actividades-institucionales/actividades.css' },
+  { id: 'invitaciones', css: 'invitaciones-institucionales/invitaciones.css' }
 ];
 
 // Selectores del visor y de la edición en el navegador, que no forman parte de la pieza

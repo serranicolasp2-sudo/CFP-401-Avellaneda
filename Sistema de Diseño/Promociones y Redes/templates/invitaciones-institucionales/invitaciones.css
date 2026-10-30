@@ -1,0 +1,439 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap");
+
+:root {
+  --blue-primary: #003890;
+  --blue-deep: #002878;
+  --blue-darkest: #001a54;
+  --yellow-accent: #ffd100;
+  --yellow-deep: #f5b800;
+  --white: #ffffff;
+  --text-dim: #dbe6fb;
+  --font-body: "Source Sans 3", Arial, sans-serif;
+  --font-display: "Poppins", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: #0b1329; color: var(--blue-deep); }
+body { font-family: var(--font-body); }
+
+/* Barra superior de herramientas y controles del diseñador */
+.editor {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 20px;
+  background: #001438;
+  border-bottom: 1px solid rgba(255, 209, 0, 0.3);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  font-size: 15px;
+}
+.editor strong {
+  font: 800 14px var(--font-display);
+  letter-spacing: .05em;
+  color: var(--yellow-accent);
+  white-space: nowrap;
+}
+.editor .hint {
+  margin-right: auto;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+.editor a, .editor button, .editor select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 6px 16px;
+  border: 2px solid var(--yellow-accent);
+  border-radius: 999px;
+  background: var(--yellow-accent);
+  color: var(--blue-deep);
+  font: 700 14px var(--font-body);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.editor a:hover, .editor button:hover {
+  background: #fff;
+  border-color: #fff;
+  transform: translateY(-1px);
+}
+.editor .secondary {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: transparent;
+  color: #fff;
+}
+.editor .secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #fff;
+}
+.editor a[aria-current="page"] {
+  background: #fff;
+  color: var(--blue-deep);
+  border-color: #fff;
+}
+.editor select {
+  background: #00225d;
+  color: #fff;
+  border-color: rgba(255, 209, 0, 0.6);
+  padding: 6px 12px;
+}
+.editor select option {
+  background: #001438;
+  color: #fff;
+}
+
+/* Área de trabajo y lienzo */
+.stage {
+  width: calc(var(--board-width) * var(--scale, 1));
+  height: calc(var(--board-height) * var(--scale, 1));
+  margin: 32px auto 60px;
+}
+.board {
+  position: relative;
+  width: var(--board-width);
+  height: var(--board-height);
+  overflow: hidden;
+  isolation: isolate;
+  transform: scale(var(--scale, 1));
+  transform-origin: top left;
+  background-color: var(--blue-darkest);
+  /* Degradé institucional por defecto */
+  background-image: radial-gradient(circle at 50% 15%, #003487 0%, #001f5c 55%, var(--blue-darkest) 100%);
+  background-size: 100% 100%;
+  color: var(--white);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  transition: background 0.25s ease;
+}
+
+/* Trama cuadriculada técnica CFP sobre el degradé institucional */
+.board.con-cuadricula {
+  background-image:
+    linear-gradient(rgba(192, 208, 240, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(192, 208, 240, 0.14) 1px, transparent 1px),
+    radial-gradient(circle at 50% 15%, #003487 0%, #001f5c 55%, var(--blue-darkest) 100%);
+  background-size: 48px 48px, 48px 48px, 100% 100%;
+  background-repeat: repeat, repeat, no-repeat;
+}
+
+/* Acentos superior e inferior */
+.top-accent, .bottom-accent {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  background: var(--yellow-accent);
+}
+.top-accent { top: 0; }
+.bottom-accent { bottom: 0; }
+
+/* Marca de agua institucional del arco */
+.watermark {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  opacity: .06;
+  pointer-events: none;
+}
+.board.sin-arco .watermark { display: none; }
+
+/* Cabecera institucional */
+.logo {
+  position: absolute;
+  z-index: 10;
+  display: block;
+  height: auto;
+  object-fit: contain;
+}
+.eyebrow {
+  position: absolute;
+  z-index: 10;
+  color: var(--yellow-accent);
+  font: 700 24px/1.2 var(--font-display);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 48px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--yellow-accent);
+}
+
+/* Titular */
+.title-zone {
+  position: absolute;
+  z-index: 10;
+}
+.headline {
+  margin: 0;
+  color: #fff;
+  font: 900 calc(var(--headline-size) * var(--fit, 1)) / 1.04 var(--font-display);
+  letter-spacing: -.03em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  text-shadow: 0 4px 18px rgba(0, 20, 60, 0.5);
+}
+.subhead-pill {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  color: var(--text-dim);
+  font: 700 calc(var(--subhead-size, 20px) * var(--fit, 1)) / 1.2 var(--font-body);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* Ventana fotográfica con grading profesional (según especificación JSON) */
+.photo-frame {
+  position: absolute;
+  z-index: 10;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 24px 50px rgba(0, 10, 30, 0.65), 0 0 0 3px rgba(255, 209, 0, 0.75);
+  background: #001230;
+}
+.photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+  /* Tratamiento fotográfico profesional: colores naturales, saturación moderada, contraste sutil */
+  filter: contrast(1.06) saturate(0.97) brightness(0.98);
+  transition: opacity 0.3s ease;
+}
+/* Capas de colorimetría y temperatura (sombras frías/azuladas, sujeto cálido) */
+.photo-grading-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 40%, rgba(0, 26, 84, 0.42) 100%),
+    linear-gradient(180deg, rgba(0, 40, 120, 0.22) 0%, transparent 45%, rgba(0, 15, 45, 0.55) 100%);
+  mix-blend-mode: multiply;
+}
+/* Efecto de viñeta y sutil simulación de profundidad de campo en bordes */
+.photo-depth-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 60px rgba(0, 15, 50, 0.45);
+}
+/* Sello flotante sobre la foto con sombra dura */
+.photo-badge {
+  position: absolute;
+  z-index: 12;
+  top: 20px;
+  right: 22px;
+  padding: 9px 20px;
+  border-radius: 999px;
+  background: var(--yellow-accent);
+  color: var(--blue-deep);
+  font: 800 18px / 1 var(--font-display);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  box-shadow: 5px 5px 0 var(--blue-deep);
+}
+.photo-caption {
+  position: absolute;
+  z-index: 12;
+  bottom: 14px;
+  left: 20px;
+  right: 20px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 600 19px / 1.2 var(--font-body);
+  font-style: italic;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+
+/* Tarjeta destacada de fecha y horario */
+.event-card {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  background: var(--yellow-accent);
+  color: var(--blue-deep);
+  text-align: center;
+  box-shadow: 10px 10px 0 var(--blue-darkest);
+}
+.event-date, .event-time {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+.event-date {
+  font-size: calc(var(--date-size) * var(--fit, 1));
+  text-transform: uppercase;
+}
+.event-time {
+  margin-top: 8px;
+  font-size: calc(var(--time-size) * var(--fit, 1));
+}
+
+/* Bloque de ubicación */
+.location {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.pin {
+  position: relative;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border: 5px solid var(--yellow-accent);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  margin-bottom: 6px;
+}
+.pin::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--yellow-accent);
+}
+.address {
+  font: 700 calc(var(--address-size) * var(--fit, 1)) / 1.15 var(--font-body);
+  color: #fff;
+}
+.district {
+  margin-top: 3px;
+  color: var(--text-dim);
+  font: 600 calc(var(--district-size) * var(--fit, 1)) / 1.2 var(--font-body);
+}
+
+/* Tarjeta contenedora de la cita inspiradora */
+.quote-card {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--blue-deep);
+  box-shadow: 0 10px 30px rgba(0, 10, 30, 0.35);
+  border-left: 8px solid var(--yellow-accent);
+}
+.quote-mark {
+  flex: 0 0 auto;
+  color: var(--yellow-accent);
+  font-family: Georgia, serif;
+  font-weight: 900;
+  font-size: 78px;
+  line-height: 0.75;
+  user-select: none;
+}
+.quote-mark.open {
+  align-self: flex-start;
+  margin-top: -10px;
+}
+.quote-mark.close {
+  align-self: flex-end;
+  margin-bottom: -24px;
+}
+.quote {
+  margin: 0;
+  font: 600 calc(var(--quote-size) * var(--fit, 1)) / 1.3 var(--font-body);
+  font-style: italic;
+  text-wrap: pretty;
+}
+
+/* Cierre */
+.closing {
+  position: absolute;
+  z-index: 10;
+  left: 80px;
+  right: 80px;
+  color: var(--yellow-accent);
+  font: 800 calc(var(--closing-size) * var(--fit, 1)) / 1.1 var(--font-display);
+  letter-spacing: .06em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 3px 12px rgba(0, 20, 60, 0.6);
+}
+
+/* Modo editable */
+[contenteditable="true"] { outline: none; cursor: text; }
+[contenteditable="true"]:focus {
+  outline: 3px dashed rgba(255, 209, 0, .95);
+  outline-offset: 4px;
+}
+.fit-zone { overflow: hidden; }
+.fit-inner { width: 100%; }
+.fit-width { overflow-wrap: anywhere; }
+
+/* ==========================================================================
+   ESPECIFICACIONES STORIES (9:16) — 1080 × 1920 px
+   Zona segura estricta: 150 px libres arriba (0-150) y 150 px abajo (1770-1920)
+   ========================================================================== */
+.stories { --board-width: 1080px; --board-height: 1920px; }
+.stories .watermark { left: 490px; top: 1100px; width: 780px; }
+.stories .logo { left: 74px; top: 168px; width: 620px; }
+.stories .eyebrow { left: 74px; right: 74px; top: 278px; font-size: 25px; }
+.stories .title-zone { left: 74px; right: 74px; top: 326px; height: 180px; --headline-size: 82px; --subhead-size: 22px; }
+.stories .photo-frame { left: 70px; right: 70px; top: 526px; height: 690px; }
+.stories .event-card { left: 70px; right: 70px; top: 1242px; height: 184px; padding: 20px 40px; --date-size: 62px; --time-size: 48px; }
+.stories .location { left: 88px; right: 88px; top: 1450px; height: 75px; --address-size: 38px; --district-size: 30px; }
+.stories .quote-card { left: 70px; right: 70px; top: 1546px; height: 172px; padding: 26px 36px; --quote-size: 30px; }
+.stories .closing { top: 1738px; --closing-size: 36px; }
+
+/* ==========================================================================
+   ESPECIFICACIONES FEED (4:5) — 1080 × 1350 px
+   Composición fotográfica optimizada para lienzo horizontal/cuadrado
+   ========================================================================== */
+.feed { --board-width: 1080px; --board-height: 1350px; }
+.feed .watermark { left: 560px; top: 700px; width: 640px; }
+.feed .logo { left: 60px; top: 48px; width: 440px; }
+.feed .eyebrow { left: 60px; right: 60px; top: 128px; font-size: 21px; }
+.feed .eyebrow::before { width: 36px; height: 4px; }
+.feed .title-zone { left: 60px; right: 60px; top: 170px; height: 140px; --headline-size: 64px; --subhead-size: 18px; }
+.feed .photo-frame { left: 60px; right: 60px; top: 324px; height: 460px; border-radius: 20px; }
+.feed .photo-badge { top: 14px; right: 16px; font-size: 15px; padding: 7px 16px; box-shadow: 4px 4px 0 var(--blue-deep); }
+.feed .photo-caption { font-size: 16px; bottom: 12px; }
+.feed .event-card { left: 60px; right: 60px; top: 806px; height: 146px; padding: 16px 30px; border-radius: 18px; --date-size: 48px; --time-size: 38px; box-shadow: 7px 7px 0 var(--blue-darkest); }
+.feed .location { left: 74px; right: 60px; top: 970px; height: 60px; gap: 14px; --address-size: 30px; --district-size: 24px; }
+.feed .pin { flex-basis: 26px; width: 26px; height: 26px; border-width: 4px; }
+.feed .pin::after { left: 4px; top: 4px; width: 8px; height: 8px; }
+.feed .quote-card { left: 60px; right: 60px; top: 1046px; height: 144px; padding: 18px 24px; border-radius: 16px; --quote-size: 23px; gap: 14px; border-left-width: 6px; }
+.feed .quote-mark { font-size: 58px; }
+.feed .quote-mark.open { margin-top: -8px; }
+.feed .quote-mark.close { margin-bottom: -18px; }
+.feed .closing { left: 60px; right: 60px; top: 1218px; --closing-size: 30px; }
+
+@media (max-width: 768px) {
+  .editor { flex-wrap: wrap; gap: 8px; }
+  .editor .hint { display: none; }
+  .stage { margin: 16px auto 30px; }
+}

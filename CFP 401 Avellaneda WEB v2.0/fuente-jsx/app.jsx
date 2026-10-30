@@ -1049,12 +1049,25 @@ function HomeScreen({onNavigate,onInscripcion,cvConfig}){
 /* ===========================================================================
    PANTALLA DE DETALLE INDIVIDUAL DE CURSO (PÁGINA PROPIA DE CADA CURSO)
    =========================================================================== */
-/* Párrafos separados por una línea en blanco; los renglones que empiezan con "•" se muestran como lista */
+/* Párrafos separados por una línea en blanco; los renglones que empiezan con "•" se muestran como lista y un
+   párrafo "=== Título ===" es un subtítulo (en los cursos combinados, una sección por certificación) */
 function TextoConListas({ texto }) {
   const estiloParrafo = { margin: '0 0 14px', fontSize: 16, lineHeight: 1.75, color: 'var(--neutral-700)' };
   return (
     <div>
       {String(texto).split(/\n\s*\n/).map((bloque, i) => {
+        const subtitulo = bloque.trim().match(/^===\s*(.+?)\s*===$/);
+        if (subtitulo) {
+          return (
+            <div key={i} style={{ marginTop: i ? 26 : 4, marginBottom: 12 }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 800, color: 'var(--blue-900)', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Icon name="award" size={17} color="var(--brand-primary)" />
+                {subtitulo[1]}
+              </h3>
+              <div style={{ height: 2, background: 'var(--brand-accent)', width: 44, borderRadius: 2 }}></div>
+            </div>
+          );
+        }
         const lineas = bloque.split('\n').map(l => l.trim()).filter(Boolean);
         const items = lineas.filter(l => /^[•\-]\s*/.test(l));
         const textoLibre = lineas.filter(l => !/^[•\-]\s*/.test(l));

@@ -2469,6 +2469,81 @@ const CSS_PLANTILLAS_DISENO = {
 .pz-actividad.a4 .text{left:calc(88 * var(--u));right:calc(88 * var(--u));top:calc(1135 * var(--u));bottom:calc(88 * var(--u))}
 .pz-actividad.a4 .headline{font-size:calc(calc(136 * var(--u)) * var(--fit,1))}
 .pz-actividad.a4 .deck{margin-top:calc(calc(32 * var(--u)) * var(--fit,1));max-width:calc(1020 * var(--u));font-size:calc(calc(46 * var(--u)) * var(--fit,1))}
+`,
+  invitaciones: `
+.pz-invitaciones.feed,.pz-invitaciones.stories{--u:calc(100cqw / 1080)}
+.pz-invitaciones.a4{--u:calc(100cqw / 1240)}
+.pz-invitaciones figure{margin:calc(16 * var(--u)) calc(40 * var(--u))}
+.pz-invitaciones{--blue-primary: #003890;--blue-deep: #002878;--blue-darkest: #001a54;--yellow-accent: #ffd100;--yellow-deep: #f5b800;--white: #ffffff;--text-dim: #dbe6fb;--font-body: "Source Sans 3", Arial, sans-serif;--font-display: "Poppins", Arial, sans-serif}
+.pz-invitaciones,.pz-invitaciones *{box-sizing: border-box}
+.pz-invitaciones.board{position:absolute;inset:0;overflow: hidden;isolation: isolate;background-color: var(--blue-darkest);background-image: radial-gradient(circle at 50% 15%, #003487 0%, #001f5c 55%, var(--blue-darkest) 100%);background-size: 100% 100%;color: var(--white);box-shadow: 0 calc(30 * var(--u)) calc(80 * var(--u)) rgba(0, 0, 0, 0.6);transition: background 0.25s ease}
+.pz-invitaciones.board.con-cuadricula{background-image:
+    linear-gradient(rgba(192, 208, 240, 0.14) calc(1 * var(--u)), transparent calc(1 * var(--u))),
+    linear-gradient(90deg, rgba(192, 208, 240, 0.14) calc(1 * var(--u)), transparent calc(1 * var(--u))),
+    radial-gradient(circle at 50% 15%, #003487 0%, #001f5c 55%, var(--blue-darkest) 100%);background-size: calc(48 * var(--u)) calc(48 * var(--u)), calc(48 * var(--u)) calc(48 * var(--u)), 100% 100%;background-repeat: repeat, repeat, no-repeat}
+.pz-invitaciones .top-accent,.pz-invitaciones .bottom-accent{position: absolute;z-index: 20;left: 0;width: 100%;height: calc(12 * var(--u));background: var(--yellow-accent)}
+.pz-invitaciones .top-accent{top: 0}
+.pz-invitaciones .bottom-accent{bottom: 0}
+.pz-invitaciones .watermark{position: absolute;z-index: 1;display: block;opacity: .06;pointer-events: none}
+.pz-invitaciones.board.sin-arco .watermark{display: none}
+.pz-invitaciones .logo{position: absolute;z-index: 10;display: block;height: auto;object-fit: contain}
+.pz-invitaciones .eyebrow{position: absolute;z-index: 10;color: var(--yellow-accent);font: 700 calc(24 * var(--u))/1.2 var(--font-display);letter-spacing: .14em;text-transform: uppercase;display: flex;align-items: center;gap: calc(14 * var(--u))}
+.pz-invitaciones .eyebrow::before{content: "";display: inline-block;width: calc(48 * var(--u));height: calc(5 * var(--u));border-radius: calc(3 * var(--u));background: var(--yellow-accent)}
+.pz-invitaciones .title-zone{position: absolute;z-index: 10}
+.pz-invitaciones .headline{margin: 0;color: #fff;font: 900 calc(var(--headline-size) * var(--fit, 1)) / 1.04 var(--font-display);letter-spacing: -.03em;text-transform: uppercase;text-wrap: balance;overflow-wrap: anywhere;text-shadow: 0 calc(4 * var(--u)) calc(18 * var(--u)) rgba(0, 20, 60, 0.5)}
+.pz-invitaciones .subhead-pill{display: inline-block;margin-top: calc(10 * var(--u));padding: calc(6 * var(--u)) calc(18 * var(--u));border-radius: calc(999 * var(--u));background: rgba(255, 255, 255, 0.12);border: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.25);backdrop-filter: blur(calc(8 * var(--u)));color: var(--text-dim);font: 700 calc(var(--subhead-size, calc(20 * var(--u))) * var(--fit, 1)) / 1.2 var(--font-body);letter-spacing: .08em;text-transform: uppercase}
+.pz-invitaciones .photo-frame{position: absolute;z-index: 10;border-radius: calc(26 * var(--u));overflow: hidden;box-shadow: 0 calc(24 * var(--u)) calc(50 * var(--u)) rgba(0, 10, 30, 0.65), 0 0 0 calc(3 * var(--u)) rgba(255, 209, 0, 0.75);background: #001230}
+.pz-invitaciones .photo-img{width: 100%;height: 100%;object-fit: cover;object-position: center 30%;display: block;filter: contrast(1.06) saturate(0.97) brightness(0.98);transition: opacity 0.3s ease}
+.pz-invitaciones .photo-grading-overlay{position: absolute;inset: 0;pointer-events: none;background:
+    radial-gradient(ellipse at 50% 45%, transparent 40%, rgba(0, 26, 84, 0.42) 100%),
+    linear-gradient(180deg, rgba(0, 40, 120, 0.22) 0%, transparent 45%, rgba(0, 15, 45, 0.55) 100%);mix-blend-mode: multiply}
+.pz-invitaciones .photo-depth-overlay{position: absolute;inset: 0;pointer-events: none;box-shadow: inset 0 0 calc(60 * var(--u)) rgba(0, 15, 50, 0.45)}
+.pz-invitaciones .photo-badge{position: absolute;z-index: 12;top: calc(20 * var(--u));right: calc(22 * var(--u));padding: calc(9 * var(--u)) calc(20 * var(--u));border-radius: calc(999 * var(--u));background: var(--yellow-accent);color: var(--blue-deep);font: 800 calc(18 * var(--u)) / 1 var(--font-display);letter-spacing: .04em;text-transform: uppercase;box-shadow: calc(5 * var(--u)) calc(5 * var(--u)) 0 var(--blue-deep)}
+.pz-invitaciones .photo-caption{position: absolute;z-index: 12;bottom: calc(14 * var(--u));left: calc(20 * var(--u));right: calc(20 * var(--u));color: rgba(255, 255, 255, 0.92);font: 600 calc(19 * var(--u)) / 1.2 var(--font-body);font-style: italic;text-shadow: 0 calc(2 * var(--u)) calc(8 * var(--u)) rgba(0, 0, 0, 0.85);pointer-events: none}
+.pz-invitaciones .event-card{position: absolute;z-index: 10;display: flex;flex-direction: column;align-items: center;justify-content: center;border-radius: calc(24 * var(--u));background: var(--yellow-accent);color: var(--blue-deep);text-align: center;box-shadow: calc(10 * var(--u)) calc(10 * var(--u)) 0 var(--blue-darkest)}
+.pz-invitaciones .event-date,.pz-invitaciones .event-time{font-family: var(--font-display);font-weight: 900;line-height: 1.05;letter-spacing: -.02em;text-wrap: balance}
+.pz-invitaciones .event-date{font-size: calc(var(--date-size) * var(--fit, 1));text-transform: uppercase}
+.pz-invitaciones .event-time{margin-top: calc(8 * var(--u));font-size: calc(var(--time-size) * var(--fit, 1))}
+.pz-invitaciones .location{position: absolute;z-index: 10;display: flex;align-items: center;gap: calc(18 * var(--u))}
+.pz-invitaciones .pin{position: relative;flex: 0 0 calc(34 * var(--u));width: calc(34 * var(--u));height: calc(34 * var(--u));border: calc(5 * var(--u)) solid var(--yellow-accent);border-radius: 50% 50% 50% 0;transform: rotate(-45deg);margin-bottom: calc(6 * var(--u))}
+.pz-invitaciones .pin::after{content: "";position: absolute;left: calc(6 * var(--u));top: calc(6 * var(--u));width: calc(12 * var(--u));height: calc(12 * var(--u));border-radius: 50%;background: var(--yellow-accent)}
+.pz-invitaciones .address{font: 700 calc(var(--address-size) * var(--fit, 1)) / 1.15 var(--font-body);color: #fff}
+.pz-invitaciones .district{margin-top: calc(3 * var(--u));color: var(--text-dim);font: 600 calc(var(--district-size) * var(--fit, 1)) / 1.2 var(--font-body)}
+.pz-invitaciones .quote-card{position: absolute;z-index: 10;display: flex;align-items: center;gap: calc(18 * var(--u));border-radius: calc(20 * var(--u));background: rgba(255, 255, 255, 0.96);color: var(--blue-deep);box-shadow: 0 calc(10 * var(--u)) calc(30 * var(--u)) rgba(0, 10, 30, 0.35);border-left: calc(8 * var(--u)) solid var(--yellow-accent)}
+.pz-invitaciones .quote-mark{flex: 0 0 auto;color: var(--yellow-accent);font-family: Georgia, serif;font-weight: 900;font-size: calc(78 * var(--u));line-height: 0.75;user-select: none}
+.pz-invitaciones .quote-mark.open{align-self: flex-start;margin-top: calc(-10 * var(--u))}
+.pz-invitaciones .quote-mark.close{align-self: flex-end;margin-bottom: calc(-24 * var(--u))}
+.pz-invitaciones .quote{margin: 0;font: 600 calc(var(--quote-size) * var(--fit, 1)) / 1.3 var(--font-body);font-style: italic;text-wrap: pretty}
+.pz-invitaciones .closing{position: absolute;z-index: 10;left: calc(80 * var(--u));right: calc(80 * var(--u));color: var(--yellow-accent);font: 800 calc(var(--closing-size) * var(--fit, 1)) / 1.1 var(--font-display);letter-spacing: .06em;text-align: center;text-transform: uppercase;text-shadow: 0 calc(3 * var(--u)) calc(12 * var(--u)) rgba(0, 20, 60, 0.6)}
+.pz-invitaciones .fit-zone{overflow: hidden}
+.pz-invitaciones .fit-inner{width: 100%}
+.pz-invitaciones .fit-width{overflow-wrap: anywhere}
+.pz-invitaciones.stories .watermark{left: calc(490 * var(--u));top: calc(1100 * var(--u));width: calc(780 * var(--u))}
+.pz-invitaciones.stories .logo{left: calc(74 * var(--u));top: calc(168 * var(--u));width: calc(620 * var(--u))}
+.pz-invitaciones.stories .eyebrow{left: calc(74 * var(--u));right: calc(74 * var(--u));top: calc(278 * var(--u));font-size: calc(25 * var(--u))}
+.pz-invitaciones.stories .title-zone{left: calc(74 * var(--u));right: calc(74 * var(--u));top: calc(326 * var(--u));height: calc(180 * var(--u));--headline-size: calc(82 * var(--u));--subhead-size: calc(22 * var(--u))}
+.pz-invitaciones.stories .photo-frame{left: calc(70 * var(--u));right: calc(70 * var(--u));top: calc(526 * var(--u));height: calc(690 * var(--u))}
+.pz-invitaciones.stories .event-card{left: calc(70 * var(--u));right: calc(70 * var(--u));top: calc(1242 * var(--u));height: calc(184 * var(--u));padding: calc(20 * var(--u)) calc(40 * var(--u));--date-size: calc(62 * var(--u));--time-size: calc(48 * var(--u))}
+.pz-invitaciones.stories .location{left: calc(88 * var(--u));right: calc(88 * var(--u));top: calc(1450 * var(--u));height: calc(75 * var(--u));--address-size: calc(38 * var(--u));--district-size: calc(30 * var(--u))}
+.pz-invitaciones.stories .quote-card{left: calc(70 * var(--u));right: calc(70 * var(--u));top: calc(1546 * var(--u));height: calc(172 * var(--u));padding: calc(26 * var(--u)) calc(36 * var(--u));--quote-size: calc(30 * var(--u))}
+.pz-invitaciones.stories .closing{top: calc(1738 * var(--u));--closing-size: calc(36 * var(--u))}
+.pz-invitaciones.feed .watermark{left: calc(560 * var(--u));top: calc(700 * var(--u));width: calc(640 * var(--u))}
+.pz-invitaciones.feed .logo{left: calc(60 * var(--u));top: calc(48 * var(--u));width: calc(440 * var(--u))}
+.pz-invitaciones.feed .eyebrow{left: calc(60 * var(--u));right: calc(60 * var(--u));top: calc(128 * var(--u));font-size: calc(21 * var(--u))}
+.pz-invitaciones.feed .eyebrow::before{width: calc(36 * var(--u));height: calc(4 * var(--u))}
+.pz-invitaciones.feed .title-zone{left: calc(60 * var(--u));right: calc(60 * var(--u));top: calc(170 * var(--u));height: calc(140 * var(--u));--headline-size: calc(64 * var(--u));--subhead-size: calc(18 * var(--u))}
+.pz-invitaciones.feed .photo-frame{left: calc(60 * var(--u));right: calc(60 * var(--u));top: calc(324 * var(--u));height: calc(460 * var(--u));border-radius: calc(20 * var(--u))}
+.pz-invitaciones.feed .photo-badge{top: calc(14 * var(--u));right: calc(16 * var(--u));font-size: calc(15 * var(--u));padding: calc(7 * var(--u)) calc(16 * var(--u));box-shadow: calc(4 * var(--u)) calc(4 * var(--u)) 0 var(--blue-deep)}
+.pz-invitaciones.feed .photo-caption{font-size: calc(16 * var(--u));bottom: calc(12 * var(--u))}
+.pz-invitaciones.feed .event-card{left: calc(60 * var(--u));right: calc(60 * var(--u));top: calc(806 * var(--u));height: calc(146 * var(--u));padding: calc(16 * var(--u)) calc(30 * var(--u));border-radius: calc(18 * var(--u));--date-size: calc(48 * var(--u));--time-size: calc(38 * var(--u));box-shadow: calc(7 * var(--u)) calc(7 * var(--u)) 0 var(--blue-darkest)}
+.pz-invitaciones.feed .location{left: calc(74 * var(--u));right: calc(60 * var(--u));top: calc(970 * var(--u));height: calc(60 * var(--u));gap: calc(14 * var(--u));--address-size: calc(30 * var(--u));--district-size: calc(24 * var(--u))}
+.pz-invitaciones.feed .pin{flex-basis: calc(26 * var(--u));width: calc(26 * var(--u));height: calc(26 * var(--u));border-width: calc(4 * var(--u))}
+.pz-invitaciones.feed .pin::after{left: calc(4 * var(--u));top: calc(4 * var(--u));width: calc(8 * var(--u));height: calc(8 * var(--u))}
+.pz-invitaciones.feed .quote-card{left: calc(60 * var(--u));right: calc(60 * var(--u));top: calc(1046 * var(--u));height: calc(144 * var(--u));padding: calc(18 * var(--u)) calc(24 * var(--u));border-radius: calc(16 * var(--u));--quote-size: calc(23 * var(--u));gap: calc(14 * var(--u));border-left-width: calc(6 * var(--u))}
+.pz-invitaciones.feed .quote-mark{font-size: calc(58 * var(--u))}
+.pz-invitaciones.feed .quote-mark.open{margin-top: calc(-8 * var(--u))}
+.pz-invitaciones.feed .quote-mark.close{margin-bottom: calc(-18 * var(--u))}
+.pz-invitaciones.feed .closing{left: calc(60 * var(--u));right: calc(60 * var(--u));top: calc(1218 * var(--u));--closing-size: calc(30 * var(--u))}
 `
 };
 /* ESTILOS-DISENO:FIN */
@@ -3190,6 +3265,168 @@ function ActividadInstitucionalV1({
   }, conSaltos(T.titulo)), /*#__PURE__*/React.createElement("p", {
     className: "deck"
   }, conSaltos(T.bajada)))));
+}
+
+/* ---------- Invitaciones institucionales (muestra de talleres, jornadas, convocatorias) ---------- */
+const FOTOS_INVITACIONES = [{
+  id: 'invitacion-domotica',
+  familia: 'Eventos',
+  archivo: 'assets/promociones/tematicas/invitaciones/taller-domotica-integral.jpg',
+  nombre: 'Taller Domótica y Energías',
+  encuadre: 'center 30%',
+  leyenda: 'Taller de Domótica y Energías Renovables · Estudiantes en práctica'
+}, {
+  id: 'invitacion-soldadura',
+  familia: 'Eventos',
+  archivo: 'assets/promociones/tematicas/invitaciones/taller-soldadura-chispas.jpg',
+  nombre: 'Taller Soldadura (chispas)',
+  encuadre: 'center 35%',
+  leyenda: 'Taller de Soldadura y Metalmecánica · Práctica en banco'
+}, {
+  id: 'invitacion-muestra',
+  familia: 'Eventos',
+  archivo: 'assets/promociones/tematicas/invitaciones/muestra-proyectos-diseno.jpg',
+  nombre: 'Muestra de Proyectos y Diseño',
+  encuadre: 'center 35%',
+  leyenda: 'Muestra de Diseño Gráfico y Proyectos · Alumnos'
+}, {
+  id: 'invitacion-comunidad',
+  familia: 'Eventos',
+  archivo: 'assets/promociones/tematicas/invitaciones/comunidad-egresados.jpg',
+  nombre: 'Comunidad y Egresados',
+  encuadre: 'center 30%',
+  leyenda: 'Comunidad Educativa CFP 401 · Egresados'
+}, {
+  id: 'invitacion-capacitacion',
+  familia: 'Eventos',
+  archivo: 'assets/promociones/tematicas/invitaciones/capacitacion-alumnos.jpg',
+  nombre: 'Capacitación Alumnos',
+  encuadre: 'center 30%',
+  leyenda: 'Capacitación Técnica y Nuevas Tecnologías'
+}, {
+  id: 'invitacion-fachada',
+  familia: 'Eventos',
+  archivo: 'assets/promociones/tematicas/invitaciones/fachada-sede-docksud.jpg',
+  nombre: 'Fachada Sede Central Dock Sud',
+  encuadre: 'center 40%',
+  leyenda: 'Sede Central Juan Pablo Angulo 1272 · Dock Sud'
+}];
+function InvitacionInstitucionalV1({
+  promo,
+  formato = 'historia',
+  customRef
+}) {
+  const T = promo ? textosPromo(promo) : {};
+  const refTitulo = React.useRef(null);
+  const refCita = React.useRef(null);
+  const refEvento = React.useRef(null);
+  const refUbicacion = React.useRef(null);
+  useAjusteDiseno(() => {
+    const tit = refTitulo.current;
+    if (tit) ajustarZona(tit, tit.firstElementChild, 0.65, '.headline');
+    const cita = refCita.current;
+    if (cita) ajustarZona(cita, cita.firstElementChild, 0.65, '.quote');
+    const ev = refEvento.current;
+    if (ev) ajustarZona(ev, ev.firstElementChild, 0.7, '.event-date');
+    const ub = refUbicacion.current;
+    if (ub) ajustarZona(ub, ub.firstElementChild, 0.7, '.address');
+  }, [T.titulo, T.subtitulo, T.cita, T.fecha, T.horario, T.direccion, T.distrito, formato]);
+  if (!promo) return null;
+  const fotoActual = FOTOS_INVITACIONES.find(f => f.archivo === promo.imagen) || FOTOS_INVITACIONES[0];
+  const srcFoto = fotoDePromo(promo, fotoActual.archivo);
+  const caption = T.leyendaFoto || (fotoActual ? fotoActual.leyenda : 'Taller del CFP 401');
+  const conCuadricula = promo.conCuadricula === true || promo.mostrarCuadricula === true;
+  const clasesBoard = [conCuadricula ? 'con-cuadricula' : '', promo.mostrarArco === false ? 'sin-arco' : ''].filter(Boolean).join(' ');
+  return /*#__PURE__*/React.createElement(LienzoDiseno, {
+    plantilla: "invitaciones",
+    formato: formato,
+    customRef: customRef,
+    clases: clasesBoard,
+    etiqueta: "Invitación Institucional"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "top-accent"
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "watermark",
+    src: "assets/isotipo-arco-blanco.png",
+    alt: "",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "logo",
+    src: "assets/logo-cfp401-horizontal-blanco.png",
+    alt: "Centro de Formación Profesional N° 401 Avellaneda"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "eyebrow"
+  }, T.eyebrow), /*#__PURE__*/React.createElement("section", {
+    className: "title-zone fit-zone",
+    ref: refTitulo
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fit-inner"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "headline"
+  }, conSaltos(T.titulo)), T.subtitulo ? /*#__PURE__*/React.createElement("div", {
+    className: "subhead-pill"
+  }, T.subtitulo) : null)), /*#__PURE__*/React.createElement("section", {
+    className: "photo-frame",
+    "aria-label": "Fotografía del taller institucional"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "photo-img",
+    src: srcFoto,
+    alt: "Estudiantes en el taller del CFP 401",
+    style: promo.encuadre ? {
+      objectPosition: promo.encuadre
+    } : undefined
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "photo-grading-overlay",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "photo-depth-overlay",
+    "aria-hidden": "true"
+  }), T.insignia ? /*#__PURE__*/React.createElement("div", {
+    className: "photo-badge"
+  }, T.insignia) : null, caption ? /*#__PURE__*/React.createElement("div", {
+    className: "photo-caption"
+  }, caption) : null), /*#__PURE__*/React.createElement("section", {
+    className: "event-card fit-zone",
+    ref: refEvento,
+    "aria-label": "Fecha y horario del evento"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fit-inner"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "event-date fit-width"
+  }, T.fecha), /*#__PURE__*/React.createElement("div", {
+    className: "event-time fit-width"
+  }, T.horario))), /*#__PURE__*/React.createElement("section", {
+    className: "location fit-zone",
+    ref: refUbicacion,
+    "aria-label": "Sede del evento"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "pin",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "fit-inner"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "address fit-width"
+  }, T.direccion), /*#__PURE__*/React.createElement("div", {
+    className: "district fit-width"
+  }, T.distrito))), /*#__PURE__*/React.createElement("section", {
+    className: "quote-card fit-zone",
+    ref: refCita,
+    "aria-label": "Cita inspiradora"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "quote-mark open",
+    "aria-hidden": "true"
+  }, "“"), /*#__PURE__*/React.createElement("div", {
+    className: "fit-inner"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "quote"
+  }, conSaltos(T.cita))), /*#__PURE__*/React.createElement("div", {
+    className: "quote-mark close",
+    "aria-hidden": "true"
+  }, "”")), /*#__PURE__*/React.createElement("div", {
+    className: "closing"
+  }, T.cierre), /*#__PURE__*/React.createElement("div", {
+    className: "bottom-accent"
+  }));
 }
 
 /* ---------- Grilla de cursos (listado por período, sin textos editables) ---------- */
@@ -4075,6 +4312,78 @@ const CATALOGO_PLANTILLAS = {
       grupo: 'Titular',
       multilinea: true,
       defecto: '[EMPRESA O INSTITUCIÓN] brindó una capacitación a nuestros estudiantes.'
+    }]
+  },
+  'invitacion-institucional-v1': {
+    id: 'invitacion-institucional-v1',
+    nombre: 'Invitación Institucional (Muestra / Convocatoria)',
+    tipo: 'evento',
+    pasoCurso: null,
+    usaFoto: true,
+    badge: 'Nuevo',
+    disponible: true,
+    descripcion: 'Muestras de talleres, jornadas y convocatorias: fotografía documental auténtica de talleres con grading profesional, tarjeta de fecha y hora, ubicación de la sede, cita institucional y fondo alternable (degradé o trama cuadriculada).',
+    formatos: [FORMATOS_PROMO.historia, FORMATOS_PROMO.feed],
+    componente: InvitacionInstitucionalV1,
+    fotos: FOTOS_INVITACIONES,
+    familiaFotos: 'Eventos',
+    campos: [{
+      clave: 'eyebrow',
+      etiqueta: 'Antetítulo / Invitación',
+      grupo: 'Titular',
+      defecto: 'LOS INVITA A LA'
+    }, {
+      clave: 'titulo',
+      etiqueta: 'Titular (evento)',
+      grupo: 'Titular',
+      multilinea: true,
+      defecto: 'MUESTRA DE\nTALLERES ABIERTOS'
+    }, {
+      clave: 'subtitulo',
+      etiqueta: 'Subtítulo / Bajada',
+      grupo: 'Titular',
+      defecto: 'JORNADA INSTITUCIONAL · ENTRADA LIBRE Y GRATUITA'
+    }, {
+      clave: 'insignia',
+      etiqueta: 'Sello sobre la foto',
+      grupo: 'Foto',
+      defecto: '100% GRATUITO'
+    }, {
+      clave: 'leyendaFoto',
+      etiqueta: 'Pie de foto',
+      grupo: 'Foto',
+      defecto: ''
+    }, {
+      clave: 'fecha',
+      etiqueta: 'Fecha destacada',
+      grupo: 'Día y Horario',
+      defecto: '5 DE NOVIEMBRE'
+    }, {
+      clave: 'horario',
+      etiqueta: 'Horario',
+      grupo: 'Día y Horario',
+      defecto: '10:00 a 20:00 hs'
+    }, {
+      clave: 'direccion',
+      etiqueta: 'Dirección de la sede',
+      grupo: 'Ubicación',
+      defecto: 'Juan Pablo Angulo 1272'
+    }, {
+      clave: 'distrito',
+      etiqueta: 'Localidad / Sede',
+      grupo: 'Ubicación',
+      defecto: 'Dock Sud · Avellaneda'
+    }, {
+      clave: 'cita',
+      etiqueta: 'Frase o cita institucional',
+      grupo: 'Cita',
+      multilinea: true,
+      defecto: 'Cada puerta que se abre en la formación profesional es una oportunidad para incluir, transformar y construir un futuro.'
+    }, {
+      clave: 'cierre',
+      etiqueta: 'Cierre',
+      grupo: 'Pie',
+      defecto: '¡LOS ESPERAMOS!'
     }]
   },
   'grilla-cursos-v1': {

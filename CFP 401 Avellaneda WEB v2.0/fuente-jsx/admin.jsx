@@ -386,7 +386,11 @@ const { useState, useEffect, useRef } = React;
         'conmemoraciones-patrias-v1': [['mostrarCuadricula', 'Cuadrícula sobre la foto']],
         'grilla-cursos-v1': [['mostrarCuadricula', 'Cuadrícula de fondo']],
         'aviso-primaria-v1': [['mostrarSello', 'Sello de fecha límite'], ['mostrarExtranjero', 'Recuadro para extranjeros']],
-        'actividad-institucional-v1': [['mostrarArco', 'Arco de fondo (marca de agua)']]
+        'actividad-institucional-v1': [['mostrarArco', 'Arco de fondo (marca de agua)']],
+        'invitacion-institucional-v1': [
+          ['mostrarCuadricula', 'Trama cuadriculada (desmarcar para degradé liso)'],
+          ['mostrarArco', 'Arco de fondo (marca de agua)']
+        ]
       }[promo.modelo] || [['mostrarSello', 'Círculo (Oficial y gratuito)']];
       return (
         <div>
@@ -647,6 +651,26 @@ const { useState, useEffect, useRef } = React;
           bajada: 'SIMMA Grupo Empresas brindó una capacitación a nuestros estudiantes.'
         }
       },
+      'invitacion-institucional-v1': {
+        id: 'muestra-invitacion',
+        modelo: 'invitacion-institucional-v1',
+        tipo: 'evento',
+        imagen: 'assets/promociones/tematicas/invitaciones/taller-domotica-integral.jpg',
+        encuadre: 'center 30%',
+        mostrarCuadricula: false,
+        textos: {
+          eyebrow: 'LOS INVITA A LA',
+          titulo: 'MUESTRA DE\nTALLERES ABIERTOS',
+          subtitulo: 'JORNADA INSTITUCIONAL · ENTRADA LIBRE Y GRATUITA',
+          insignia: '100% GRATUITO',
+          fecha: '5 DE NOVIEMBRE',
+          horario: '10:00 a 20:00 hs',
+          direccion: 'Juan Pablo Angulo 1272',
+          distrito: 'Dock Sud · Avellaneda',
+          cita: 'Cada puerta que se abre en la formación profesional es una oportunidad para incluir, transformar y construir un futuro.',
+          cierre: '¡LOS ESPERAMOS!'
+        }
+      },
       'grilla-cursos-v1': {
         id: 'muestra-grilla',
         modelo: 'grilla-cursos-v1',
@@ -666,7 +690,9 @@ const { useState, useEffect, useRef } = React;
       IM: 'Informática', CS: 'Informática', IC: 'Informática', MT: 'Metalmecánica', EM: 'Climatización'
     };
     const normalizarNombre = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-      .replace(/\(.*?\)/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+      .replace(/\(.*?\)/g, ' ')
+      .replace(/ora\/or\b/g, 'or').replace(/a\/or\b/g, 'or').replace(/a\/o\b/g, 'o').replace(/o\/a\b/g, 'o')
+      .replace(/[^a-z0-9]+/g, ' ').trim();
     const nombreCertificado = t => (t.certificacion || '').split(/\s+seg[uú]n\s+/i)[0];
 
     function familiaSugerida(t, familiasSitio) {

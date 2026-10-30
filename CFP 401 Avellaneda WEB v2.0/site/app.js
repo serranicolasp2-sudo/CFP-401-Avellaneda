@@ -1451,7 +1451,8 @@ function HomeScreen({
 /* ===========================================================================
    PANTALLA DE DETALLE INDIVIDUAL DE CURSO (PÁGINA PROPIA DE CADA CURSO)
    =========================================================================== */
-/* Párrafos separados por una línea en blanco; los renglones que empiezan con "•" se muestran como lista */
+/* Párrafos separados por una línea en blanco; los renglones que empiezan con "•" se muestran como lista y un
+   párrafo "=== Título ===" es un subtítulo (en los cursos combinados, una sección por certificación) */
 function TextoConListas({
   texto
 }) {
@@ -1462,6 +1463,38 @@ function TextoConListas({
     color: 'var(--neutral-700)'
   };
   return /*#__PURE__*/React.createElement("div", null, String(texto).split(/\n\s*\n/).map((bloque, i) => {
+    const subtitulo = bloque.trim().match(/^===\s*(.+?)\s*===$/);
+    if (subtitulo) {
+      return /*#__PURE__*/React.createElement("div", {
+        key: i,
+        style: {
+          marginTop: i ? 26 : 4,
+          marginBottom: 12
+        }
+      }, /*#__PURE__*/React.createElement("h3", {
+        style: {
+          fontFamily: 'var(--font-display)',
+          fontSize: 17,
+          fontWeight: 800,
+          color: 'var(--blue-900)',
+          margin: '0 0 6px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }
+      }, /*#__PURE__*/React.createElement(Icon, {
+        name: "award",
+        size: 17,
+        color: "var(--brand-primary)"
+      }), subtitulo[1]), /*#__PURE__*/React.createElement("div", {
+        style: {
+          height: 2,
+          background: 'var(--brand-accent)',
+          width: 44,
+          borderRadius: 2
+        }
+      }));
+    }
     const lineas = bloque.split('\n').map(l => l.trim()).filter(Boolean);
     const items = lineas.filter(l => /^[•\-]\s*/.test(l));
     const textoLibre = lineas.filter(l => !/^[•\-]\s*/.test(l));

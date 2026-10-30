@@ -10,12 +10,13 @@
 
 Para ver y probar todas las piezas en vivo con un solo clic:
 * Abrir el archivo **[`index.html`](index.html)** con cualquier navegador (Chrome, Edge, Firefox).
-* Permite alternar entre los **3 formatos** y los **3 modelos de diseño**, además de visualizar la **zona segura de Instagram Stories (150 px)**.
+* Permite visualizar los modelos integrados al visor y la **zona segura de Instagram Stories (150 px)**. Las plantillas editoriales con vista propia se abren desde los archivos de cada carpeta.
 * El nuevo template de captación general se encuentra en `templates/captacion-oficios/` y se abre desde sus archivos `feed.html`, `stories.html` y `a4.html`.
 * El template de conmemoraciones patrias está en `templates/conmemoraciones-patrias/`, con un archivo por formato y Día de la Bandera como ejemplo editable.
 * El template de últimos cupos está en `templates/ultimos-cupos/`, con CTA a WhatsApp, foto reemplazable y campos editables por curso.
 * La grilla de cursos por inicio está en `templates/grilla-cursos-inicio/`; permite filtrar marzo/agosto, elegir cursos desde `data.js` y alternar entre tarjetas y fichas por fila con días/horarios y requisitos.
 * El template de actividades institucionales (capacitaciones, visitas, charlas, jornadas) está en `templates/actividades-institucionales/`, con foto reemplazable, placa, tema y bajada editables y el arco de fondo opcional.
+* La plantilla de invitaciones para muestras, jornadas abiertas y encuentros con fecha/hora/sede está en `templates/invitaciones-institucionales/`; tiene una versión gráfica y otra fotográfica (foto del taller del CFP con corrección fría/neutra y foco selectivo), cada una con composiciones propias para Stories y Feed.
 
 ---
 
@@ -122,7 +123,14 @@ Los modelos D, E, F, G y H son templates editoriales autónomos con previews sep
 * **Formatos y fondo:** Feed, Stories (fuera de los 192 px de arriba y de abajo) y A4 (márgenes de 88 px) compuestos por separado. Isotipo del arco al 7% como marca de agua, opcional.
 * **Editor:** textos editables al hacer clic, **Cambiar foto** y **Quitar arco**. La placa achica la letra si no entra en un renglón; titular y bajada se achican juntos si no entran en su zona. Está en el generador del panel como «Actividades Institucionales (Novedades)».
 
-### Cómo llegan estos diseños al generador del panel (modelos D a H)
+### Modelo I: Invitaciones institucionales (`templates/invitaciones-institucionales/`)
+* **Uso:** convocatorias con fecha, horario y sede confirmados: muestras de talleres, jornadas abiertas, ferias y encuentros. Para contar una visita o capacitación ya realizada, usar Modelo H.
+* **Composición:** fondo azul CFP, lockup institucional blanco, titular dominante, cápsula amarilla para fecha y horario, dirección en bloque independiente, cita opcional en tarjeta blanca y cierre directo. El arco es una marca de agua opcional.
+* **Formatos:** Stories 9:16 es el principal y Feed 4:5 tiene una composición propia. Ambos respetan las zonas seguras y se pueden abrir por separado.
+* **Editor adaptativo:** clic para editar título, fecha, hora, dirección, cita y cierre. Cada zona permite ajuste de tamaño y reflujo de línea. El ejemplo parte de la invitación a la Muestra de Talleres Abiertos; la cita aparece con comillas de apertura y cierre. No se precarga año ni información que no aparezca en la fuente.
+* **Integración:** Integrada al generador de promociones del sitio (modelo `invitacion-institucional-v1`) en `CFP 401 Avellaneda WEB v2.0/site/admin.html` con soporte de edición en vivo, previsualización en Stories y Feed, alternancia de fondo degradé/cuadriculado y exportación PNG en alta resolución.
+
+### Cómo llegan estos diseños al generador del panel (modelos D a I)
 El generador de promociones del sitio (`admin.html` → Promociones y Flyers) usa **estos mismos archivos**: el CSS de cada template se importa con `CFP 401 Avellaneda WEB v2.0/herramientas/importar-estilos-plantillas.js` y los componentes repiten el mismo HTML, así las piezas del panel salen iguales a las de esta carpeta (verificado por píxeles el 27/09). Si se cambia un diseño acá (medidas, colores, tipografía), hay que volver a correr ese script y compilar `plantillas-promo.jsx` (ver `skill/cfp401-estudio/references/web.md`, sección 7); si se cambia el HTML (se agregan o quitan elementos), también hay que actualizar el componente. En el panel, la grilla de cursos no tiene textos editables: solo se eligen los cursos, el período y la composición.
 
 ---

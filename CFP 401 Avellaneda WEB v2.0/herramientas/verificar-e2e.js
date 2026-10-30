@@ -302,8 +302,8 @@ async function main() {
       // Desde los cursos 2027, «Soldador Básico» ya viene vinculado: se desvincula y se vuelve a vincular por la sugerencia de nombre
       const desvincular = tarjetaMT30.getByRole('button', { name: 'Desvincular' });
       if (await desvincular.count()) await desvincular.first().click();
-      await tarjetaMT30.locator('span', { hasText: '«Soldador Básico»' }).getByRole('button', { name: 'Vincular', exact: true }).click();
-      ok(await page.locator('.admin-course-card', { hasText: 'MT30' }).first().getByText(/En el sitio: Soldador Básico/).count() === 1, 'Catálogo 2027: vincula MT30 al curso «Soldador Básico» del sitio');
+      await tarjetaMT30.locator('span', { hasText: /Soldador/ }).getByRole('button', { name: 'Vincular', exact: true }).click();
+      ok(await page.locator('.admin-course-card', { hasText: 'MT30' }).first().getByText(/En el sitio: Soldador/).count() === 1, 'Catálogo 2027: vincula MT30 al curso «Soldador Básico» del sitio');
       // Dar de alta un trayecto nuevo con los datos del catálogo
       await buscar.fill('AA01');
       const tarjetaAA01 = page.locator('.admin-course-card', { hasText: 'Operario Apícola' }).first();
@@ -318,7 +318,7 @@ async function main() {
       await page.locator('[data-accion="guardar-servidor"]').click(); // barra completa o pastilla discreta (Promociones)
       guardado = await espera;
       const nuevo = guardado.courses.find(c => c.curso === 'Operario Apícola');
-      const soldador = guardado.courses.find(c => c.curso === 'Soldador Básico');
+      const soldador = guardado.courses.find(c => c.slug === 'soldador-basico');
       ok(nuevo && (nuevo.trayectosCatalogo || []).includes('AA01') && /3096\/15/.test(nuevo.certificacion || '') && nuevo.horasTotales === '120 horas reloj', 'Catálogo 2027: el curso nuevo se guarda con código, certificación y horas del catálogo', nuevo && JSON.stringify({ t: nuevo.trayectosCatalogo, h: nuevo.horasTotales }));
       ok(soldador && (soldador.trayectosCatalogo || []).includes('MT30'), 'Catálogo 2027: el vínculo de «Soldador Básico» con MT30 queda guardado');
       const pubCurso = await browser.newPage();
@@ -335,17 +335,17 @@ async function main() {
       await tarjetaHerreria.locator('.btn-course-edit').click();
       const capacidades = await page.locator('.form-group:has(> label:text-is("Capacidades profesionales (Página Individual)")) textarea').inputValue();
       const turnosTildados = await page.locator('.modal-card label:has(input[type="checkbox"]:checked)').allInnerTexts();
-      ok(/Herrero está capacitado/.test(capacidades) && /diseño curricular oficial/.test(capacidades) && ['Tarde', 'Noche'].every(t => turnosTildados.map(x => x.trim()).includes(t)), 'Cursos 2027: el editor trae capacidades (dirección + diseño) y los turnos tildados', turnosTildados.join(','));
+      ok(/Herrero\(a\) es un profesional/.test(capacidades) && /Sus capacidades clave incluyen/.test(capacidades) && ['Tarde', 'Noche'].every(t => turnosTildados.map(x => x.trim()).includes(t)), 'Cursos 2027: el editor trae las capacidades y los turnos tildados', turnosTildados.join(','));
       await page.locator('.modal-card').getByRole('button', { name: 'Cancelar' }).click();
       const pubT = await browser.newPage();
       await pubT.goto(`${BASE}/index.html#/cursos`, { waitUntil: 'networkidle' });
       await pubT.locator('select').filter({ has: pubT.locator('option[value="Noche"]') }).selectOption('Mañana');
       const titulos = (await pubT.locator('h3').allInnerTexts()).map(t => t.trim());
-      ok(titulos.includes('Mantenimiento de Edificios') && !titulos.includes('Soldador Básico'), 'Cursos 2027: el filtro «Turno: Mañana» muestra los de mañana y oculta los de noche');
+      ok(titulos.includes('Mantenimiento de Edificios') && !titulos.some(t => t.includes('Soldador')), 'Cursos 2027: el filtro «Turno: Mañana» muestra los de mañana y oculta los de noche');
       await pubT.goto(`${BASE}/index.html#/curso/gasista-domiciliario-2-categoria-apto-matricula-incluye-diseno-proyectual-asistido-por-computadora-cad`, { waitUntil: 'networkidle' });
       await pubT.waitForFunction(() => location.hash === '#/curso/gasista-domiciliario', null, { timeout: 5000 }).catch(() => {});
       const textoGasista = await pubT.locator('body').innerText();
-      ok(await pubT.evaluate(() => location.hash) === '#/curso/gasista-domiciliario' && /Capacidades profesionales/.test(textoGasista) && /Según el diseño curricular oficial/.test(textoGasista), 'Cursos 2027: un enlace con el slug anterior abre la página nueva, con capacidades');
+      ok(await pubT.evaluate(() => location.hash) === '#/curso/gasista-domiciliario' && /Capacidades profesionales/.test(textoGasista) && /Gasista Domiciliario\(a\)/.test(textoGasista) && /Gasista de Unidades Unifuncionales/.test(textoGasista), 'Cursos 2027: un enlace con el slug anterior abre la página nueva, con capacidades');
       await pubT.close();
     }
     // Caso 7: pastilla de guardado en todo el panel, "Revertir" y registro de cambios en Sistema y Seguridad (20/10/2026)
