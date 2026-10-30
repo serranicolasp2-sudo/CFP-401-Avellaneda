@@ -9,6 +9,9 @@ node_modules/
 campus-semi/
 campus-semi-codex/
 
+# Material de video (1,9 GB): no se versiona
+Video Muestra/
+
 # Configuración de agentes
 .claude/
 .gemini/
